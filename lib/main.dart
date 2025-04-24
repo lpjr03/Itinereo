@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/welcome_screen.dart'; 
+import 'itinereo_manager.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,4 +17,5 @@ class MyApp extends StatelessWidget {
       home: const WelcomeScreen(),
     );
   }
+  runApp(const ItinereoManager());
 }
