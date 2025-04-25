@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/login_manager/welcome_screen.dart';
+import 'package:itinereo/google_services.dart';
+import 'package:itinereo/welcome_screen.dart';
 import 'validator.dart';
 import 'social_button_widget.dart';
 import 'button_widget.dart';
@@ -40,16 +41,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final UserCredential userCredential = await auth
           .createUserWithEmailAndPassword(email: email, password: password);
 
-      await db
-          .collection("Users")
-          .doc(userCredential.user!.uid)
-          .set({"Name": name, "Email": email});
+      await db.collection("Users").doc(userCredential.user!.uid).set({
+        "Name": name,
+        "Email": email,
+      });
 
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const WelcomeScreen(),//mettere HomePage()
+          builder: (context) => const WelcomeScreen(), //mettere HomePage()
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -57,34 +58,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
           emailController.text.isEmpty &&
           passwordController.text.isEmpty) {
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                title: const TextWidget(
-                  title: "Error",
-                  txtSize: 25.0,
-                  txtColor: Colors.white,
-                ),
-                content: const TextWidget(
-                  title: "Please fill the fields",
-                  txtSize: 20.0,
-                  txtColor: Colors.white,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const TextWidget(
-                      title: "Ok",
-                      txtSize: 18.0,
-                      txtColor: Colors.blue,
-                    ),
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              title: const TextWidget(
+                title: "Error",
+                txtSize: 25.0,
+                txtColor: Colors.white,
+              ),
+              content: const TextWidget(
+                title: "Please fill the fields",
+                txtSize: 20.0,
+                txtColor: Colors.white,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const TextWidget(
+                    title: "Ok",
+                    txtSize: 18.0,
+                    txtColor: Colors.blue,
                   ),
-                ],
-              );
-            });
+                ),
+              ],
+            );
+          },
+        );
       }
       if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -118,9 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Divider(
-              height: 50,
-            ),
+            const Divider(height: 50),
             Center(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height / 3.5,
@@ -179,10 +179,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(
                     height: 60,
                     width: MediaQuery.of(context).size.width,
-                    child: ButtonWidget(
-                      btnText: "Signup",
-                      onPress: register,
-                    ),
+                    child: ButtonWidget(btnText: "Signup", onPress: register),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -211,14 +208,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ],
                   ),
                   Center(
-                      child: SocialButtonWidget(
-                    bgColor: Colors.white,
-                    imagePath: 'assets/images/Gmail.png',
-                    onPress: () {},
-                  )),
+                    child: SocialButtonWidget(
+                      bgColor: Colors.white,
+                      imagePath: 'assets/images/Gmail.png',
+                      onPress: () {
+                        Services.googleSignIn(context);
+                      },
+                    ),
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
