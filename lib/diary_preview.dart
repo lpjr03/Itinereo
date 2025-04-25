@@ -10,7 +10,7 @@ class DiaryPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Journal"),),
+      appBar: AppBar(title: Text("Journal")),
       body: Column(
         children: [
           // Contenuto principale della schermata
@@ -19,8 +19,8 @@ class DiaryPreview extends StatelessWidget {
               child: Text('Contenuto', style: TextStyle(fontSize: 24)),
             ),
           ),
-            ],
-          ),
-      );
+        ],
+      ),
+    );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/welcome_screen.dart';
+import 'package:itinereo/login_manager/welcome_screen.dart';
 import 'forget_password_screen.dart';
 import 'signup_screen.dart';
 import 'validator.dart';

@@ -30,7 +30,7 @@ class _ItinereoState extends State<ItinereoManager> {
     Widget screenWidget = HomeScreen(switchToDiary);
     if (activeScreen == 'diary-screen') {
       screenWidget = DiaryScreen(switchToEntriesPreview);
-    }else if (activeScreen == 'preview-screen') {
+    } else if (activeScreen == 'preview-screen') {
       screenWidget = DiaryPreview();
     }
 

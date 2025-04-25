@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:itinereo/LoginManager/welcome_screen.dart';
+import 'package:itinereo/login_manager/welcome_screen.dart';
 
 class Services {
   static Future<void> googleSignIn(context) async {
