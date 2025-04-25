@@ -203,50 +203,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  // const SizedBox(height: 15),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  //       child: Container(
-                  //         height: 2.0,
-                  //         width: 90.0,
-                  //         color: const Color(0xff999a9e),
-                  //       ),
-                  //     ),
-                  //     TextWidget(
-                  //       title: "Or login with",
-                  //       txtSize: 18,
-                  //       txtColor: const Color(0xff999a9e),
-                  //     ),
-                  //     Padding(
-                  //       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  //       child: Container(
-                  //         height: 2.0,
-                  //         width: 90.0,
-                  //         color: const Color(0xff999a9e),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // // const SizedBox(height: 7.0),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     SocialButtonWidget(
-                  //       bgColor: Colors.white,
-                  //       imagePath: 'assets/Gmail.png',
-                  //       onPress: () {},
-                  //     ),
-                  //     const SizedBox(width: 25.0),
-                  //     SocialButtonWidget(
-                  //       bgColor: const Color(0xff1877f2),
-                  //       imagePath: 'assets/facebook.png',
-                  //       onPress: () {},
-                  //     ),
-                  //   ],
-                  // ),
                 ],
               ),
             ),
