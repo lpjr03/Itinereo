@@ -12,7 +12,12 @@
           "package_name": "com.example.itinereo"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "404701850417-k7ii7b2ctgkga7mams8mij4a0qe24u7s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD5HhqeYt8nu4ju-RafzS0FlfnRzWb-8RE"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "404701850417-k7ii7b2ctgkga7mams8mij4a0qe24u7s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "404701850417-16t62oftm65jbmq8saabpglu052lirnt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.itinereo"
+              }
+            }
+          ]
         }
       }
     }

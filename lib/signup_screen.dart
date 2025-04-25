@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:itinereo/google_services.dart';
 import 'package:itinereo/welcome_screen.dart';
 import 'validator.dart';
 import 'social_button_widget.dart';
@@ -214,7 +215,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       child: SocialButtonWidget(
                     bgColor: Colors.white,
                     imagePath: 'assets/images/Gmail.png',
-                    onPress: () {},
+                    onPress: () {
+                      Services.googleSignIn(context);
+                    },
                   )),
                 ],
               ),
