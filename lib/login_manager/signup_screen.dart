@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/google_services.dart';
-import 'package:itinereo/welcome_screen.dart';
+import 'package:itinereo/login_manager/google_services.dart';
+import 'package:itinereo/login_manager/welcome_screen.dart';
 import 'validator.dart';
 import 'social_button_widget.dart';
 import 'button_widget.dart';
