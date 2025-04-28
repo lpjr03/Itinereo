@@ -210,7 +210,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   Center(
                     child: SocialButtonWidget(
                       bgColor: Colors.white,
-                      imagePath: 'assets/images/Gmail.png',
+                      imagePath: 'assets/images/Google_G_logo.png',
                       onPress: () {
                         Services.googleSignIn(context);
                       },
