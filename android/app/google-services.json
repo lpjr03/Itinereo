@@ -14,6 +14,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "404701850417-a7pfumqqskkhr3jha5jrpgnt2vse961a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.itinereo",
+            "certificate_hash": "d5368dc438fbf457929fbf32393254d336a50e7e"
+          }
+        },
+        {
+          "client_id": "404701850417-pvt58jk15c2o9tkfmhsrnatj5s8dr70j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.itinereo",
+            "certificate_hash": "e4f6492959fbf06e89934da635493f2e00b79b67"
+          }
+        },
+        {
           "client_id": "404701850417-k7ii7b2ctgkga7mams8mij4a0qe24u7s.apps.googleusercontent.com",
           "client_type": 3
         }
