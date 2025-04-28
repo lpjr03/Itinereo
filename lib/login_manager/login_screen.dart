@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/login_manager/welcome_screen.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:itinereo/itinereo_manager.dart';
+import 'package:itinereo/login_manager/social_button_widget.dart';
 import 'forget_password_screen.dart';
 import 'signup_screen.dart';
 import 'validator.dart';
 import 'button_widget.dart';
-
 import 'text_field_widget.dart';
 import 'text_widget.dart';
 
@@ -20,6 +21,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(); // Inizializza GoogleSignIn
 
   @override
   void dispose() {
@@ -28,50 +32,20 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.dispose();
   }
 
+  // Funzione per il login tramite email e password
   void login() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
     FirebaseFirestore db = FirebaseFirestore.instance;
     final String email = emailController.text;
     final String password = passwordController.text;
     try {
-      final UserCredential userCredential = await auth
+      final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
       await db.collection("Users").doc(userCredential.user!.uid).get();
       Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: ((context) => const WelcomeScreen()),//mettere HomePage()
+        builder: ((context) => const ItinereoManager()),
       ));
     } on FirebaseAuthException catch (e) {
-      if (emailController.text.isEmpty && passwordController.text.isEmpty) {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                title: const TextWidget(
-                  title: "Error",
-                  txtSize: 25.0,
-                  txtColor: Colors.white,
-                ),
-                content: const TextWidget(
-                  title: "Please fill the fields",
-                  txtSize: 20.0,
-                  txtColor: Colors.white,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const TextWidget(
-                      title: "Ok",
-                      txtSize: 18.0,
-                      txtColor: Colors.blue,
-                    ),
-                  ),
-                ],
-              );
-            });
-      }
+      // Gestione degli errori
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -98,15 +72,31 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Funzione per il login con Google
+  Future<User?> loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      return userCredential.user;
+    } catch (e) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Divider(
-              height: 50,
-            ),
+            const Divider(height: 50),
             Center(
               child: Container(
                 height: MediaQuery.of(context).size.height / 3.5,
@@ -157,8 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: ((context) =>
-                                  const ForgetPasswordScreen()),
+                              builder: ((context) => const ForgetPasswordScreen()),
                             ),
                           );
                         },
@@ -176,6 +165,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: ButtonWidget(
                       btnText: "Login",
                       onPress: login,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    child: SocialButtonWidget(
+                      bgColor: Colors.white,
+                      imagePath: 'assets/images/Gmail.png',
+                      onPress: () async {
+                        User? user = await loginWithGoogle();
+                        if (user != null) {
+                          Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: ((context) => const ItinereoManager()),
+                          ));
+                        } else {
+                          // Gestisci il caso in cui il login con Google fallisce
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.redAccent,
+                              content: const TextWidget(
+                                title: "Google login failed",
+                                txtSize: 18.0,
+                                txtColor: Colors.white,
+                              ),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
                   Row(
