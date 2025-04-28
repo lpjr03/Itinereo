@@ -21,7 +21,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(); // Inizializza GoogleSignIn
 
@@ -41,9 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
       await db.collection("Users").doc(userCredential.user!.uid).get();
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-        builder: ((context) => const ItinereoManager()),
-      ));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: ((context) => const ItinereoManager())),
+      );
     } on FirebaseAuthException catch (e) {
       // Gestione degli errori
       if (e.code == 'user-not-found') {
@@ -76,14 +76,17 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<User?> loginWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
       return userCredential.user;
     } catch (e) {
       return null;
@@ -147,7 +150,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: ((context) => const ForgetPasswordScreen()),
+                              builder:
+                                  ((context) => const ForgetPasswordScreen()),
                             ),
                           );
                         },
@@ -156,31 +160,53 @@ class _LoginScreenState extends State<LoginScreen> {
                           txtSize: 18,
                           txtColor: Color(0xff999a9e),
                         ),
-                      )
+                      ),
                     ],
                   ),
                   SizedBox(
                     height: 60,
                     width: MediaQuery.of(context).size.width,
-                    child: ButtonWidget(
-                      btnText: "Login",
-                      onPress: login,
-                    ),
+                    child: ButtonWidget(btnText: "Login", onPress: login),
                   ),
-                  SizedBox(
-                    height: 60,
-                    width: MediaQuery.of(context).size.width,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Container(
+                          height: 2.0,
+                          width: 70.0,
+                          color: const Color(0xff999a9e),
+                        ),
+                      ),
+                      const TextWidget(
+                        title: "Or login with",
+                        txtSize: 18,
+                        txtColor: Color(0xff999a9e),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Container(
+                          height: 2.0,
+                          width: 70.0,
+                          color: const Color(0xff999a9e),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Center(
                     child: SocialButtonWidget(
                       bgColor: Colors.white,
-                      imagePath: 'assets/images/Gmail.png',
+                      imagePath: 'assets/images/Google_G_logo.png',
                       onPress: () async {
                         User? user = await loginWithGoogle();
                         if (user != null) {
-                          Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: ((context) => const ItinereoManager()),
-                          ));
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: ((context) => const ItinereoManager()),
+                            ),
+                          );
                         } else {
-                          // Gestisci il caso in cui il login con Google fallisce
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               backgroundColor: Colors.redAccent,
