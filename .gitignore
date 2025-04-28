@@ -46,7 +46,7 @@ app.*.map.json
 
 # Ignora piattaforme non Android
 ios/
-macos/
+macos/Flutter
 linux/
 windows/
 web/
