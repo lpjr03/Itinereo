@@ -1,61 +1,61 @@
-import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:itinereo/exceptions/location_exceptions.dart';
 
-class GeolocatorService extends StatefulWidget {
-  const GeolocatorService({super.key});
-
-  @override
-  State<GeolocatorService> createState() => _GeolocatorServiceState();
-}
-
-class _GeolocatorServiceState extends State<GeolocatorService> {
-  void getLocation() async {
+/// A service class that handles retrieving the user's current GPS location.
+///
+/// This service checks:
+/// - If the location services are enabled on the device.
+/// - If the app has the necessary permissions to access location data.
+///
+/// It also throws meaningful, custom exceptions when:
+/// - Location services are disabled.
+/// - Location permissions are denied.
+/// - Location permissions are permanently denied.
+///
+/// ```
+class GeolocatorService {
+  /// Retrieves the current GPS position of the device.
+  ///
+  /// This method:
+  /// - Verifies that location services are enabled.
+  /// - Checks if permissions are granted; if not, requests them.
+  /// - Returns the current position using the highest available accuracy.
+  ///
+  /// Throws:
+  /// - [LocationServicesDisabledException] if location services are turned off.
+  /// - [LocationPermissionDeniedException] if the user denies the permission request.
+  /// - [LocationPermissionPermanentlyDeniedException] if the user has permanently denied permissions.
+  ///
+  /// Returns:
+  /// - A [Position] object containing the latitude, longitude, and other details.
+  ///
+  /// Example:
+  /// ```dart
+  /// final position = await GeolocatorService().getCurrentLocation();
+  /// ```
+  Future<Position> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
 
-    // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
-      return Future.error('Location services are disabled.');
+      throw LocationServicesDisabledException();
     }
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
-        return Future.error('Location permissions are denied');
+        throw LocationPermissionDeniedException();
       }
     }
 
     if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.',
-      );
+      throw LocationPermissionPermanentlyDeniedException();
     }
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.best),
-    );
-    print(position);
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: getLocation,
-          child: const Text('Acquisisci Location GPS'),
-        ),
-      ),
+    return await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.best),
     );
   }
 }
