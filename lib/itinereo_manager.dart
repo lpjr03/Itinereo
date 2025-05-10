@@ -3,7 +3,23 @@ import 'package:itinereo/diary_preview.dart';
 import 'package:itinereo/diary_screen.dart';
 import 'package:itinereo/home_screen.dart';
 
+/// A widget that manages the navigation between different screens
+/// of the Itinereo application using state lifting.
+///
+/// This widget:
+/// - Starts with the [HomeScreen] by default.
+/// - Switches to [DiaryScreen] when `switchToDiary()` is called.
+/// - Switches to [DiaryPreview] when `switchToEntriesPreview()` is called.
+///
+/// The navigation state is lifted up to this parent widget,
+/// which controls which screen is currently shown.
+///
+/// Example usage:
+/// ```dart
+/// ItinereoManager()
+/// ```
 class ItinereoManager extends StatefulWidget {
+  /// Creates an [ItinereoManager] widget.
   const ItinereoManager({super.key});
 
   @override
@@ -11,14 +27,17 @@ class ItinereoManager extends StatefulWidget {
 }
 
 class _ItinereoState extends State<ItinereoManager> {
+  /// Stores the identifier of the currently active screen.
   var activeScreen = 'home-screen';
 
+  /// Switches the active screen to the diary screen.
   void switchToDiary() {
     setState(() {
       activeScreen = 'diary-screen';
     });
   }
 
+  /// Switches the active screen to the diary entries preview screen.
   void switchToEntriesPreview() {
     setState(() {
       activeScreen = 'preview-screen';
@@ -27,11 +46,12 @@ class _ItinereoState extends State<ItinereoManager> {
 
   @override
   Widget build(BuildContext context) {
+    // Selects the widget to display based on the active screen.
     Widget screenWidget = HomeScreen(switchToDiary);
     if (activeScreen == 'diary-screen') {
       screenWidget = DiaryScreen(switchToEntriesPreview);
     } else if (activeScreen == 'preview-screen') {
-      screenWidget = DiaryPreview();
+      screenWidget = const DiaryPreview();
     }
 
     return MaterialApp(
