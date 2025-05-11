@@ -29,13 +29,13 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
           Column(
             children: [
               Container(height: 55, color: topBarColor),
-              Container(height: 35, color: const Color(0xFFF6ECD4)),
+              Container(height: 35, color: const Color(0xFFF6E1C4)),
             ],
           ),
           Positioned(
             top: 35,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
               decoration: BoxDecoration(
                 color: pillColor,
                 borderRadius: BorderRadius.circular(5),
