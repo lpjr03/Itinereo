@@ -1,16 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:itinereo/alert_widget.dart';
+import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/itinereo_manager.dart';
+import 'package:itinereo/login_manager/google_service.dart';
 import 'package:itinereo/login_manager/social_button_widget.dart';
+import 'package:itinereo/snackbar.dart';
 import 'forget_password_screen.dart';
-import 'signup_screen.dart';
 import 'validator.dart';
 import 'button_widget.dart';
 import 'text_field_widget.dart';
 import 'text_widget.dart';
 
+/// A screen that allows users to log into the Itinereo app.
+///
+/// This screen provides login functionality using email and password,
+/// as well as Google Sign-In. It includes field validation, error handling,
+/// and navigation to password recovery or main app upon successful login.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -23,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(); // Inizializza GoogleSignIn
 
   @override
   void dispose() {
@@ -32,74 +38,62 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.dispose();
   }
 
-  // Funzione per il login tramite email e password
+/// Performs login using email and password.
+///
+/// Displays an [ErrorDialog] if fields are empty or if login fails
+/// with a Firebase-specific error. On success, navigates to [ItinereoManager].
   void login() async {
-    FirebaseFirestore db = FirebaseFirestore.instance;
     final String email = emailController.text;
     final String password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => const ErrorDialog(
+              message: "Please make sure to fill in both email and password.",
+            ),
+      );
+      return;
+    }
+
     try {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
-      await db.collection("Users").doc(userCredential.user!.uid).get();
+
+      await FirebaseFirestore.instance
+          .collection("Users")
+          .doc(userCredential.user!.uid)
+          .get();
+
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: ((context) => const ItinereoManager())),
+        MaterialPageRoute(builder: (context) => const ItinereoManager()),
       );
     } on FirebaseAuthException catch (e) {
-      // Gestione degli errori
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: TextWidget(
-              title: "No User Found for that Email",
-              txtSize: 18.0,
-              txtColor: Theme.of(context).primaryColor,
-            ),
-          ),
-        );
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: TextWidget(
-              title: "Wrong Password Provided by User",
-              txtSize: 18.0,
-              txtColor: Theme.of(context).primaryColor,
-            ),
-          ),
-        );
+      String message;
+      switch (e.code) {
+        case 'invalid-credential':
+          message = "Invalid email or password.";
+          break;
+        default:
+          message = "Authentication error. Please try again.";
       }
-    }
-  }
 
-  // Funzione per il login con Google
-  Future<User?> loginWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
-
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
+      showDialog(
+        context: context,
+        builder: (context) => ErrorDialog(message: message),
       );
-
-      final UserCredential userCredential = await _auth.signInWithCredential(
-        credential,
-      );
-      return userCredential.user;
-    } catch (e) {
-      return null;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF3E2C7),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Divider(height: 50),
+            const SizedBox(height: 50),
             Center(
               child: Container(
                 height: MediaQuery.of(context).size.height / 3.5,
@@ -118,15 +112,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextWidget(
                     title: "Log-in",
                     txtSize: 30,
-                    txtColor: Theme.of(context).primaryColor,
+                    txtColor: Color(0xFF20535B),
                   ),
                   const TextWidget(
                     title: "Email",
                     txtSize: 22,
-                    txtColor: Color(0xffdddee3),
+                    txtColor: Color(0xFF20535B),
                   ),
                   InputTxtField(
-                    hintText: "Your Email id",
+                    hintText: "Email",
                     controller: emailController,
                     validator: emailValidator,
                     obscureText: false,
@@ -134,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const TextWidget(
                     title: "Password",
                     txtSize: 22,
-                    txtColor: Color(0xffdddee3),
+                    txtColor: Color(0xFF20535B),
                   ),
                   InputTxtField(
                     hintText: "Password",
@@ -156,9 +150,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           );
                         },
                         child: const TextWidget(
-                          title: "Forget password?",
+                          title: "Forgot password?",
                           txtSize: 18,
-                          txtColor: Color(0xff999a9e),
+                          txtColor: Color(0xFF20535B),
                         ),
                       ),
                     ],
@@ -166,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     height: 60,
                     width: MediaQuery.of(context).size.width,
-                    child: ButtonWidget(btnText: "Login", onPress: login),
+                    child: ButtonWidget(btnText: "Log in", onPress: login),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -176,20 +170,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Container(
                           height: 2.0,
                           width: 70.0,
-                          color: const Color(0xff999a9e),
+                          color: Color(0xFF20535B),
                         ),
                       ),
                       const TextWidget(
-                        title: "Or login with",
+                        title: "Or log in with",
                         txtSize: 18,
-                        txtColor: Color(0xff999a9e),
+                        txtColor: Color(0xFF20535B),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10.0),
                         child: Container(
                           height: 2.0,
                           width: 70.0,
-                          color: const Color(0xff999a9e),
+                          color: Color(0xFF20535B),
                         ),
                       ),
                     ],
@@ -199,52 +193,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       bgColor: Colors.white,
                       imagePath: 'assets/images/Google_G_logo.png',
                       onPress: () async {
-                        User? user = await loginWithGoogle();
-                        if (user != null) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: ((context) => const ItinereoManager()),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.redAccent,
-                              content: const TextWidget(
-                                title: "Google login failed",
-                                txtSize: 18.0,
-                                txtColor: Colors.white,
+                        try {
+                          User? user = await GoogleService.loginWithGoogle();
+                          if (user != null) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: ((context) => const ItinereoManager()),
                               ),
-                            ),
+                            );
+                          }
+                        } on SignInException catch (e) {
+                          ItinereoSnackBar.show(context, e.message);
+                        } catch (e) {
+                          ItinereoSnackBar.show(
+                            context,
+                            "Google login failed. Please try again.",
                           );
                         }
                       },
                     ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const TextWidget(
-                        title: "Don't have an account? ",
-                        txtSize: 18,
-                        txtColor: Color(0xff999a9e),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: ((context) => const SignUpScreen()),
-                            ),
-                          );
-                        },
-                        child: const TextWidget(
-                          title: "Sign-Up ",
-                          txtSize: 18,
-                          txtColor: Color(0xff999a9e),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
