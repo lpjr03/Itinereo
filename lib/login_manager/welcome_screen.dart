@@ -5,24 +5,28 @@ import 'package:flutter/material.dart';
 /// Displays the app logo, a welcome message, and two buttons:
 /// one for logging in and one for signing up.
 ///
-/// Uses a parchment-like background and custom color palette.
 class WelcomeScreen extends StatelessWidget {
-  /// Creates a [WelcomeScreen].
   const WelcomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3E2C7),
       body: SafeArea(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: EdgeInsets.symmetric(horizontal: size.width * 0.1),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/images/logo.jpeg', height: 250),
-                const SizedBox(height: 65),
+                Image.asset(
+                  'assets/images/logo.jpeg',
+                  height: size.height * 0.30,
+                ),
+                SizedBox(height: size.height * 0.03),
+
                 const Text(
                   'Welcome!',
                   style: TextStyle(
@@ -31,10 +35,11 @@ class WelcomeScreen extends StatelessWidget {
                     color: Color(0xFF20535B),
                   ),
                 ),
-                const SizedBox(height: 60),
+                SizedBox(height: size.height * 0.06),
+
                 SizedBox(
-                  height: 50,
-                  width: 150,
+                  width: size.width * 0.5,
+                  height: size.height * 0.065,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/login');
@@ -51,10 +56,11 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: size.height * 0.02),
+
                 SizedBox(
-                  height: 50,
-                  width: 150,
+                  width: size.width * 0.5,
+                  height: size.height * 0.065,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/signup');
