@@ -51,7 +51,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      'Login',
+                      'Log in',
                       style: TextStyle(fontSize: 16, color: Color(0xFFF3E2C7)),
                     ),
                   ),

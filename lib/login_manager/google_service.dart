@@ -30,7 +30,7 @@ class GoogleService {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        throw SignInException('Login interrotto dall’utente.');
+        throw SignInException('Login interrupted by the user.');
       }
 
       final GoogleSignInAuthentication googleAuth =
@@ -47,11 +47,11 @@ class GoogleService {
 
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw SignInException('Errore Firebase: ${e.message}');
+      throw SignInException('Firebase error: ${e.message}');
     } on PlatformException catch (e) {
-      throw SignInException('Errore di piattaforma: ${e.message}');
+      throw SignInException('Platform error: ${e.message}');
     } catch (e) {
-      throw SignInException('Errore sconosciuto: ${e.toString()}');
+      throw SignInException('Sign-in interrupted');
     }
   }
 }
