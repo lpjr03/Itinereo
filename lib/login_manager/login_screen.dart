@@ -26,9 +26,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  
+  /// Controller for the email input field.
   TextEditingController emailController = TextEditingController();
+
+  /// Controller for the password input field.
   TextEditingController passwordController = TextEditingController();
 
+  /// Instance of FirebaseAuth used for authentication.
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
