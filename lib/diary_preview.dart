@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
@@ -9,7 +8,7 @@ class DiaryPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ItinereoAppBar(title: "Diary", textColor: Color(0xFFFEF4C9), pillColor: Color(0xFFC97F4F), topBarColor: Color(0xFFD28F3F),
+      appBar: ItinereoAppBar(title: "Diary", textColor: Color(0xFFF6E1C4), pillColor: Color(0xFFC97F4F), topBarColor: Color(0xFFD28F3F),
       ),
       backgroundColor: const Color(0xFFF6ECD4),
       body: ListView.builder(
