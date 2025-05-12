@@ -68,7 +68,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
             Center(
               child: Container(
                 height: MediaQuery.of(context).size.height / 3.5,
-                child: Image.asset("assets/images/logo.jpeg"),
+                child: Image.asset("assets/images/logo.png"),
               ),
             ),
 
