@@ -71,7 +71,7 @@ class DiaryService {
         final data = doc.data();
         final id = doc.id;
         final date = DateTime.parse(data['date']);
-        final description = data['description'] ?? '';
+        final title = data['title'];
         final latitude = (data['latitude'] as num).toDouble();
         final longitude = (data['longitude'] as num).toDouble();
         final photoUrls = List<String>.from(data['photoUrls'] ?? []);
@@ -83,7 +83,7 @@ class DiaryService {
             id: id,
             date: date,
             place: city,
-            title: description,
+            title: title,
             imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
           ),
         );
