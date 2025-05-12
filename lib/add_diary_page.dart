@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
-import 'diary_service.dart';
+import 'services/diary_service.dart';
 
 class AddDiaryEntryPage extends StatefulWidget {
   const AddDiaryEntryPage({super.key});

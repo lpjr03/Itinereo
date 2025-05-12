@@ -7,8 +7,8 @@ class DiaryCard {
   /// Unique identifier of the diary entry.
   final String id;
 
-  /// Date of the diary entry, in string format (e.g., ISO 8601 or custom).
-  final String date;
+  /// Date and time when the entry was created or refers to.
+  final DateTime date;
 
   /// A short description or summary of the entry.
   final String description;

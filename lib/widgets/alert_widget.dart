@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:itinereo/login_manager/text_widget.dart';
+import 'package:itinereo/widgets/text_widget.dart';
 
 /// A themed AlertDialog used in the Itinereo app to show error messages.
 ///

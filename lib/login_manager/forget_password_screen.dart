@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/alert_widget.dart';
-import 'package:itinereo/snackbar.dart';
+import 'package:itinereo/widgets/alert_widget.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'validator.dart';
-import 'button_widget.dart';
-import 'text_field_widget.dart';
-import 'text_widget.dart';
+import '../widgets/button_widget.dart';
+import '../widgets/text_field_widget.dart';
+import '../widgets/text_widget.dart';
 
 /// A screen that allows users to reset their password via email.
 ///

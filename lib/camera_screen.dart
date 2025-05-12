@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:itinereo/exceptions/photo_exceptions.dart';
-import 'package:itinereo/firebase_storage.dart';
+import 'package:itinereo/services/firebase_storage.dart';
 
 
 /// A screen that allows the user to take a photo using the device camera

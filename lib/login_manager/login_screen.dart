@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/alert_widget.dart';
+import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/itinereo_manager.dart';
-import 'package:itinereo/login_manager/google_service.dart';
-import 'package:itinereo/login_manager/social_button_widget.dart';
-import 'package:itinereo/snackbar.dart';
+import 'package:itinereo/services/google_service.dart';
+import 'package:itinereo/widgets/social_button_widget.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'forget_password_screen.dart';
 import 'validator.dart';
-import 'button_widget.dart';
-import 'text_field_widget.dart';
-import 'text_widget.dart';
+import '../widgets/button_widget.dart';
+import '../widgets/text_field_widget.dart';
+import '../widgets/text_widget.dart';
 
 /// A screen that allows users to log into the Itinereo app.
 ///

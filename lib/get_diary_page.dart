@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/diary_entry.dart';
-import 'diary_service.dart';
+import 'services/diary_service.dart';
 
 class DiaryEntryDetailPage extends StatelessWidget {
   final String entryId;
