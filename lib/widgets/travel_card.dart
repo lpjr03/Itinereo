@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:itinereo/models/card_entry.dart';
 
 class TravelCard extends StatelessWidget {
-  const TravelCard({super.key});
+  final DiaryCard diaryCard;
+
+  const TravelCard({
+    super.key,
+    required this.diaryCard
+  });
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = DateFormat.yMMMMd('en_US').format(diaryCard.date);
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
       color: const Color.fromARGB(255, 242, 225, 186),
@@ -21,15 +29,15 @@ class TravelCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
-                'assets/images/venice.jpg',
+              child: Image.network(
+                diaryCard.imageUrl,
                 fit: BoxFit.cover,
                 height: 200,
                 width: double.infinity,
               ),
             ),
             Text(
-              'April 16, 2024',
+              formattedDate,
               style: GoogleFonts.libreBaskerville(
                 color: Color(0xFF73370F),
                 fontWeight: FontWeight.bold,
@@ -38,7 +46,7 @@ class TravelCard extends StatelessWidget {
               ),
             ),
             Text(
-              'Venezia',
+              diaryCard.place,
               style: GoogleFonts.libreBaskerville(
                 color: Color(0xFF73370F),
                 fontWeight: FontWeight.bold,
@@ -48,7 +56,7 @@ class TravelCard extends StatelessWidget {
               ),
             ),
             Text(
-              'Un sogno che diventa realtà...',
+              diaryCard.title,
               style: GoogleFonts.deliciousHandrawn(
                 fontWeight: FontWeight.bold,
                 fontSize: 25,
