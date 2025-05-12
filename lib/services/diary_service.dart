@@ -56,66 +56,67 @@ class DiaryService {
     }
   }
 
-Future<List<DiaryCard>> getDiaryCards(String apiKey, {int limit = 10, int offset = 0}) async {
-  try {
-    final snapshot = await _entryCollection
-        .orderBy('date', descending: true)
-        .limit(limit + offset)
-        .get();
+  Future<List<DiaryCard>> getDiaryCards(String apiKey, {int limit = 10, int offset = 0}) async {
+    try {
+      final snapshot = await _entryCollection
+          .orderBy('date', descending: true)
+          .limit(limit + offset)
+          .get();
 
-    final docs = snapshot.docs.skip(offset).take(limit);
+      final docs = snapshot.docs.skip(offset).take(limit);
 
-    List<DiaryCard> cards = [];
+      List<DiaryCard> cards = [];
 
-    for (var doc in docs) {
-      final data = doc.data();
-      final id = doc.id;
-      final date = DateTime.parse(data['date']);
-      final description = data['description'] ?? '';
-      final latitude = (data['latitude'] as num).toDouble();
-      final longitude = (data['longitude'] as num).toDouble();
+      for (var doc in docs) {
+        final data = doc.data();
+        final id = doc.id;
+        final date = DateTime.parse(data['date']);
+        final description = data['description'] ?? '';
+        final latitude = (data['latitude'] as num).toDouble();
+        final longitude = (data['longitude'] as num).toDouble();
+        final photoUrls = List<String>.from(data['photoUrls'] ?? []);
 
-      final city = await getCityFromCoordinates(latitude, longitude, apiKey);
+        final city = await getCityFromCoordinates(latitude, longitude, apiKey);
 
-      cards.add(
-        DiaryCard(
-          id: id,
-          date: date,
-          place: city,
-          description: description,
-        ),
-      );
-    }
-
-    return cards;
-  } catch (e) {
-    final localEntries = await _localDb.getEntriesPaginated(limit: limit, offset: offset);
-    return localEntries
-        .map(
-          (entry) => DiaryCard(
-            id: entry.id,
-            date: entry.date,
-            place: 'Local data',
-            description: entry.description,
+        cards.add(
+          DiaryCard(
+            id: id,
+            date: date,
+            place: city,
+            title: description,
+            imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
           ),
-        )
-        .toList();
-  }
-}
+        );
+      }
 
-
- Future<DiaryEntry?> getEntryById(String entryId) async {
-  try {
-    final doc = await _entryCollection.doc(entryId).get();
-    if (doc.exists) {
-      return DiaryEntry.fromMap(doc.id, doc.data()!);
+      return cards;
+    } catch (e) {
+      final localEntries = await _localDb.getEntriesPaginated(limit: limit, offset: offset);
+      return localEntries
+          .map(
+            (entry) => DiaryCard(
+              id: entry.id,
+              date: entry.date,
+              place: 'Local data',
+              title: entry.description,
+              imageUrl: entry.photoUrls.isNotEmpty ? entry.photoUrls.first : '',
+            ),
+          )
+          .toList();
     }
-  } catch (e) {
-      return await _localDb.getEntryById(entryId);
   }
-  return null;
-}
 
+  Future<DiaryEntry?> getEntryById(String entryId) async {
+    try {
+      final doc = await _entryCollection.doc(entryId).get();
+      if (doc.exists) {
+        return DiaryEntry.fromMap(doc.id, doc.data()!);
+      }
+    } catch (e) {
+      return await _localDb.getEntryById(entryId);
+    }
+    return null;
+  }
 
   Future<void> deleteEntry(String entryId) async {
     await _entryCollection.doc(entryId).delete();

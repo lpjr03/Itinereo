@@ -1,8 +1,8 @@
 /// Represents a summarized version of a diary entry,
 /// typically used for preview cards or lists.
 ///
-/// Contains minimal information: ID, date (as a string), place name,
-/// and a short description.
+/// Contains minimal information: ID, date, place name,
+/// a short description, and a representative image URL.
 class DiaryCard {
   /// Unique identifier of the diary entry.
   final String id;
@@ -11,17 +11,21 @@ class DiaryCard {
   final DateTime date;
 
   /// A short description or summary of the entry.
-  final String description;
+  final String title;
 
   /// Human-readable place name (e.g., city or landmark).
   final String place;
+
+  /// URL of a representative photo associated with the entry.
+  final String imageUrl;
 
   /// Creates a [DiaryCard] with the given fields.
   DiaryCard({
     required this.id,
     required this.date,
-    required this.description,
+    required this.title,
     required this.place,
+    required this.imageUrl,
   });
 
   /// Creates a [DiaryCard] from a Firestore document map.
@@ -32,18 +36,20 @@ class DiaryCard {
   factory DiaryCard.fromMap(String id, Map<String, dynamic> map) {
     return DiaryCard(
       id: id,
-      date: map['date'] ?? '',
-      description: map['description'] ?? '',
+      date: DateTime.parse(map['date']),
+      title: map['description'] ?? '',
       place: map['place'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
     );
   }
 
   /// Converts this model into a map format for saving to Firestore.
   Map<String, dynamic> toMap() {
     return {
-      'date': date,
-      'description': description,
+      'date': date.toIso8601String(),
+      'description': title,
       'place': place,
+      'imageUrl': imageUrl,
     };
   }
 
