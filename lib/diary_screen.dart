@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itinereo/add_diary_page.dart';
 
 class DiaryScreen extends StatelessWidget {
-  const DiaryScreen(this.switchScreen, {super.key});
+  final Function() switchToPreview;
+  final Function() switchToAddDiaryPage;
 
-  final Function() switchScreen;
+  const DiaryScreen({
+    super.key,
+    required this.switchToPreview,
+    required this.switchToAddDiaryPage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +50,9 @@ class DiaryScreen extends StatelessWidget {
               children: [
                 //Map Bookmark
                 BookMark(
-                  onPressed: switchScreen,
+                  onPressed:(){
+                    //@todo
+                  },
                   icon: Icons.public_rounded,
                   label: "Map",
                   textAndIconColor: Color(0xFFFFFFFF),
@@ -55,7 +63,7 @@ class DiaryScreen extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(top: 15),
                   child: BookMark(
-                    onPressed: switchScreen,
+                    onPressed: switchToPreview,
                     icon: Icons.photo_album_outlined,
                     label: "Diary",
                     textAndIconColor: Color(0xFFFFFFFF),
@@ -109,7 +117,6 @@ class DiaryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
 
                   children: [
-                  
                     Container(
                       margin: EdgeInsets.only(top: 15, left: 15, right: 15),
                       alignment: Alignment.center,
@@ -249,13 +256,13 @@ class DiaryScreen extends StatelessWidget {
                       alignment: Alignment.bottomRight,
                       child: FloatingActionButton(
                         onPressed: () {
-                          // Azione del bottone
+                          Navigator.push(context, switchToAddDiaryPage());
                         },
 
-                        backgroundColor: Color(0xFFE8A951), // Hunyadi yellow
+                        backgroundColor: Color(0xFFE8A951),
                         child: Icon(
                           Icons.add_rounded,
-                          color: Color(0xFFA75119), // Marrone/arancio scuro
+                          color: Color(0xFFA75119),
                           size: 32,
                         ),
                       ),
@@ -270,13 +277,9 @@ class DiaryScreen extends StatelessWidget {
             top: 20,
             left: 17,
             child: IconButton(
-              icon: Icon(
-                Icons.arrow_back,
-                color: Color(0xFFA75119), // marrone-arancio scuro
-                size: 45,
-              ),
+              icon: Icon(Icons.arrow_back, color: Color(0xFFA75119), size: 45),
               onPressed: () {
-                Navigator.pop(context); // oppure switchScreen();
+                Navigator.pop(context);
               },
             ),
           ),

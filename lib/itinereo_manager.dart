@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:itinereo/add_diary_page.dart';
 import 'package:itinereo/diary_preview.dart';
 import 'package:itinereo/diary_screen.dart';
 import 'package:itinereo/home_screen.dart';
@@ -44,14 +45,23 @@ class _ItinereoState extends State<ItinereoManager> {
     });
   }
 
+  /// Switches the active screen to the add diary page screen.
+  void switchToAddDiaryPage() {
+    setState(() {
+      activeScreen = 'add-diary-page-screen';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Selects the widget to display based on the active screen.
     Widget screenWidget = HomeScreen(switchToDiary);
     if (activeScreen == 'diary-screen') {
-      screenWidget = DiaryScreen(switchToEntriesPreview);
+      screenWidget = DiaryScreen(switchToPreview: switchToEntriesPreview, switchToAddDiaryPage: switchToAddDiaryPage,);
     } else if (activeScreen == 'preview-screen') {
       screenWidget = const DiaryPreview();
+    }else if(activeScreen == 'add-diary-page-screen'){
+      screenWidget = AddDiaryEntryPage(onSave: switchToEntriesPreview);
     }
 
     return MaterialApp(
