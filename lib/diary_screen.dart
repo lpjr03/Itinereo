@@ -133,7 +133,7 @@ class DiaryScreen extends StatelessWidget {
                           style: GoogleFonts.playpenSans(
                             textStyle: TextStyle(
                               height: 0.76,
-                              fontSize: 50,
+                              fontSize: 40,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF2E5255),
                             ),
@@ -168,8 +168,8 @@ class DiaryScreen extends StatelessWidget {
 
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 5),
-                      height: 480,
-                      width: 330,
+                      height: 400,
+                      width: 300,
 
                       child: Stack(
                         children: [
@@ -187,7 +187,7 @@ class DiaryScreen extends StatelessWidget {
                           ),
 
                           Positioned(
-                            top: 190,
+                            top: 150,
                             right: 0,
 
                             child: Transform.rotate(
@@ -207,7 +207,7 @@ class DiaryScreen extends StatelessWidget {
                               imagePath: 'assets/images/venice.jpg',
                               backgroundColor: Color(0xFFF9EDD2),
                               angle: 0.25,
-                              height: 130,
+                              height: 90,
                             ),
                           ),
 
@@ -218,7 +218,7 @@ class DiaryScreen extends StatelessWidget {
                               imagePath: 'assets/images/florence.jpg',
                               backgroundColor: Color(0xFFF9EDD2),
                               angle: -0.12,
-                              height: 180,
+                              height: 100,
                             ),
                           ),
 
@@ -230,7 +230,7 @@ class DiaryScreen extends StatelessWidget {
                               imagePath: 'assets/images/colosseum.jpg',
                               backgroundColor: Color(0xFFF9EDD2),
                               angle: 0.17,
-                              height: 150,
+                              height: 90,
                             ),
                           ),
 
@@ -263,7 +263,7 @@ class DiaryScreen extends StatelessWidget {
                         child: Icon(
                           Icons.add_rounded,
                           color: Color(0xFFA75119),
-                          size: 32,
+                          size: 20,
                         ),
                       ),
                     ),
