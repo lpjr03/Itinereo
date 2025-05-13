@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 import 'package:itinereo/exceptions/location_exceptions.dart';
 
 /// A service class that handles retrieving the user's current GPS location.
@@ -57,5 +60,35 @@ class GeolocatorService {
     return await Geolocator.getCurrentPosition(
       locationSettings: const LocationSettings(accuracy: LocationAccuracy.best),
     );
+  }
+
+  Future<String> getCityAndCountryFromPosition(Position position) async {
+    final lat = position.latitude;
+    final lng = position.longitude;
+    final apiKey = 'AIzaSyBXDRFaSOLLb5z0peibW6wLRk9zfYNQ_O8';
+    final url = Uri.parse(
+      'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$apiKey',
+    );
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['results'] != null && data['results'].isNotEmpty) {
+        String? city;
+        String? country;
+
+        for (var component in data['results'][0]['address_components']) {
+          final types = List<String>.from(component['types']);
+          if (types.contains('locality')) city = component['long_name'];
+          if (types.contains('country')) country = component['long_name'];
+        }
+
+        if (city != null && country != null) return '$city, $country';
+        if (country != null) return country;
+      }
+      return 'Unknown location';
+    } else {
+      throw Exception('Failed to fetch location: ${response.statusCode}');
+    }
   }
 }

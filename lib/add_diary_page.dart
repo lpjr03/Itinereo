@@ -10,8 +10,11 @@ class AddDiaryEntryPage extends StatefulWidget {
   final void Function()? onSave;
   final void Function()? switchToCameraScreen;
 
-
-  const AddDiaryEntryPage({super.key, required this.onSave, required this.switchToCameraScreen});
+   const AddDiaryEntryPage({
+    super.key,
+    required this.onSave,
+    required this.switchToCameraScreen,
+  });
 
   @override
   State<AddDiaryEntryPage> createState() => _AddDiaryEntryPageState();
@@ -168,7 +171,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             padding: const EdgeInsets.only(top: 24),
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                //@todo
+                                _handleMapButtonPressed(context);
                               },
                               icon: const Icon(
                                 Icons.location_on,
@@ -341,6 +344,26 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       ),
     );
   }
+void _handleMapButtonPressed(BuildContext context) async {
+  try {
+    final position = await GeolocatorService().getCurrentLocation();
+    final String location = await GeolocatorService().getCityAndCountryFromPosition(position);
+
+    setState(() {
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      _locationController.text = location;
+    });
+
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
+  }
+}
+
 }
 
 class DateField extends StatefulWidget {
@@ -399,4 +422,5 @@ class _DateFieldState extends State<DateField> {
       ),
     );
   }
+
 }
