@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:itinereo/exceptions/photo_exceptions.dart';
 import 'package:itinereo/services/firebase_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class CameraScreen extends StatefulWidget {
   final CameraDescription? camera;
@@ -43,6 +45,32 @@ class _CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
+  Future<void> _saveToGalleryManually(File imageFile) async {
+    final androidInfo = await DeviceInfoPlugin().androidInfo;
+    final sdkInt = androidInfo.version.sdkInt;
+
+    if (sdkInt >= 33) {
+      final status = await Permission.photos.request();
+      if (!status.isGranted) {
+        throw Exception("Photo access not granted");
+      }
+    } else {
+      final status = await Permission.storage.request();
+      if (!status.isGranted) {
+        throw Exception("Storage access not granted");
+      }
+    }
+
+    final dir = Directory('/storage/emulated/0/Pictures/Itinereo');
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+
+    final fileName = 'itinereo_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final savedPath = File('${dir.path}/$fileName');
+    await imageFile.copy(savedPath.path);
+  }
+
   Future<void> _takePictureAndUpload() async {
     try {
       setState(() => _isUploading = true);
@@ -62,6 +90,18 @@ class _CameraScreenState extends State<CameraScreen> {
       setState(() {
         _imagePath = imageFile.path;
       });
+
+      try {
+        await _saveToGalleryManually(imageFile);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Errore salvataggio galleria: ${e.toString()}'),
+            ),
+          );
+        }
+      }
 
       String downloadUrl;
       try {
