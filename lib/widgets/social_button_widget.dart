@@ -4,38 +4,38 @@ import 'text_widget.dart';
 class SocialButtonWidget extends StatelessWidget {
   final Color bgColor;
   final String imagePath;
+  final String buttonName;
   final VoidCallback onPress;
 
   const SocialButtonWidget({
     super.key,
     required this.bgColor,
     required this.imagePath,
+    required this.buttonName,
     required this.onPress,
   });
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPress,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        height: 40,
-        width: 120,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(20),
+    return FilledButton(
+      onPressed: onPress,
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(bgColor),
+        padding: WidgetStateProperty.all(
+          const EdgeInsets.symmetric(horizontal: 17, vertical: 5),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Image(image: AssetImage(imagePath)),
-            TextWidget(
-              title:
-                  "Google", //@todo pass the social name as parameter in order to generalize
-              txtSize: 18.0,
-              txtColor: Colors.black,
-            ),
-          ],
-        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(imagePath, width: 20),
+          const SizedBox(width: 8),
+          TextWidget(
+            title: buttonName, // @todo pass as parameter
+            txtSize: 18.0,
+            txtColor: Colors.black,
+          ),
+        ],
       ),
     );
   }
