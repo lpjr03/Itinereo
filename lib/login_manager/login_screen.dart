@@ -198,6 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: SocialButtonWidget(
                       bgColor: Colors.white,
                       imagePath: 'assets/images/Google_G_logo.png',
+                      buttonName: 'Google',
                       onPress: () async {
                         User? user = await loginWithGoogle();
                         if (user != null) {
