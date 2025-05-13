@@ -3,13 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:itinereo/itinereo_manager.dart';
-import 'package:itinereo/login_manager/social_button_widget.dart';
+import 'package:itinereo/widgets/social_button_widget.dart';
 import 'forget_password_screen.dart';
 import 'signup_screen.dart';
 import 'validator.dart';
-import 'button_widget.dart';
-import 'text_field_widget.dart';
-import 'text_widget.dart';
+import '../widgets/button_widget.dart';
+import '../widgets/text_field_widget.dart';
+import '../widgets/text_widget.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
