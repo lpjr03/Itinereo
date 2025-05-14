@@ -50,10 +50,13 @@ class LocalDiaryDatabase {
     );
 
     return maps.map((map) {
-      return DiaryEntry.fromJson({
-        ...map,
-        'photoUrls': (map['photoUrls'] as String).split(','),
-      });
+      final raw = map['photoUrls'] as String?;
+      final list =
+          (raw == null || raw.trim().isEmpty)
+              ? <String>[]
+              : raw.split(',').where((e) => e.trim().isNotEmpty).toList();
+
+      return DiaryEntry.fromJson({...map, 'photoUrls': list});
     }).toList();
   }
 
