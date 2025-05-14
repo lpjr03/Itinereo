@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/services/geolocator_service.dart';
+import 'package:itinereo/services/local_diary_db.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
 import 'services/diary_service.dart';
@@ -10,11 +12,14 @@ class AddDiaryEntryPage extends StatefulWidget {
   final void Function()? onSave;
   final void Function()? switchToCameraScreen;
 
-   const AddDiaryEntryPage({
-    super.key,
+  final List<String> initialPhotoUrls;
+
+  const AddDiaryEntryPage({
+    Key? key,
     required this.onSave,
     required this.switchToCameraScreen,
-  });
+    this.initialPhotoUrls = const [],
+  }) : super(key: key);
 
   @override
   State<AddDiaryEntryPage> createState() => _AddDiaryEntryPageState();
@@ -22,14 +27,28 @@ class AddDiaryEntryPage extends StatefulWidget {
 
 class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   final _formKey = GlobalKey<FormState>();
+  int _currentIndex = 0;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
-  final _photoUrlController = TextEditingController();
+  late List<String> _photoUrls = [];
+  final PageController _pageController = PageController(viewportFraction: 0.95);
 
   bool _isSubmitting = false;
   double _latitude = 0.0;
   double _longitude = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _photoUrls = List<String>.from(widget.initialPhotoUrls);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -43,16 +62,13 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       date: DateTime.now(),
       latitude: _latitude,
       longitude: _longitude,
-      photoUrls:
-          _photoUrlController.text
-              .split(',')
-              .map((url) => url.trim())
-              .where((url) => url.isNotEmpty)
-              .toList(),
+      photoUrls: _photoUrls,
     );
 
     try {
       await DiaryService().addEntry(newEntry);
+      await LocalDiaryDatabase().insertEntry(newEntry);
+
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _isSubmitting = false);
@@ -135,30 +151,141 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                     : null,
                       ),
 
-                      Container(
-                        padding: EdgeInsets.all(20),
-                        margin: EdgeInsets.symmetric(vertical: 5),
-                        alignment: Alignment.center,
+                      Column(
+                        children: [
+                          Container(
+                            height: 180,
+                            margin: const EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFEED2),
+                              border: Border.all(
+                                color: const Color(0xFFFFF9EA),
+                                width: 20,
+                              ),
+                            ),
+                            child: PageView.builder(
+                              controller: _pageController,
+                              itemCount:
+                                  _photoUrls.length < 5
+                                      ? _photoUrls.length + 1
+                                      : 5,
+                              itemBuilder: (context, index) {
+                                final isAddCard =
+                                    index == _photoUrls.length &&
+                                    _photoUrls.length < 5;
 
-                        decoration: BoxDecoration(
-                          color: Color(0xFFFFEED2),
-                          border: Border.all(
-                            color: Color(0xFFFFF9EA),
-                            width: 20,
+                                if (isAddCard) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      widget.switchToCameraScreen?.call();
+                                    },
+                                    child: Center(
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFFFF2D8),
+                                          border: Border.all(
+                                            color: const Color(0xFFD8CCB1),
+                                            width: 2,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.add_a_photo,
+                                          size: 48,
+                                          color: Color(0xFF2E5355),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                final photoUrl = _photoUrls[index];
+                                return Stack(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => Dialog(
+                                                backgroundColor: Colors.black,
+                                                insetPadding:
+                                                    const EdgeInsets.all(16),
+                                                child: InteractiveViewer(
+                                                  child: Image.network(
+                                                    photoUrl,
+                                                  ),
+                                                ),
+                                              ),
+                                        );
+                                      },
+                                      child: Container(
+                                        margin: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          image: DecorationImage(
+                                            image: NetworkImage(photoUrl),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _photoUrls.removeAt(index);
+                                          });
+                                        },
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.black54,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: const EdgeInsets.all(4),
+                                          child: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                        child: Center(
-                          child: IconButton(
-                            icon: Icon(Icons.add_a_photo),
-                            color: Color(0xFF2E5355),
-                            iconSize: 120,
-                            onPressed: () {
-                              widget.switchToCameraScreen!();
-                            },
-                            splashRadius: 1,
+                          const SizedBox(height: 8),
+                          SmoothPageIndicator(
+                            controller: _pageController,
+                            count:
+                                _photoUrls.length < 5
+                                    ? _photoUrls.length + 1
+                                    : 5,
+                            effect: const WormEffect(
+                              dotColor: Color(0xFFB0B0B0),
+                              activeDotColor: Color(0xFF2E5355),
+                              dotHeight: 8,
+                              dotWidth: 8,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
+
 
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,26 +471,26 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       ),
     );
   }
-void _handleMapButtonPressed(BuildContext context) async {
-  try {
-    final position = await GeolocatorService().getCurrentLocation();
-    final String location = await GeolocatorService().getCityAndCountryFromPosition(position);
 
-    setState(() {
-      _latitude = position.latitude;
-      _longitude = position.longitude;
-      _locationController.text = location;
-    });
+  void _handleMapButtonPressed(BuildContext context) async {
+    try {
+      final position = await GeolocatorService().getCurrentLocation();
+      final String location = await GeolocatorService()
+          .getCityAndCountryFromPosition(position);
 
-  } catch (e) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
-      );
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+        _locationController.text = location;
+      });
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+      }
     }
   }
-}
-
 }
 
 class DateField extends StatefulWidget {
@@ -422,5 +549,4 @@ class _DateFieldState extends State<DateField> {
       ),
     );
   }
-
 }
