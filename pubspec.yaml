@@ -26,7 +26,7 @@ dependencies:
   intl: ^0.18.1 
   permission_handler: ^11.3.0
   device_info_plus: ^10.0.0
-  smooth_page_indicator: ^1.2.1
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:
