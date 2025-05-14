@@ -1,3 +1,4 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -151,141 +152,111 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                     : null,
                       ),
 
-                      Column(
-                        children: [
-                          Container(
-                            height: 180,
-                            margin: const EdgeInsets.symmetric(vertical: 5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFEED2),
-                              border: Border.all(
-                                color: const Color(0xFFFFF9EA),
-                                width: 20,
-                              ),
-                            ),
-                            child: PageView.builder(
-                              controller: _pageController,
-                              itemCount:
-                                  _photoUrls.length < 5
-                                      ? _photoUrls.length + 1
-                                      : 5,
-                              itemBuilder: (context, index) {
-                                final isAddCard =
-                                    index == _photoUrls.length &&
-                                    _photoUrls.length < 5;
+                      CarouselSlider(
+                        options: CarouselOptions(
+                          height: 180,
+                          enableInfiniteScroll: false,
+                          viewportFraction: 1.0,
+                          enlargeCenterPage: true,
+                          scrollPhysics: const BouncingScrollPhysics(),
+                        ),
+                        items: List.generate(
+                          _photoUrls.length < 5 ? _photoUrls.length + 1 : 5,
+                          (index) {
+                            final isAddCard =
+                                index == _photoUrls.length &&
+                                _photoUrls.length < 5;
 
-                                if (isAddCard) {
-                                  return GestureDetector(
+                            if (isAddCard) {
+                              return GestureDetector(
+                                onTap: () {
+                                  widget.switchToCameraScreen?.call();
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF2D8),
+                                    border: Border.all(
+                                      color: const Color(0xFFD8CCB1),
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.add_a_photo,
+                                      size: 48,
+                                      color: Color(0xFF2E5355),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final photoUrl = _photoUrls[index];
+                            return Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder:
+                                          (_) => Dialog(
+                                            backgroundColor: Colors.black,
+                                            insetPadding: const EdgeInsets.all(
+                                              16,
+                                            ),
+                                            child: InteractiveViewer(
+                                              child: Image.network(photoUrl),
+                                            ),
+                                          ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
+                                      image: DecorationImage(
+                                        image: NetworkImage(photoUrl),
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 6,
+                                  right: 6,
+                                  child: GestureDetector(
                                     onTap: () {
-                                      widget.switchToCameraScreen?.call();
+                                      setState(() {
+                                        _photoUrls.removeAt(index);
+                                      });
                                     },
-                                    child: Center(
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFFFF2D8),
-                                          border: Border.all(
-                                            color: const Color(0xFFD8CCB1),
-                                            width: 2,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.add_a_photo,
-                                          size: 48,
-                                          color: Color(0xFF2E5355),
-                                        ),
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black54,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: const EdgeInsets.all(4),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 16,
                                       ),
                                     ),
-                                  );
-                                }
-
-                                final photoUrl = _photoUrls[index];
-                                return Stack(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder:
-                                              (_) => Dialog(
-                                                backgroundColor: Colors.black,
-                                                insetPadding:
-                                                    const EdgeInsets.all(16),
-                                                child: InteractiveViewer(
-                                                  child: Image.network(
-                                                    photoUrl,
-                                                  ),
-                                                ),
-                                              ),
-                                        );
-                                      },
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                          image: DecorationImage(
-                                            image: NetworkImage(photoUrl),
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 6,
-                                      right: 6,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _photoUrls.removeAt(index);
-                                          });
-                                        },
-                                        child: Container(
-                                          decoration: const BoxDecoration(
-                                            color: Colors.black54,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          padding: const EdgeInsets.all(4),
-                                          child: const Icon(
-                                            Icons.close,
-                                            color: Colors.white,
-                                            size: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          SmoothPageIndicator(
-                            controller: _pageController,
-                            count:
-                                _photoUrls.length < 5
-                                    ? _photoUrls.length + 1
-                                    : 5,
-                            effect: const WormEffect(
-                              dotColor: Color(0xFFB0B0B0),
-                              activeDotColor: Color(0xFF2E5355),
-                              dotHeight: 8,
-                              dotWidth: 8,
-                            ),
-                          ),
-                        ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ),
-
 
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
