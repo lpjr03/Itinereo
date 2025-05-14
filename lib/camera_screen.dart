@@ -9,9 +9,14 @@ import 'package:device_info_plus/device_info_plus.dart';
 class CameraScreen extends StatefulWidget {
   final CameraDescription? camera;
   final VoidCallback? onBack;
+  final void Function(String photoUrl)? onPhotoCaptured;
 
-  const CameraScreen({Key? key, required this.camera, required this.onBack})
-    : super(key: key);
+  const CameraScreen({
+    Key? key,
+    required this.camera,
+    required this.onBack,
+    this.onPhotoCaptured,
+  }) : super(key: key);
 
   @override
   _CameraScreenState createState() => _CameraScreenState();
@@ -107,6 +112,9 @@ class _CameraScreenState extends State<CameraScreen> {
       try {
         downloadUrl = await _storageService.uploadPhoto(imageFile);
         _downloadUrl = downloadUrl;
+        if (widget.onPhotoCaptured != null) {
+          widget.onPhotoCaptured!(downloadUrl);
+        }
       } catch (e) {
         throw PhotoUploadException('Errore upload Firebase: ${e.toString()}');
       }
