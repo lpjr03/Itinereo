@@ -16,3 +16,8 @@ class PhotoCaptureException extends PhotoException {
 class PhotoUploadException extends PhotoException {
   PhotoUploadException(String message) : super(message);
 }
+
+/// Error while deleting a photo.
+class PhotoDeleteException extends PhotoException {
+  PhotoDeleteException(String message) : super(message);
+}
