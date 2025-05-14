@@ -35,6 +35,7 @@ class _ItinereoState extends State<ItinereoManager> {
   /// Stores the identifier of the currently active screen.
   var activeScreen = 'home-screen';
   CameraDescription? selectedCamera;
+  List<String> _pendingPhotoUrls = [];
 
   /// Switches the active screen to the diary screen.
   void switchToDiary() {
@@ -81,9 +82,19 @@ class _ItinereoState extends State<ItinereoManager> {
       screenWidget = AddDiaryEntryPage(
         onSave: switchToEntriesPreview,
         switchToCameraScreen: switchToCameraScreen,
+        initialPhotoUrls: _pendingPhotoUrls,
       );
     } else if (activeScreen == 'camera-screen') {
-      screenWidget = CameraScreen(camera: selectedCamera, onBack: switchToAddDiaryPage,);
+      screenWidget = CameraScreen(
+        camera: selectedCamera,
+        onBack: switchToAddDiaryPage,
+        onPhotoCaptured: (photoUrl) {
+          setState(() {
+            _pendingPhotoUrls.add(photoUrl);
+            activeScreen = 'add-diary-page-screen';
+          });
+        },
+      );
     }
 
     return MaterialApp(
