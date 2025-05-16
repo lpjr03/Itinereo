@@ -1,19 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:itinereo/exceptions/photo_exceptions.dart';
 import 'package:itinereo/services/firebase_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class CameraScreen extends StatefulWidget {
-  final CameraDescription? camera;
   final VoidCallback? onBack;
-  final void Function(String photoUrl)? onPhotoCaptured;
+  final void Function(String photoPath)? onPhotoCaptured;
 
   const CameraScreen({
     Key? key,
-    required this.camera,
     required this.onBack,
     this.onPhotoCaptured,
   }) : super(key: key);
@@ -23,48 +21,47 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
-  late CameraController _controller;
-  late Future<void> _initializeControllerFuture;
+  final ImagePicker _picker = ImagePicker();
+  final StorageService _storageService = StorageService();
 
   String? _imagePath;
-  String? _downloadUrl;
   bool _isUploading = false;
-
-  final StorageService _storageService = StorageService();
 
   @override
   void initState() {
     super.initState();
-
-    if (widget.camera == null) {
-      throw Exception("Camera non inizializzata!");
-    }
-
-    _controller = CameraController(widget.camera!, ResolutionPreset.high);
-    _initializeControllerFuture = _controller.initialize();
+    _openCamera();
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Future<void> _openCamera() async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedFile == null) {
+        widget.onBack?.call(); // torna indietro se l'utente annulla
+        return;
+      }
+      setState(() {
+        _imagePath = pickedFile.path;
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Errore apertura fotocamera')),
+        );
+        widget.onBack?.call();
+      }
+    }
   }
 
   Future<void> _saveToGalleryManually(File imageFile) async {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final sdkInt = androidInfo.version.sdkInt;
 
-    if (sdkInt >= 33) {
-      final status = await Permission.photos.request();
-      if (!status.isGranted) {
-        throw Exception("Photo access not granted");
-      }
-    } else {
-      final status = await Permission.storage.request();
-      if (!status.isGranted) {
-        throw Exception("Storage access not granted");
-      }
-    }
+    final status = sdkInt >= 33
+        ? await Permission.photos.request()
+        : await Permission.storage.request();
+
+    if (!status.isGranted) throw Exception("Permessi non concessi");
 
     final dir = Directory('/storage/emulated/0/Pictures/Itinereo');
     if (!await dir.exists()) {
@@ -76,68 +73,33 @@ class _CameraScreenState extends State<CameraScreen> {
     await imageFile.copy(savedPath.path);
   }
 
-  Future<void> _takePictureAndUpload() async {
+  Future<void> _uploadPhoto() async {
+    if (_imagePath == null) return;
+
     try {
       setState(() => _isUploading = true);
-      await _initializeControllerFuture;
-
-      late XFile file;
-      try {
-        file = await _controller.takePicture();
-      } on CameraException catch (e) {
-        throw PhotoCaptureException('Errore fotocamera: ${e.description}');
-      } on IOException catch (e) {
-        throw PhotoCaptureException('Errore file system: ${e.toString()}');
-      }
-
-      final File imageFile = File(file.path);
-
-      setState(() {
-        _imagePath = imageFile.path;
-      });
+      final imageFile = File(_imagePath!);
 
       try {
         await _saveToGalleryManually(imageFile);
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Errore salvataggio galleria: ${e.toString()}'),
-            ),
-          );
-        }
-      }
+      } catch (_) {}
 
-      String downloadUrl;
-      try {
-        downloadUrl = await _storageService.uploadPhoto(imageFile);
-        _downloadUrl = downloadUrl;
-        if (widget.onPhotoCaptured != null) {
-          widget.onPhotoCaptured!(downloadUrl);
-        }
-      } catch (e) {
-        throw PhotoUploadException('Errore upload Firebase: ${e.toString()}');
-      }
+      final downloadUrl = await _storageService.uploadPhoto(imageFile);
+      widget.onPhotoCaptured?.call(downloadUrl);
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Foto caricata!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto caricata!')),
+        );
         await Future.delayed(const Duration(seconds: 1));
         if (Navigator.canPop(context)) Navigator.pop(context);
       }
     } on PhotoException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
-      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Errore imprevisto')));
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Errore imprevisto')),
+      );
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -149,59 +111,43 @@ class _CameraScreenState extends State<CameraScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (widget.onBack != null) {
-              widget.onBack!();
-            }
-          },
+          onPressed: () => widget.onBack?.call(),
         ),
-        title: const Text('Camera Screen'),
+        title: const Text('Anteprima Foto'),
       ),
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return Stack(
-              children: [
-                Positioned.fill(
-                  child:
-                      _imagePath == null
-                          ? CameraPreview(_controller)
-                          : Image.file(File(_imagePath!), fit: BoxFit.cover),
-                ),
-                if (_isUploading)
-                  Container(
-                    color: Colors.black54,
-                    child: const Center(child: CircularProgressIndicator()),
+      body: Stack(
+        children: [
+          if (_imagePath != null)
+            Positioned.fill(
+              child: Image.file(File(_imagePath!), fit: BoxFit.cover),
+            ),
+          if (_isUploading)
+            Container(
+              color: Colors.black54,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+          if (_imagePath != null)
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: _isUploading ? null : _uploadPhoto,
+                    child: const Text('Carica'),
                   ),
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
-                  child: Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _isUploading ? null : _takePictureAndUpload,
-                        child: const Text('Scatta Foto e Carica'),
-                      ),
-                      if (_imagePath != null)
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _imagePath = null;
-                            });
-                          },
-                          child: const Text('Scatta di nuovo'),
-                        ),
-                    ],
+                  TextButton(
+                    onPressed: () {
+                      setState(() => _imagePath = null);
+                      _openCamera(); // Scatta di nuovo
+                    },
+                    child: const Text('Scatta di nuovo'),
                   ),
-                ),
-              ],
-            );
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -1,10 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
 import 'services/diary_service.dart';

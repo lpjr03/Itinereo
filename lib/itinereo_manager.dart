@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:itinereo/add_diary_page.dart';
 import 'package:itinereo/camera_screen.dart';
@@ -34,7 +32,6 @@ class ItinereoManager extends StatefulWidget {
 class _ItinereoState extends State<ItinereoManager> {
   /// Stores the identifier of the currently active screen.
   var activeScreen = 'home-screen';
-  CameraDescription? selectedCamera;
   List<String> _pendingPhotoUrls = [];
 
   /// Switches the active screen to the diary screen.
@@ -60,9 +57,7 @@ class _ItinereoState extends State<ItinereoManager> {
 
   /// Switches the active screen to the camera screen.
   void switchToCameraScreen() async {
-    final cameras = await availableCameras();
     setState(() {
-      selectedCamera = cameras.first;
       activeScreen = 'camera-screen';
     });
   }
@@ -86,7 +81,6 @@ class _ItinereoState extends State<ItinereoManager> {
       );
     } else if (activeScreen == 'camera-screen') {
       screenWidget = CameraScreen(
-        camera: selectedCamera,
         onBack: switchToAddDiaryPage,
         onPhotoCaptured: (photoUrl) {
           setState(() {

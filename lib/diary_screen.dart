@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itinereo/add_diary_page.dart';
 
 class DiaryScreen extends StatelessWidget {
   final Function() switchToPreview;
