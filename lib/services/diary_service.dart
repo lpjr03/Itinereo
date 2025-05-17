@@ -1,15 +1,16 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
+import 'package:geolocator/geolocator.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/models/diary_entry.dart';
+import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryService {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
   final _localDb = LocalDiaryDatabase();
+  final _geolocatorService = GeolocatorService();
 
   String get _userId => _auth.currentUser!.uid;
 
@@ -19,41 +20,6 @@ class DiaryService {
   Future<void> addEntry(DiaryEntry entry) async {
     await _entryCollection.doc(entry.id).set(entry.toMap());
     await _localDb.insertEntry(entry);
-  }
-
-  Future<String> getCityFromCoordinates(
-    double lat,
-    double lng,
-    String apiKey,
-  ) async {
-    final url = Uri.parse(
-      'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$apiKey',
-    );
-
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-
-      if (data['results'] != null && data['results'].isNotEmpty) {
-        String? city;
-        String? country;
-
-        for (var component in data['results'][0]['address_components']) {
-          final types = List<String>.from(component['types']);
-
-          if (types.contains('locality')) city = component['long_name'];
-          if (types.contains('country')) country = component['long_name'];
-        }
-
-        if (city != null && country != null) return '$city, $country';
-        if (country != null) return country;
-      }
-
-      return 'Unknown location';
-    } else {
-      throw Exception('Failed to fetch location: ${response.statusCode}');
-    }
   }
 
   Future<List<DiaryCard>> getDiaryCards(String apiKey, {int limit = 10, int offset = 0}) async {
@@ -75,14 +41,26 @@ class DiaryService {
         final latitude = (data['latitude'] as num).toDouble();
         final longitude = (data['longitude'] as num).toDouble();
         final photoUrls = List<String>.from(data['photoUrls'] ?? []);
+        Position position = Position(
+          latitude: latitude,
+          longitude: longitude,
+          timestamp: date,
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
+          speedAccuracy: 0,
+        );
 
-        final city = await getCityFromCoordinates(latitude, longitude, apiKey);
+        final place = await _geolocatorService.getCityAndCountryFromPosition(position);
 
         cards.add(
           DiaryCard(
             id: id,
             date: date,
-            place: city,
+            place: place,
             title: title,
             imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
           ),
@@ -91,18 +69,7 @@ class DiaryService {
 
       return cards;
     } catch (e) {
-      final localEntries = await _localDb.getEntriesPaginated(limit: limit, offset: offset);
-      return localEntries
-          .map(
-            (entry) => DiaryCard(
-              id: entry.id,
-              date: entry.date,
-              place: 'Local data',
-              title: entry.description,
-              imageUrl: entry.photoUrls.isNotEmpty ? entry.photoUrls.first : '',
-            ),
-          )
-          .toList();
+      return _localDb.getDiaryCardsFromLocalDb(limit: limit, offset: offset);
     }
   }
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itinereo/models/card_entry.dart';
-import 'package:itinereo/services/diary_service.dart';
+import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
@@ -8,9 +8,7 @@ class DiaryPreview extends StatelessWidget {
   const DiaryPreview({super.key});
 
   Future<List<DiaryCard>> fetchDiaryCards() {
-    return DiaryService().getDiaryCards(
-      "AIzaSyBXDRFaSOLLb5z0peibW6wLRk9zfYNQ_O8",
-    );
+    return LocalDiaryDatabase().getDiaryCardsFromLocalDb(limit: 10, offset: 0);
   }
 
   @override

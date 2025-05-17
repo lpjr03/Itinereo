@@ -1,9 +1,13 @@
+import 'package:geolocator/geolocator.dart';
+import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/services/geolocator_service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../models/diary_entry.dart';
 
 class LocalDiaryDatabase {
   static Database? _database;
+  final GeolocatorService _geolocatorService = GeolocatorService();
 
   Future<Database> get database async {
     return _database ??= await _initDatabase();
@@ -22,20 +26,47 @@ class LocalDiaryDatabase {
             date TEXT,
             latitude REAL,
             longitude REAL,
+            location TEXT,
             photoUrls TEXT
           )''');
       },
     );
   }
 
-  Future<void> insertEntry(DiaryEntry entry) async {
-    final db = await database;
-    await db.insert(
-      'diary_entries',
-      entry.toJson()..['photoUrls'] = entry.photoUrls.join(','),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+Future<void> insertEntry(DiaryEntry entry) async {
+  final db = await database;
+
+  final position = Position(
+    latitude: entry.latitude,
+    longitude: entry.longitude,
+    timestamp: entry.date,
+    accuracy: 0,
+    altitude: 0,
+    heading: 0,
+    speed: 0,
+    altitudeAccuracy: 0,
+    headingAccuracy: 0,
+    speedAccuracy: 0,
+  );
+
+  String location = '';
+  try {
+    location = await _geolocatorService.getCityAndCountryFromPosition(position);
+  } catch (e) {
+    location = 'Sconosciuta';
   }
+
+  final entryMap = entry.toJson()
+    ..['photoUrls'] = entry.photoUrls.join(',')
+    ..['location'] = location;
+
+  await db.insert(
+    'diary_entries',
+    entryMap,
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
 
   Future<List<DiaryEntry>> getEntriesPaginated({
     required int limit,
@@ -59,6 +90,37 @@ class LocalDiaryDatabase {
       return DiaryEntry.fromJson({...map, 'photoUrls': list});
     }).toList();
   }
+
+Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
+  required int limit,
+  required int offset,
+}) async {
+  final db = await database;
+
+  final maps = await db.query(
+    'diary_entries',
+    columns: ['id', 'title', 'date', 'location', 'photoUrls'],
+    orderBy: 'date DESC',
+    limit: limit,
+    offset: offset,
+  );
+
+  return maps.map((map) {
+    final photoUrls = (map['photoUrls'] as String?)
+        ?.split(',')
+        .where((url) => url.trim().isNotEmpty)
+        .toList() ?? [];
+
+    return DiaryCard(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      date: DateTime.parse(map['date'] as String),
+      place: map['location'] as String? ?? '',
+      imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
+    );
+  }).toList();
+}
+
 
   Future<DiaryEntry?> getEntryById(String id) async {
     final db = await database;
