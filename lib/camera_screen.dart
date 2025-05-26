@@ -21,6 +21,7 @@ class CameraScreen extends StatefulWidget {
 }
 
 class _CameraScreenState extends State<CameraScreen> {
+  late final File savedPath;
   final ImagePicker _picker = ImagePicker();
   final StorageService _storageService = StorageService();
 
@@ -37,7 +38,7 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       final XFile? pickedFile = await _picker.pickImage(source: ImageSource.camera);
       if (pickedFile == null) {
-        widget.onBack?.call(); // torna indietro se l'utente annulla
+        widget.onBack?.call(); 
         return;
       }
       setState(() {
@@ -53,7 +54,7 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  Future<void> _saveToGalleryManually(File imageFile) async {
+  Future<File> _saveToGalleryManually(File imageFile) async {
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final sdkInt = androidInfo.version.sdkInt;
 
@@ -69,8 +70,9 @@ class _CameraScreenState extends State<CameraScreen> {
     }
 
     final fileName = 'itinereo_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final savedPath = File('${dir.path}/$fileName');
+    savedPath = File('${dir.path}/$fileName');
     await imageFile.copy(savedPath.path);
+    return savedPath;
   }
 
   Future<void> _uploadPhoto() async {
@@ -79,13 +81,9 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       setState(() => _isUploading = true);
       final imageFile = File(_imagePath!);
-
-      try {
-        await _saveToGalleryManually(imageFile);
-      } catch (_) {}
-
-      final downloadUrl = await _storageService.uploadPhoto(imageFile);
-      widget.onPhotoCaptured?.call(downloadUrl);
+      await _storageService.uploadPhoto(imageFile);
+      await _saveToGalleryManually(imageFile);
+      widget.onPhotoCaptured?.call(savedPath.path);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
