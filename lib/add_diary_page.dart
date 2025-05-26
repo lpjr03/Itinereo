@@ -9,6 +9,7 @@ import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/loading_dialog.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
 import 'services/diary_service.dart';
@@ -77,9 +78,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _isSubmitting = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore durante il salvataggio: $e')),
-      );
+      ItinereoSnackBar.show(context, "Error saving entry: ${e.toString()}");
     }
   }
 
@@ -452,7 +451,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                             0xFF385A55,
-                          ), // verde scuro
+                          ), 
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 28,
@@ -489,7 +488,7 @@ void _handleMapButtonPressed(BuildContext context) async {
     final position = await GeolocatorService().getCurrentLocation();
     final location = await GeolocatorService().getCityAndCountryFromPosition(position);
 
-    Navigator.of(context, rootNavigator: true).pop(); // chiudi il dialog
+    Navigator.of(context, rootNavigator: true).pop(); 
 
     setState(() {
       _latitude = position.latitude;
@@ -497,11 +496,8 @@ void _handleMapButtonPressed(BuildContext context) async {
       _locationController.text = location;
     });
   } catch (e) {
-    Navigator.of(context, rootNavigator: true).pop(); // chiudi in ogni caso
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Errore: ${e.toString()}")),
-    );
+    Navigator.of(context, rootNavigator: true).pop(); 
+    ItinereoSnackBar.show(context, "Error retrieving location: ${e.toString()}");
   }
 }
 
@@ -525,18 +521,14 @@ Position position = Position(latitude: latitude, longitude: longitude, timestamp
       location = await GeolocatorService().getCityAndCountryFromPosition(position);
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Errore nel recupero della posizione: ${e.toString()}")),
-      );
+      ItinereoSnackBar.show(context, "Error retrieving location: ${e.toString()}");
       return;
   }
 } else {
 location = optionalLocation;
   if (location.isEmpty) {
     Navigator.of(context, rootNavigator: true).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Errore: posizione non valida.")),
-    );
+    ItinereoSnackBar.show(context, "Error retrieving location: please provide a valid location.");
     return;
   }
 }
@@ -562,9 +554,7 @@ location = optionalLocation;
   } catch (e) {
     Navigator.of(context, rootNavigator: true).pop();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Errore: ${e.toString()}")),
-    );
+    ItinereoSnackBar.show(context, "Error generating description: ${e.toString()}");
   }
 }
 }
