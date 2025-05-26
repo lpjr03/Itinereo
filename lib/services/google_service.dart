@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:http/http.dart' as http;
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/models/diary_entry.dart';
 import 'package:mime/mime.dart';
@@ -75,8 +73,8 @@ Crea una descrizione per una voce di diario di viaggio con queste informazioni:
 Titolo: ${entry.title}
 Località: Prendi "Città, Nazione" da latitudine: (${entry.latitude}, e longitudine: ${entry.longitude})
 Data: ${entry.date.toIso8601String()}
-Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini.
-Massimo 800 caratteri.
+Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini, descrivendole una per una.
+Massimo 1500 caratteri.
 ''');
     final parts = <Part>[prompt];
 
@@ -84,7 +82,7 @@ Massimo 800 caratteri.
       final file = File(url);
       if (await file.exists()) {
         final bytes = await file.readAsBytes();
-        final mimeType = lookupMimeType(url) ?? 'image/jpeg';
+        final mimeType = lookupMimeType(url) ?? 'image/jpg';
         parts.add(InlineDataPart(mimeType, bytes));
       }
     }
