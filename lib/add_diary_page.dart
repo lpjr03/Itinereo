@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -71,7 +72,6 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
     try {
       await DiaryService().addEntry(newEntry);
       await LocalDiaryDatabase().insertEntry(newEntry);
-
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _isSubmitting = false);
@@ -209,7 +209,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                               16,
                                             ),
                                             child: InteractiveViewer(
-                                              child: Image.network(photoUrl),
+                                              child: Image.file(
+                                                File(photoUrl),
+                                                fit: BoxFit.contain,
+                                              ),
                                             ),
                                           ),
                                     );
@@ -220,9 +223,8 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                       vertical: 10,
                                     ),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
                                       image: DecorationImage(
-                                        image: NetworkImage(photoUrl),
+                                        image: FileImage(File(photoUrl)),
                                         fit: BoxFit.cover,
                                       ),
                                     ),
@@ -375,7 +377,8 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             if (_titleController.text.isEmpty ||
                                 _photoUrls.isEmpty ||
                                 _locationController.text.isEmpty ||
-                                _dateController.text.isEmpty || _descriptionController.text.isNotEmpty) {
+                                _dateController.text.isEmpty ||
+                                _descriptionController.text.isNotEmpty) {
                               showDialog(
                                 context: context,
                                 builder:
@@ -428,22 +431,21 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                       ElevatedButton(
                         onPressed: () {
                           if (_titleController.text.isEmpty ||
-                                _photoUrls.isEmpty ||
-                                _locationController.text.isEmpty ||
-                                _dateController.text.isEmpty) {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (context) => const ErrorDialog(
-                                      message:
-                                          "Please fill all fields before saving.",
-                                    ),
-                              );
-                              }
-                              else{
-                          _submit();
-                          if (widget.onSave != null) widget.onSave!();
-                              }
+                              _photoUrls.isEmpty ||
+                              _locationController.text.isEmpty ||
+                              _dateController.text.isEmpty) {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => const ErrorDialog(
+                                    message:
+                                        "Please fill all fields before saving.",
+                                  ),
+                            );
+                          } else {
+                            _submit();
+                            if (widget.onSave != null) widget.onSave!();
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
