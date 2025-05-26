@@ -19,7 +19,6 @@ class DiaryService {
 
   Future<void> addEntry(DiaryEntry entry) async {
     await _entryCollection.doc(entry.id).set(entry.toMap());
-    await _localDb.insertEntry(entry);
   }
 
   Future<List<DiaryCard>> getDiaryCards(String apiKey, {int limit = 10, int offset = 0}) async {
@@ -69,7 +68,7 @@ class DiaryService {
 
       return cards;
     } catch (e) {
-      return _localDb.getDiaryCardsFromLocalDb(limit: limit, offset: offset);
+      return _localDb.getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: limit, offset: offset);
     }
   }
 

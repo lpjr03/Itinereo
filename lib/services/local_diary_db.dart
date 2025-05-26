@@ -21,6 +21,7 @@ class LocalDiaryDatabase {
       onCreate: (db, version) {
         return db.execute('''CREATE TABLE diary_entries (
             id TEXT PRIMARY KEY,
+            userId TEXT, 
             title TEXT,
             description TEXT,
             date TEXT,
@@ -33,7 +34,7 @@ class LocalDiaryDatabase {
     );
   }
 
-Future<void> insertEntry(DiaryEntry entry) async {
+Future<void> insertEntry(DiaryEntry entry, String userId) async {
   final db = await database;
 
   final position = Position(
@@ -57,6 +58,7 @@ Future<void> insertEntry(DiaryEntry entry) async {
   }
 
   final entryMap = entry.toJson()
+    ..['userId'] = userId
     ..['photoUrls'] = entry.photoUrls.join(',')
     ..['location'] = location;
 
@@ -68,30 +70,30 @@ Future<void> insertEntry(DiaryEntry entry) async {
 }
 
 
-  Future<List<DiaryEntry>> getEntriesPaginated({
-    required int limit,
-    required int offset,
-  }) async {
-    final db = await database;
-    final maps = await db.query(
-      'diary_entries',
-      orderBy: 'date DESC',
-      limit: limit,
-      offset: offset,
-    );
 
-    return maps.map((map) {
-      final raw = map['photoUrls'] as String?;
-      final list =
-          (raw == null || raw.trim().isEmpty)
-              ? <String>[]
-              : raw.split(',').where((e) => e.trim().isNotEmpty).toList();
+Future<List<DiaryEntry>> getAllEntries({required String userId}) async {
+  final db = await database;
 
-      return DiaryEntry.fromJson({...map, 'photoUrls': list});
-    }).toList();
-  }
+  final maps = await db.query(
+    'diary_entries',
+    where: 'userId = ?',
+    whereArgs: [userId],
+    orderBy: 'date DESC',
+  );
+
+  return maps.map((map) {
+    final raw = map['photoUrls'] as String?;
+    final list = (raw == null || raw.trim().isEmpty)
+        ? <String>[]
+        : raw.split(',').where((e) => e.trim().isNotEmpty).toList();
+
+    return DiaryEntry.fromJson({...map, 'photoUrls': list});
+  }).toList();
+}
+
 
 Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
+  required String userId, 
   required int limit,
   required int offset,
 }) async {
@@ -100,6 +102,8 @@ Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
   final maps = await db.query(
     'diary_entries',
     columns: ['id', 'title', 'date', 'location', 'photoUrls'],
+    where: 'userId = ?',             
+    whereArgs: [userId],
     orderBy: 'date DESC',
     limit: limit,
     offset: offset,
@@ -120,6 +124,7 @@ Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
     );
   }).toList();
 }
+
 
 
   Future<DiaryEntry?> getEntryById(String id) async {
