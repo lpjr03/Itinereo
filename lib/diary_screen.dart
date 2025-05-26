@@ -7,11 +7,13 @@ import 'package:itinereo/widgets/polaroid_photo.dart';
 class DiaryScreen extends StatelessWidget {
   final Function() switchToPreview;
   final Function() switchToAddDiaryPage;
+  final Function() switchToMapPage;
 
   const DiaryScreen({
     super.key,
     required this.switchToPreview,
     required this.switchToAddDiaryPage,
+    required this.switchToMapPage,
   });
 
   @override
@@ -56,7 +58,7 @@ class DiaryScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       BookMark(
-                        onPressed: switchToPreview,
+                        onPressed: switchToMapPage,
                         icon: Icons.public_rounded,
                         label: "Map",
                         textAndIconColor: Colors.white,

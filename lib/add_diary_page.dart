@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
@@ -74,7 +75,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
 
     try {
       await DiaryService().addEntry(newEntry);
-      await LocalDiaryDatabase().insertEntry(newEntry);
+      await LocalDiaryDatabase().insertEntry(newEntry, FirebaseAuth.instance.currentUser!.uid);
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _isSubmitting = false);

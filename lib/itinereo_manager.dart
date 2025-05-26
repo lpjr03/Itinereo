@@ -1,11 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:itinereo/add_diary_page.dart';
 import 'package:itinereo/camera_screen.dart';
+import 'package:itinereo/diary_map_page.dart';
 import 'package:itinereo/diary_preview.dart';
 import 'package:itinereo/diary_screen.dart';
 import 'package:itinereo/home_screen.dart';
-import 'package:itinereo/theme.dart';
 
 /// A widget that manages the navigation between different screens
 /// of the Itinereo application using state lifting.
@@ -63,6 +64,12 @@ class _ItinereoState extends State<ItinereoManager> {
     });
   }
 
+  void switchToMapPage() async{
+    setState(() {
+      activeScreen = 'map-page-screen';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Selects the widget to display based on the active screen.
@@ -71,6 +78,7 @@ class _ItinereoState extends State<ItinereoManager> {
       screenWidget = DiaryScreen(
         switchToPreview: switchToEntriesPreview,
         switchToAddDiaryPage: switchToAddDiaryPage,
+        switchToMapPage: switchToMapPage,
       );
     } else if (activeScreen == 'preview-screen') {
       screenWidget = const DiaryPreview();
@@ -90,11 +98,13 @@ class _ItinereoState extends State<ItinereoManager> {
           });
         },
       );
+    } else if (activeScreen == 'map-page-screen') {
+      screenWidget = const DiaryMapPage();
     }
 
     return MaterialApp(
       title: "Itinerèo",
-      theme: AppTheme.lightTheme,
+      theme: ThemeData.light(),
       debugShowCheckedModeBanner: false,
       home: SafeArea(
         child: Scaffold(

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
@@ -9,7 +10,7 @@ class DiaryPreview extends StatelessWidget {
   const DiaryPreview({super.key});
 
   Future<List<DiaryCard>> fetchDiaryCards() {
-    return LocalDiaryDatabase().getDiaryCardsFromLocalDb(limit: 10, offset: 0);
+    return LocalDiaryDatabase().getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: 10, offset: 0);
   }
 
   @override
