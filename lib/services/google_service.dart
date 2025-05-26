@@ -63,18 +63,21 @@ class GoogleService {
   /// The description is based on title, location, date, and photo URLs.
   ///
   /// Returns a string description if successful, otherwise throws an exception.
-static Future<String> generateDescriptionFromEntry(DiaryEntry entry) async {
+  static Future<String> generateDescriptionFromEntry(
+    DiaryEntry entry,
+    String location,
+  ) async {
     final model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-2.0-flash-001',
     );
-
     final prompt = TextPart('''
 Crea una descrizione per una voce di diario di viaggio con queste informazioni:
 Titolo: ${entry.title}
-Località: Prendi "Città, Nazione" da latitudine: (${entry.latitude}, e longitudine: ${entry.longitude})
+Località: La posizione è: $location
 Data: ${entry.date.toIso8601String()}
 Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini, descrivendole una per una.
 Massimo 1500 caratteri.
+Parti direttamente con la risposta, come se fosse un diario personale, senza introdurre il testo con "Ecco la descrizione" o simili.
 ''');
     final parts = <Part>[prompt];
 
@@ -87,9 +90,7 @@ Massimo 1500 caratteri.
       }
     }
 
-    final response = await model.generateContent([
-      Content.multi(parts),
-    ]);
+    final response = await model.generateContent([Content.multi(parts)]);
 
     return response.text ?? 'Nessuna descrizione generata.';
   }

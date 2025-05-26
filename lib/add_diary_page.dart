@@ -2,11 +2,13 @@ import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
+import 'package:itinereo/widgets/loading_dialog.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
 import 'services/diary_service.dart';
@@ -267,9 +269,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           ),
                           const SizedBox(width: 12),
                           Padding(
-                            padding: const EdgeInsets.only(
-                              top: 4,
-                            ), 
+                            padding: const EdgeInsets.only(top: 4),
                             child: ElevatedButton.icon(
                               onPressed: () {
                                 _handleMapButtonPressed(context);
@@ -396,6 +396,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                 DateTime.now(),
                                 _latitude,
                                 _longitude,
+                                _locationController.text,
                               );
                             }
                           },
@@ -482,57 +483,90 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
     );
   }
 
-  void _handleMapButtonPressed(BuildContext context) async {
-    try {
-      final position = await GeolocatorService().getCurrentLocation();
-      final String location = await GeolocatorService()
-          .getCityAndCountryFromPosition(position);
+void _handleMapButtonPressed(BuildContext context) async {
+  showLoadingDialog(context, "Where in the world are you? Almost there...");
+  try {
+    final position = await GeolocatorService().getCurrentLocation();
+    final location = await GeolocatorService().getCityAndCountryFromPosition(position);
 
-      setState(() {
-        _latitude = position.latitude;
-        _longitude = position.longitude;
-        _locationController.text = location;
-      });
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
-      }
-    }
+    Navigator.of(context, rootNavigator: true).pop(); // chiudi il dialog
+
+    setState(() {
+      _latitude = position.latitude;
+      _longitude = position.longitude;
+      _locationController.text = location;
+    });
+  } catch (e) {
+    Navigator.of(context, rootNavigator: true).pop(); // chiudi in ogni caso
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Errore: ${e.toString()}")),
+    );
   }
+}
 
-  void _callAiWriter(
-    BuildContext context,
-    String title,
-    List<String> photoUrls,
-    DateTime date,
-    latitude,
-    double longitude,
-  ) async {
+
+void _callAiWriter(
+  BuildContext context,
+  String title,
+  List<String> photoUrls,
+  DateTime date,
+  latitude,
+  double longitude,
+  String optionalLocation
+) async {
+  showLoadingDialog(context, "Give it a sec, AI's on deck!");
+String location='';
+if(latitude != 0.0 && longitude != 0.0) {
+    // Crea un oggetto Position con le coordinate fornite
+Position position = Position(latitude: latitude, longitude: longitude, timestamp: DateTime.now() , accuracy: 0, altitude: 0, speed: 0, speedAccuracy: 0, heading: 0, altitudeAccuracy: 0, headingAccuracy: 0);
+
     try {
-      String response = await GoogleService.generateDescriptionFromEntry(
-        DiaryEntry(
-          id: '',
-          title: title,
-          description: '',
-          date: date,
-          latitude: latitude,
-          longitude: longitude,
-          photoUrls: photoUrls,
-        ),
+      location = await GeolocatorService().getCityAndCountryFromPosition(position);
+    } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Errore nel recupero della posizione: ${e.toString()}")),
       );
-      setState(() {
-        _descriptionController.text = response;
-      });
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
-      }
-    }
+      return;
   }
+} else {
+location = optionalLocation;
+  if (location.isEmpty) {
+    Navigator.of(context, rootNavigator: true).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Errore: posizione non valida.")),
+    );
+    return;
+  }
+}
+  try {
+    String response = await GoogleService.generateDescriptionFromEntry(
+      DiaryEntry(
+        id: '',
+        title: title,
+        description: '',
+        date: date,
+        latitude: latitude,
+        longitude: longitude,
+        photoUrls: photoUrls,
+      ),
+    location,
+    );
+
+    Navigator.of(context, rootNavigator: true).pop();
+
+    setState(() {
+      _descriptionController.text = response;
+    });
+  } catch (e) {
+    Navigator.of(context, rootNavigator: true).pop();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Errore: ${e.toString()}")),
+    );
+  }
+}
 }
 
 class DateField extends StatefulWidget {
