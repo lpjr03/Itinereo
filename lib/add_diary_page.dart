@@ -115,7 +115,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         style: GoogleFonts.deliciousHandrawn(
                           textStyle: const TextStyle(
                             height: 1.3,
-                            fontSize: 32,
+                            fontSize: 30,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF2E5355),
                           ),
@@ -127,7 +127,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           hintText: 'Title',
                           hintStyle: GoogleFonts.deliciousHandrawn(
                             textStyle: const TextStyle(
-                              fontSize: 31,
+                              fontSize: 30,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF2E5355),
                             ),
@@ -135,14 +135,14 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           filled: true,
                           fillColor: const Color(0xFFF9EDD2),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(9),
                             borderSide: const BorderSide(
                               color: Color(0xFFD8CCB1),
                               width: 9,
                             ),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(9),
                             borderSide: const BorderSide(
                               color: Color(0xFFD8CCB1),
                               width: 9,
@@ -266,9 +266,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             child: DateField(dateController: _dateController),
                           ),
                           const SizedBox(width: 12),
-
                           Padding(
-                            padding: const EdgeInsets.only(top: 24),
+                            padding: const EdgeInsets.only(
+                              top: 4,
+                            ), 
                             child: ElevatedButton.icon(
                               onPressed: () {
                                 _handleMapButtonPressed(context);
@@ -306,6 +307,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         ],
                       ),
 
+                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _locationController,
                         decoration: InputDecoration(
@@ -336,23 +338,21 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           ),
                         ),
                       ),
-
+                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _descriptionController,
-                        maxLines: 6,
+                        maxLines: 5,
                         decoration: InputDecoration(
                           hintText: 'Write your story...',
                           hintStyle: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             color: Color(0xFF2E5355),
                           ),
                           filled: true,
                           fillColor: const Color(0xFFF6ECD4),
-                          contentPadding: const EdgeInsets.fromLTRB(
-                            12,
-                            16,
-                            12,
-                            40,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -370,6 +370,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 12),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: ElevatedButton.icon(
@@ -427,7 +428,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           ),
                         ),
                       ),
-
+                      const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
                           if (_titleController.text.isEmpty ||
