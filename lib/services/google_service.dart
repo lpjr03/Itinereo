@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/models/diary_entry.dart';
+import 'package:mime/mime.dart';
 
 /// A service class responsible for handling Google Sign-In authentication.
 ///
@@ -20,9 +21,6 @@ class GoogleService {
 
   /// Internal instance of [FirebaseAuth].
   static final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  /// Gemini API key (set your actual key here).
-  static const String _geminiApiKey = 'YOUR_GEMINI_API_KEY';
 
   /// Signs in the user using Google Sign-In and Firebase Authentication.
   ///
@@ -67,46 +65,33 @@ class GoogleService {
   /// The description is based on title, location, date, and photo URLs.
   ///
   /// Returns a string description if successful, otherwise throws an exception.
-  static Future<String> generateDescriptionFromEntry(DiaryEntry entry) async {
-    final prompt = '''Crea una descrizione per una voce di diario di viaggio con queste informazioni:
-Titolo: ${entry.title}
-Località: coordinate (${entry.latitude}, ${entry.longitude})
-Data: ${entry.date.toIso8601String()}
-Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini.''';
-
-    final parts = <Map<String, dynamic>>[
-      {"text": prompt},
-    ];
-
-    for (final url in entry.photoUrls) {
-      final bytes = await File(url).readAsBytes();
-      parts.add({
-        "inlineData": {
-          "mimeType": "image/jpeg",
-          "data": base64Encode(bytes),
-        }
-      });
-    }
-
-    final response = await http.post(
-      Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=$_geminiApiKey',
-      ),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        "contents": [
-          {"parts": parts}
-        ]
-      }),
+static Future<String> generateDescriptionFromEntry(DiaryEntry entry) async {
+    final model = FirebaseAI.googleAI().generativeModel(
+      model: 'gemini-2.0-flash-001',
     );
 
-    if (response.statusCode == 200) {
-      final decoded = jsonDecode(response.body);
-      return decoded['candidates'][0]['content']['parts'][0]['text'] ?? '';
-    } else {
-      throw Exception('Failed to generate description: ${response.body}');
+    final prompt = TextPart('''
+Crea una descrizione per una voce di diario di viaggio con queste informazioni:
+Titolo: ${entry.title}
+Località: Prendi "Città, Nazione" da latitudine: (${entry.latitude}, e longitudine: ${entry.longitude})
+Data: ${entry.date.toIso8601String()}
+Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini.
+''');
+    final parts = <Part>[prompt];
+
+    for (final url in entry.photoUrls) {
+      final file = File(url);
+      if (await file.exists()) {
+        final bytes = await file.readAsBytes();
+        final mimeType = lookupMimeType(url) ?? 'image/jpeg';
+        parts.add(InlineDataPart(mimeType, bytes));
+      }
     }
+
+    final response = await model.generateContent([
+      Content.multi(parts),
+    ]);
+
+    return response.text ?? 'Nessuna descrizione generata.';
   }
 }

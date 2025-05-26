@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/services/geolocator_service.dart';
+import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
@@ -30,6 +32,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   late List<String> _photoUrls = [];
   final PageController _pageController = PageController(viewportFraction: 0.95);
 
@@ -259,8 +262,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(child: DateField()),
-
+                          Expanded(child: DateField(dateController: _dateController)),
                           const SizedBox(width: 12),
 
                           Padding(
@@ -370,7 +372,8 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         alignment: Alignment.bottomRight,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            //@todo
+                            _callAiWriter(context, _titleController.text,
+                                _photoUrls, DateTime.now(), _latitude, _longitude);
                           },
                           icon: const Icon(
                             Icons.auto_fix_high,
@@ -460,22 +463,57 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       }
     }
   }
+
+void _callAiWriter(
+  BuildContext context,
+  String title,
+  List<String> photoUrls,
+  DateTime date,
+  latitude,
+  double longitude,
+) async {
+  try {
+    String response = await GoogleService.generateDescriptionFromEntry(
+      DiaryEntry(
+        id: '',
+        title: title,
+        description: '',
+        date: date,
+        latitude: latitude,
+        longitude: longitude,
+        photoUrls: photoUrls,
+      ),
+    );
+    setState(() {
+      _descriptionController.text = response;
+    });
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+    }
+  }
+}
 }
 
 class DateField extends StatefulWidget {
-  const DateField({super.key});
+  final TextEditingController dateController;
+  const DateField({super.key, required this.dateController});
 
   @override
-  State<DateField> createState() => _DateFieldState();
+  State<DateField> createState() => _DateFieldState(dateController: dateController);
 }
 
 class _DateFieldState extends State<DateField> {
-  final TextEditingController _dateController = TextEditingController();
 
+final TextEditingController dateController;
+
+ _DateFieldState({required this.dateController});
   @override
   void initState() {
     super.initState();
-    _dateController.text = _formatDate(DateTime.now());
+    dateController.text = _formatDate(DateTime.now());
   }
 
   String _formatDate(DateTime date) {
@@ -491,7 +529,7 @@ class _DateFieldState extends State<DateField> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = _formatDate(picked);
+        dateController.text = _formatDate(picked);
       });
     }
   }
@@ -499,7 +537,7 @@ class _DateFieldState extends State<DateField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: _dateController,
+      controller: dateController,
       readOnly: true,
       onTap: _pickDate,
       style: const TextStyle(fontStyle: FontStyle.italic),
