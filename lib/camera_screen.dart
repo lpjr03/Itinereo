@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:itinereo/exceptions/photo_exceptions.dart';
 import 'package:itinereo/services/firebase_storage.dart';
+import 'package:itinereo/widgets/itinereo_appBar.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
@@ -23,7 +25,6 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   late final File savedPath;
   final ImagePicker _picker = ImagePicker();
-  final StorageService _storageService = StorageService();
 
   String? _imagePath;
   bool _isUploading = false;
@@ -46,9 +47,7 @@ class _CameraScreenState extends State<CameraScreen> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Errore apertura fotocamera')),
-        );
+        ItinereoSnackBar.show(context, "Error opening the camera. Please try again.");
         widget.onBack?.call();
       }
     }
@@ -62,7 +61,7 @@ class _CameraScreenState extends State<CameraScreen> {
         ? await Permission.photos.request()
         : await Permission.storage.request();
 
-    if (!status.isGranted) throw Exception("Permessi non concessi");
+    if (!status.isGranted) throw Exception("Permission denied to save photos.");
 
     final dir = Directory('/storage/emulated/0/Pictures/Itinereo');
     if (!await dir.exists()) {
@@ -81,23 +80,18 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       setState(() => _isUploading = true);
       final imageFile = File(_imagePath!);
-      await _storageService.uploadPhoto(imageFile);
       await _saveToGalleryManually(imageFile);
       widget.onPhotoCaptured?.call(savedPath.path);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Foto caricata!')),
-        );
+        ItinereoSnackBar.show(context, "Photo successfully uploaded.");
         await Future.delayed(const Duration(seconds: 1));
         if (Navigator.canPop(context)) Navigator.pop(context);
       }
     } on PhotoException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      ItinereoSnackBar.show(context, e.message);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Errore imprevisto')),
-      );
+      ItinereoSnackBar.show(context, "Unexpected error. Please try again.");
     } finally {
       if (mounted) setState(() => _isUploading = false);
     }
@@ -106,12 +100,11 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => widget.onBack?.call(),
-        ),
-        title: const Text('Anteprima Foto'),
+      appBar: ItinereoAppBar(
+        title: "Photo Preview",
+        textColor: const Color(0xFFF6E1C4),
+        pillColor: const Color.fromARGB(255, 127, 62, 18),
+        topBarColor: const Color.fromARGB(255, 8, 6, 4),
       ),
       body: Stack(
         children: [
@@ -133,14 +126,14 @@ class _CameraScreenState extends State<CameraScreen> {
                 children: [
                   ElevatedButton(
                     onPressed: _isUploading ? null : _uploadPhoto,
-                    child: const Text('Carica'),
+                    child: const Text('Upload Photo'),
                   ),
                   TextButton(
                     onPressed: () {
                       setState(() => _imagePath = null);
                       _openCamera(); // Scatta di nuovo
                     },
-                    child: const Text('Scatta di nuovo'),
+                    child: const Text('Take Another Photo'),
                   ),
                 ],
               ),
