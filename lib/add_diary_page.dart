@@ -1,10 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
+import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:uuid/uuid.dart';
 import '../models/diary_entry.dart';
 import 'services/diary_service.dart';
@@ -109,9 +110,11 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                       TextFormField(
                         controller: _titleController,
                         textAlign: TextAlign.center,
+                        maxLines: 2,
+                        inputFormatters: [LengthLimitingTextInputFormatter(38)],
                         style: GoogleFonts.deliciousHandrawn(
                           textStyle: const TextStyle(
-                            height: 2,
+                            height: 1.3,
                             fontSize: 32,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF2E5355),
@@ -124,7 +127,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           hintText: 'Title',
                           hintStyle: GoogleFonts.deliciousHandrawn(
                             textStyle: const TextStyle(
-                              fontSize: 32,
+                              fontSize: 31,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF2E5355),
                             ),
@@ -146,11 +149,6 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             ),
                           ),
                         ),
-                        validator:
-                            (value) =>
-                                value == null || value.isEmpty
-                                    ? 'Inserisci un titolo'
-                                    : null,
                       ),
 
                       CarouselSlider(
@@ -262,7 +260,9 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(child: DateField(dateController: _dateController)),
+                          Expanded(
+                            child: DateField(dateController: _dateController),
+                          ),
                           const SizedBox(width: 12),
 
                           Padding(
@@ -372,8 +372,28 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         alignment: Alignment.bottomRight,
                         child: ElevatedButton.icon(
                           onPressed: () {
-                            _callAiWriter(context, _titleController.text,
-                                _photoUrls, DateTime.now(), _latitude, _longitude);
+                            if (_titleController.text.isEmpty ||
+                                _photoUrls.isEmpty ||
+                                _locationController.text.isEmpty ||
+                                _dateController.text.isEmpty || _descriptionController.text.isNotEmpty) {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => const ErrorDialog(
+                                      message:
+                                          "Please fill every field except for the description.",
+                                    ),
+                              );
+                            } else {
+                              _callAiWriter(
+                                context,
+                                _titleController.text,
+                                _photoUrls,
+                                DateTime.now(),
+                                _latitude,
+                                _longitude,
+                              );
+                            }
                           },
                           icon: const Icon(
                             Icons.auto_fix_high,
@@ -407,8 +427,23 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
 
                       ElevatedButton(
                         onPressed: () {
+                          if (_titleController.text.isEmpty ||
+                                _photoUrls.isEmpty ||
+                                _locationController.text.isEmpty ||
+                                _dateController.text.isEmpty) {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (context) => const ErrorDialog(
+                                      message:
+                                          "Please fill all fields before saving.",
+                                    ),
+                              );
+                              }
+                              else{
                           _submit();
                           if (widget.onSave != null) widget.onSave!();
+                              }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -464,37 +499,37 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
     }
   }
 
-void _callAiWriter(
-  BuildContext context,
-  String title,
-  List<String> photoUrls,
-  DateTime date,
-  latitude,
-  double longitude,
-) async {
-  try {
-    String response = await GoogleService.generateDescriptionFromEntry(
-      DiaryEntry(
-        id: '',
-        title: title,
-        description: '',
-        date: date,
-        latitude: latitude,
-        longitude: longitude,
-        photoUrls: photoUrls,
-      ),
-    );
-    setState(() {
-      _descriptionController.text = response;
-    });
-  } catch (e) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+  void _callAiWriter(
+    BuildContext context,
+    String title,
+    List<String> photoUrls,
+    DateTime date,
+    latitude,
+    double longitude,
+  ) async {
+    try {
+      String response = await GoogleService.generateDescriptionFromEntry(
+        DiaryEntry(
+          id: '',
+          title: title,
+          description: '',
+          date: date,
+          latitude: latitude,
+          longitude: longitude,
+          photoUrls: photoUrls,
+        ),
+      );
+      setState(() {
+        _descriptionController.text = response;
+      });
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
+      }
     }
   }
-}
 }
 
 class DateField extends StatefulWidget {
@@ -502,14 +537,14 @@ class DateField extends StatefulWidget {
   const DateField({super.key, required this.dateController});
 
   @override
-  State<DateField> createState() => _DateFieldState(dateController: dateController);
+  State<DateField> createState() =>
+      _DateFieldState(dateController: dateController);
 }
 
 class _DateFieldState extends State<DateField> {
+  final TextEditingController dateController;
 
-final TextEditingController dateController;
-
- _DateFieldState({required this.dateController});
+  _DateFieldState({required this.dateController});
   @override
   void initState() {
     super.initState();

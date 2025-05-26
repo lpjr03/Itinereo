@@ -76,6 +76,7 @@ Titolo: ${entry.title}
 Località: Prendi "Città, Nazione" da latitudine: (${entry.latitude}, e longitudine: ${entry.longitude})
 Data: ${entry.date.toIso8601String()}
 Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini.
+Massimo 800 caratteri.
 ''');
     final parts = <Part>[prompt];
 
