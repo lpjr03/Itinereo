@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
+import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
 class DiaryPreview extends StatelessWidget {
@@ -41,6 +42,8 @@ class DiaryPreview extends StatelessWidget {
           );
         },
       ),
+
+      bottomNavigationBar: ItinereoBottomBar(currentIndex: 2),
     );
   }
 }
