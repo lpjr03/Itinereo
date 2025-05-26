@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -6,10 +8,7 @@ import 'package:itinereo/models/card_entry.dart';
 class TravelCard extends StatelessWidget {
   final DiaryCard diaryCard;
 
-  const TravelCard({
-    super.key,
-    required this.diaryCard
-  });
+  const TravelCard({super.key, required this.diaryCard});
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +28,8 @@ class TravelCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                diaryCard.imageUrl,
+              child: Image.file(
+                File(diaryCard.imageUrl),
                 fit: BoxFit.cover,
                 height: 180,
                 width: double.infinity,
