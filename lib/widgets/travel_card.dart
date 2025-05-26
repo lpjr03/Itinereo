@@ -15,8 +15,8 @@ class TravelCard extends StatelessWidget {
   Widget build(BuildContext context) {
     String formattedDate = DateFormat.yMMMMd('en_US').format(diaryCard.date);
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-      color: const Color.fromARGB(255, 242, 225, 186),
+      margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+      color: const Color.fromARGB(255, 255, 244, 217),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 5,
       shadowColor: Colors.black,
@@ -32,7 +32,7 @@ class TravelCard extends StatelessWidget {
               child: Image.network(
                 diaryCard.imageUrl,
                 fit: BoxFit.cover,
-                height: 200,
+                height: 180,
                 width: double.infinity,
               ),
             ),
