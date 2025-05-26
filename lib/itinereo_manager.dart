@@ -5,6 +5,7 @@ import 'package:itinereo/camera_screen.dart';
 import 'package:itinereo/diary_preview.dart';
 import 'package:itinereo/diary_screen.dart';
 import 'package:itinereo/home_screen.dart';
+import 'package:itinereo/theme.dart';
 
 /// A widget that manages the navigation between different screens
 /// of the Itinereo application using state lifting.
@@ -92,6 +93,9 @@ class _ItinereoState extends State<ItinereoManager> {
     }
 
     return MaterialApp(
+      title: "Itinerèo",
+      theme: AppTheme.lightTheme,
+      debugShowCheckedModeBanner: false,
       home: SafeArea(
         child: Scaffold(
           body: Container(
