@@ -16,8 +16,8 @@ import 'package:itinereo/widgets/diary_add_carousel.dart';
 import 'package:itinereo/widgets/loading_dialog.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:uuid/uuid.dart';
-import '../models/diary_entry.dart';
-import 'services/diary_service.dart';
+import '../../models/diary_entry.dart';
+import '../services/diary_service.dart';
 
 class AddDiaryEntryPage extends StatefulWidget {
   final void Function()? onSave;
@@ -78,7 +78,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
 
     try {
       await DiaryService().addEntry(newEntry);
-      await LocalDiaryDatabase().insertEntry(newEntry, FirebaseAuth.instance.currentUser!.uid);
+      await LocalDiaryDatabase().insertEntry(
+        newEntry,
+        FirebaseAuth.instance.currentUser!.uid,
+      );
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _isSubmitting = false);
@@ -109,29 +112,31 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                 child: Form(
                   key: _formKey,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       CustomTextFormField(
                         controller: _titleController,
-                        hintText: 'TITLE',
+                        hintText: 'Title',
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         inputFormatters: [LengthLimitingTextInputFormatter(38)],
-                        textStyle: GoogleFonts.deliciousHandrawn(
+                        textStyle: GoogleFonts.libreBaskerville(
                           textStyle: const TextStyle(
-                            height: 1.3,
-                            fontSize: 30,
+                            height: 2,
+                            fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF2E5355),
                           ),
                         ),
-                        hintStyle: GoogleFonts.deliciousHandrawn(
+                        hintStyle: GoogleFonts.libreBaskerville(
                           textStyle: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w400, 
                             color: Color(0xFF2E5355),
                           ),
+                        ).copyWith(
+                          color: const Color.fromARGB(255, 84, 124, 126),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -164,7 +169,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             child: DiaryActionButton(
                               onPressed: () => _handleMapButtonPressed(context),
                               icon: Icons.location_on,
-                              label: 'Find me',
+                              iconColor: Color(0xFFC97F4F),
+                              backgroundColor: Color(0xFFEAB054),
+                              borderColor: Color(0xFFC97F4F),
+                              label: 'Find me', textColor: Color(0xFF373737),
                             ),
                           ),
                         ],
@@ -173,9 +181,14 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                       CustomTextFormField(
                         controller: _locationController,
                         hintText: 'Location',
-                        hintStyle: const TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF2E5355),
+                        hintStyle: GoogleFonts.playpenSans(
+                          textStyle: TextStyle(
+                            fontSize: 21,
+                            height: 28 / 21,
+                            letterSpacing: -0.04 * 21,
+                            color: Color(0xFF4D4C48),
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                         fillColor: const Color(0xFFF6ECD4),
                         border: OutlineInputBorder(
@@ -191,9 +204,14 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         controller: _descriptionController,
                         hintText: 'Write your story...',
                         multiline: true,
-                        hintStyle: const TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF2E5355),
+                        hintStyle: GoogleFonts.playpenSans(
+                          textStyle: TextStyle(
+                            fontSize: 21,
+                            height: 28 / 21,
+                            letterSpacing: -0.04 * 21,
+                            color: Color(0xFF4D4C48),
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                         fillColor: const Color(0xFFF6ECD4),
                         border: OutlineInputBorder(
@@ -237,49 +255,62 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           icon: Icons.auto_fix_high,
                           label: 'AI Writer',
                           backgroundColor: const Color(0xFFBEE2F5),
-                          borderColor: const Color(0xFF3194B4),
+                          borderColor: const Color(0xFF3194B4), iconColor: Color(0xFF4F90C8), textColor: Color(0xFF373737),
                         ),
                       ),
 
-                      ElevatedButton(
-                        onPressed: () {
-                          if (_titleController.text.isEmpty ||
-                              _photoUrls.isEmpty ||
-                              _locationController.text.isEmpty ||
-                              _dateController.text.isEmpty) {
-                            showDialog(
-                              context: context,
-                              builder:
-                                  (context) => const ErrorDialog(
-                                    message:
-                                        "Please fill all fields before saving.",
+                     Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 12,
+                              bottom: 12,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_titleController.text.isEmpty ||
+                                    _photoUrls.isEmpty ||
+                                    _locationController.text.isEmpty ||
+                                    _dateController.text.isEmpty) {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => const ErrorDialog(
+                                          message:
+                                              "Please fill all fields before saving.",
+                                        ),
+                                  );
+                                } else {
+                                  _submit();
+                                  if (widget.onSave != null) widget.onSave!();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF2E5355),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: Text(
+                                'Salva',
+                                style: GoogleFonts.playpenSans(
+                                  textStyle: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
                                   ),
-                            );
-                          } else {
-                            _submit();
-                            if (widget.onSave != null) widget.onSave!();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF385A55),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 28,
-                            vertical: 12,
+                                ),
+                              ),
+                            ),
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          'Salva',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            fontFamily: 'Raleway',
-                          ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
@@ -292,78 +323,104 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
     );
   }
 
-void _handleMapButtonPressed(BuildContext context) async {
-  showLoadingDialog(context, "Where in the world are you? Almost there...");
-  try {
-    final position = await GeolocatorService().getCurrentLocation();
-    final location = await GeolocatorService().getCityAndCountryFromPosition(position);
-
-    Navigator.of(context, rootNavigator: true).pop(); 
-
-    setState(() {
-      _latitude = position.latitude;
-      _longitude = position.longitude;
-      _locationController.text = location;
-    });
-  } catch (e) {
-    Navigator.of(context, rootNavigator: true).pop(); 
-    ItinereoSnackBar.show(context, "Error retrieving location: ${e.toString()}");
-  }
-}
-
-
- void _callAiWriter(
-  BuildContext context,
-  String title,
-  List<String> photoUrls,
-  DateTime date,
-  latitude,
-  double longitude,
-  String optionalLocation
-) async {
-  showLoadingDialog(context, "Give it a sec, AI's on deck!");
-String location='';
-if(latitude != 0.0 && longitude != 0.0) {
-Position position = Position(latitude: latitude, longitude: longitude, timestamp: DateTime.now() , accuracy: 0, altitude: 0, speed: 0, speedAccuracy: 0, heading: 0, altitudeAccuracy: 0, headingAccuracy: 0);
-
+  void _handleMapButtonPressed(BuildContext context) async {
+    showLoadingDialog(context, "Where in the world are you? Almost there...");
     try {
-      location = await GeolocatorService().getCityAndCountryFromPosition(position);
+      final position = await GeolocatorService().getCurrentLocation();
+      final location = await GeolocatorService().getCityAndCountryFromPosition(
+        position,
+      );
+
+      Navigator.of(context, rootNavigator: true).pop();
+
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+        _locationController.text = location;
+      });
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
-      ItinereoSnackBar.show(context, "Error retrieving location: ${e.toString()}");
-      return;
+      ItinereoSnackBar.show(
+        context,
+        "Error retrieving location: ${e.toString()}",
+      );
+    }
   }
-} else {
-location = optionalLocation;
-  if (location.isEmpty) {
-    Navigator.of(context, rootNavigator: true).pop();
-    ItinereoSnackBar.show(context, "Error retrieving location: please provide a valid location.");
-    return;
-  }
-}
-  try {
-    String response = await GoogleService.generateDescriptionFromEntry(
-      DiaryEntry(
-        id: '',
-        title: title,
-        description: '',
-        date: date,
+
+  void _callAiWriter(
+    BuildContext context,
+    String title,
+    List<String> photoUrls,
+    DateTime date,
+    latitude,
+    double longitude,
+    String optionalLocation,
+  ) async {
+    showLoadingDialog(context, "Give it a sec, AI's on deck!");
+    String location = '';
+    if (latitude != 0.0 && longitude != 0.0) {
+      Position position = Position(
         latitude: latitude,
         longitude: longitude,
-        photoUrls: photoUrls,
-      ),
-    location,
-    );
+        timestamp: DateTime.now(),
+        accuracy: 0,
+        altitude: 0,
+        speed: 0,
+        speedAccuracy: 0,
+        heading: 0,
+        altitudeAccuracy: 0,
+        headingAccuracy: 0,
+      );
 
-    Navigator.of(context, rootNavigator: true).pop();
+      try {
+        location = await GeolocatorService().getCityAndCountryFromPosition(
+          position,
+        );
+      } catch (e) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ItinereoSnackBar.show(
+          context,
+          "Error retrieving location: ${e.toString()}",
+        );
+        return;
+      }
+    } else {
+      location = optionalLocation;
+      if (location.isEmpty) {
+        Navigator.of(context, rootNavigator: true).pop();
+        ItinereoSnackBar.show(
+          context,
+          "Error retrieving location: please provide a valid location.",
+        );
+        return;
+      }
+    }
+    try {
+      String response = await GoogleService.generateDescriptionFromEntry(
+        DiaryEntry(
+          id: '',
+          title: title,
+          description: '',
+          date: date,
+          latitude: latitude,
+          longitude: longitude,
+          photoUrls: photoUrls,
+        ),
+        location,
+      );
 
-    setState(() {
-      _descriptionController.text = response;
-    });
-  } catch (e) {
-    Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context, rootNavigator: true).pop();
 
-    ItinereoSnackBar.show(context, "Error generating description: ${e.toString()}");
+      setState(() {
+        _descriptionController.text = response;
+      });
+    } catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+
+      ItinereoSnackBar.show(
+        context,
+        "Error generating description: ${e.toString()}",
+      );
+    }
   }
-}
 }

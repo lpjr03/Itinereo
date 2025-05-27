@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
 import 'package:itinereo/widgets/text_widget.dart';
-import '../models/diary_entry.dart';
-import 'services/diary_service.dart';
+import '../../models/diary_entry.dart';
+import '../services/diary_service.dart';
 
 class DiaryEntryDetailPage extends StatelessWidget {
   final String entryId;
