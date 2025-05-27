@@ -9,8 +9,9 @@ import 'package:itinereo/widgets/travel_card.dart';
 
 class DiaryPreview extends StatelessWidget {
   final void Function(String entryId) onViewPage;
-
-  const DiaryPreview({super.key, required this.onViewPage});
+  final VoidCallback? onBack;
+  const DiaryPreview({super.key, required this.onViewPage, required this.onBack});
+  
 
   Future<List<DiaryCard>> fetchDiaryCards() {
     return LocalDiaryDatabase().getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: 10, offset: 0);
@@ -24,6 +25,8 @@ class DiaryPreview extends StatelessWidget {
         textColor: const Color(0xFFF6E1C4),
         pillColor: const Color(0xFFC97F4F),
         topBarColor: const Color(0xFFD28F3F),
+        isBackButtonVisible: true,
+        onBack: onBack,
       ),
       backgroundColor: const Color(0xFFF6E1C4),
       body: FutureBuilder<List<DiaryCard>>(

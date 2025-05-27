@@ -90,7 +90,10 @@ class _ItinereoState extends State<ItinereoManager> {
         switchToMapPage: switchToMapPage,
       );
     } else if (activeScreen == 'preview-screen') {
-      screenWidget = DiaryPreview(onViewPage: switchToDetailPage);
+      screenWidget = DiaryPreview(
+        onViewPage: switchToDetailPage,
+        onBack: switchToDiary,
+      );
     } else if (activeScreen == 'add-diary-page-screen') {
       screenWidget = AddDiaryEntryPage(
         onSave: switchToEntriesPreview,
@@ -110,7 +113,9 @@ class _ItinereoState extends State<ItinereoManager> {
     } else if (activeScreen == 'detail-page') {
       screenWidget = DiaryEntryDetailPage(entryId: _selectedEntryId!);
     } else if (activeScreen == 'map-page-screen') {
-      screenWidget = const DiaryMapPage();
+      screenWidget =  DiaryMapPage(
+        onBack: switchToDiary,
+      );
     }
 
     return MaterialApp(
