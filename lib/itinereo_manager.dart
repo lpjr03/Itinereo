@@ -1,13 +1,11 @@
-import 'dart:io';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:itinereo/add_diary_page.dart';
-import 'package:itinereo/camera_screen.dart';
-import 'package:itinereo/diary_map_page.dart';
-import 'package:itinereo/diary_preview.dart';
-import 'package:itinereo/diary_screen.dart';
-import 'package:itinereo/get_diary_page.dart';
-import 'package:itinereo/home_screen.dart';
+import 'package:itinereo/screens/add_diary_page.dart';
+import 'package:itinereo/screens/camera_screen.dart';
+import 'package:itinereo/screens/diary_map_page.dart';
+import 'package:itinereo/screens/diary_preview.dart';
+import 'package:itinereo/screens/diary_screen.dart';
+import 'package:itinereo/screens/get_diary_page.dart';
+import 'package:itinereo/screens/home_screen.dart';
 
 /// A widget that manages the navigation between different screens
 /// of the Itinereo application using state lifting.
