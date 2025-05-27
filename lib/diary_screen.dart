@@ -152,8 +152,7 @@ class DiaryScreen extends StatelessWidget {
                         ),
 
                         // App name
-                         Container(
-                          
+                        Container(
                           width: width * 0.35,
                           decoration: BoxDecoration(
                             color: const Color(0xFFD79848),
@@ -215,7 +214,7 @@ class DiaryScreen extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              
+
                               Positioned(
                                 bottom: 0,
                                 right: 20,
@@ -223,8 +222,9 @@ class DiaryScreen extends StatelessWidget {
                                 child: PolaroidPhoto(
                                   imagePath: 'assets/images/venice.jpg',
                                   backgroundColor: const Color(0xFFF9EDD2),
+                                  width: screenWidth * 0.35,
                                   angle: 0.25,
-                                  //height: height * 0.14,
+                                  isAsset: true,
                                 ),
                               ),
                               Positioned(
@@ -234,8 +234,9 @@ class DiaryScreen extends StatelessWidget {
                                 child: PolaroidPhoto(
                                   imagePath: 'assets/images/florence.jpg',
                                   backgroundColor: const Color(0xFFF9EDD2),
+                                  width: screenWidth * 0.35,
                                   angle: -0.12,
-                                  //height: height * 0.20,
+                                  isAsset: true,
                                 ),
                               ),
                               Positioned(
@@ -245,8 +246,9 @@ class DiaryScreen extends StatelessWidget {
                                 child: PolaroidPhoto(
                                   imagePath: 'assets/images/colosseum.jpg',
                                   backgroundColor: const Color(0xFFF9EDD2),
+                                  width: screenWidth * 0.35,
                                   angle: 0.17,
-                                  //height: height * 0.18,
+                                  isAsset: true,
                                 ),
                               ),
                             ],
@@ -255,7 +257,7 @@ class DiaryScreen extends StatelessWidget {
 
                         Container(
                           alignment: Alignment.topLeft,
-                          margin: EdgeInsets.only(top:15),
+                          margin: EdgeInsets.only(top: 15),
                           child: Text(
                             'New adventure?\nDrop it here!',
                             style: GoogleFonts.playpenSans(
@@ -281,8 +283,6 @@ class DiaryScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-
-                        // FAB
                       ],
                     ),
                   ),
