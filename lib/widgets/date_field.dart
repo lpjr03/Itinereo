@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 
 class DateField extends StatefulWidget {
-  const DateField({super.key});
+  final TextEditingController dateController;
+  const DateField({super.key, required this.dateController});
 
   @override
-  State<DateField> createState() => _DateFieldState();
+  State<DateField> createState() =>
+      _DateFieldState(dateController: dateController);
 }
 
 class _DateFieldState extends State<DateField> {
-  final TextEditingController _dateController = TextEditingController();
+  final TextEditingController dateController;
 
+  _DateFieldState({required this.dateController});
   @override
   void initState() {
     super.initState();
-    _dateController.text = _formatDate(DateTime.now());
+    dateController.text = _formatDate(DateTime.now());
   }
 
   String _formatDate(DateTime date) {
@@ -29,7 +32,7 @@ class _DateFieldState extends State<DateField> {
     );
     if (picked != null) {
       setState(() {
-        _dateController.text = _formatDate(picked);
+        dateController.text = _formatDate(picked);
       });
     }
   }
@@ -37,7 +40,7 @@ class _DateFieldState extends State<DateField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: _dateController,
+      controller: dateController,
       readOnly: true,
       onTap: _pickDate,
       style: const TextStyle(fontStyle: FontStyle.italic),
