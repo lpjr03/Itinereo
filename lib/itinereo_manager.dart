@@ -6,6 +6,7 @@ import 'package:itinereo/camera_screen.dart';
 import 'package:itinereo/diary_map_page.dart';
 import 'package:itinereo/diary_preview.dart';
 import 'package:itinereo/diary_screen.dart';
+import 'package:itinereo/get_diary_page.dart';
 import 'package:itinereo/home_screen.dart';
 
 /// A widget that manages the navigation between different screens
@@ -35,6 +36,7 @@ class _ItinereoState extends State<ItinereoManager> {
   /// Stores the identifier of the currently active screen.
   var activeScreen = 'home-screen';
   List<String> _pendingPhotoUrls = [];
+  String? _selectedEntryId;
 
   /// Switches the active screen to the diary screen.
   void switchToDiary() {
@@ -64,6 +66,13 @@ class _ItinereoState extends State<ItinereoManager> {
     });
   }
 
+  void switchToDetailPage(String entryId) {
+    setState(() {
+      _selectedEntryId = entryId;
+      activeScreen = 'detail-page';
+    });
+  }
+
   void switchToMapPage() async{
     setState(() {
       activeScreen = 'map-page-screen';
@@ -81,7 +90,7 @@ class _ItinereoState extends State<ItinereoManager> {
         switchToMapPage: switchToMapPage,
       );
     } else if (activeScreen == 'preview-screen') {
-      screenWidget = const DiaryPreview();
+      screenWidget = DiaryPreview(onViewPage: switchToDetailPage);
     } else if (activeScreen == 'add-diary-page-screen') {
       screenWidget = AddDiaryEntryPage(
         onSave: switchToEntriesPreview,
@@ -98,6 +107,8 @@ class _ItinereoState extends State<ItinereoManager> {
           });
         },
       );
+    } else if (activeScreen == 'detail-page') {
+      screenWidget = DiaryEntryDetailPage(entryId: _selectedEntryId!);
     } else if (activeScreen == 'map-page-screen') {
       screenWidget = const DiaryMapPage();
     }
