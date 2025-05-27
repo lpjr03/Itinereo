@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:itinereo/itinereo_manager.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
@@ -7,7 +8,9 @@ import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
 class DiaryPreview extends StatelessWidget {
-  const DiaryPreview({super.key});
+  final void Function(String entryId) onViewPage;
+
+  const DiaryPreview({super.key, required this.onViewPage});
 
   Future<List<DiaryCard>> fetchDiaryCards() {
     return LocalDiaryDatabase().getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: 10, offset: 0);
@@ -38,8 +41,13 @@ class DiaryPreview extends StatelessWidget {
           return ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 16),
             itemCount: cards.length,
-            itemBuilder:
-                (context, index) => TravelCard(diaryCard: cards[index]),
+          itemBuilder: (context, index) {
+              final diaryCard = cards[index];
+              return TravelCard(
+                diaryCard: diaryCard,
+                onViewPage: () => onViewPage(diaryCard.id),
+              );
+            },
           );
         },
       ),
