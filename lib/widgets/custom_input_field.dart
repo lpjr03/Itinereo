@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTextFormField extends StatelessWidget {
@@ -12,9 +13,11 @@ class CustomTextFormField extends StatelessWidget {
   final TextAlign textAlign;
   final FormFieldValidator<String>? validator;
   final Color? fillColor;
+  final int? maxLines;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CustomTextFormField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.hintText,
     this.textStyle,
@@ -25,7 +28,9 @@ class CustomTextFormField extends StatelessWidget {
     this.textAlign = TextAlign.start,
     this.validator,
     this.fillColor,
-  }) : super(key: key);
+    this.maxLines,
+    this.inputFormatters,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +45,11 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       textAlign: textAlign,
-      maxLines: multiline ? 6 : 1,
+      maxLines: maxLines ?? (multiline ? 6 : 1),
       readOnly: readOnly,
       style: textStyle ?? defaultTextStyle,
       validator: validator,
+      inputFormatters: inputFormatters,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: hintStyle ?? defaultHintStyle,
