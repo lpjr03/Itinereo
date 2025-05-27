@@ -7,8 +7,13 @@ import 'package:itinereo/models/card_entry.dart';
 
 class TravelCard extends StatelessWidget {
   final DiaryCard diaryCard;
+  final VoidCallback onViewPage;
 
-  const TravelCard({super.key, required this.diaryCard});
+  const TravelCard({
+    super.key,
+    required this.diaryCard,
+    required this.onViewPage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -66,9 +71,7 @@ class TravelCard extends StatelessWidget {
             Align(
               alignment: Alignment.bottomRight,
               child: TextButton(
-                onPressed: () {
-                  //@todo
-                },
+                onPressed: onViewPage,
                 child: Text(
                   'View page',
                   style: GoogleFonts.libreBaskerville(
