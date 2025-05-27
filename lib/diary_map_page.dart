@@ -5,7 +5,8 @@ import 'package:itinereo/models/diary_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryMapPage extends StatefulWidget {
-  const DiaryMapPage({Key? key}) : super(key: key);
+  final VoidCallback? onBack;
+  const DiaryMapPage({Key? key, required this.onBack}) : super(key: key);
 
   @override
   State<DiaryMapPage> createState() => _DiaryMapPageState();
@@ -50,13 +51,13 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mappa delle Voci')),
-      body:
-          _isMapReady
-              ? GoogleMap(
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        _isMapReady
+            ? GoogleMap(
                 initialCameraPosition: CameraPosition(
                   target: _initialPosition,
                   zoom: 12,
@@ -67,7 +68,26 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
                 zoomControlsEnabled: true,
                 onMapCreated: (controller) {},
               )
-              : const Center(child: CircularProgressIndicator()),
-    );
-  }
+            : const Center(child: CircularProgressIndicator()),
+
+        Positioned(
+          top: 5,
+          left: 16,
+          child: SafeArea(
+            child: FloatingActionButton(
+              mini: true,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              onPressed: () {
+                widget.onBack?.call();
+              },
+              child: const Icon(Icons.arrow_back),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }
