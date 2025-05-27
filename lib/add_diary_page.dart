@@ -9,6 +9,10 @@ import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
+import 'package:itinereo/widgets/custom_input_field.dart';
+import 'package:itinereo/widgets/date_field.dart';
+import 'package:itinereo/widgets/diary_action_button.dart';
+import 'package:itinereo/widgets/diary_add_carousel.dart';
 import 'package:itinereo/widgets/loading_dialog.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:uuid/uuid.dart';
@@ -22,11 +26,11 @@ class AddDiaryEntryPage extends StatefulWidget {
   final List<String> initialPhotoUrls;
 
   const AddDiaryEntryPage({
-    Key? key,
+    super.key,
     required this.onSave,
     required this.switchToCameraScreen,
     this.initialPhotoUrls = const [],
-  }) : super(key: key);
+  });
 
   @override
   State<AddDiaryEntryPage> createState() => _AddDiaryEntryPageState();
@@ -34,7 +38,6 @@ class AddDiaryEntryPage extends StatefulWidget {
 
 class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   final _formKey = GlobalKey<FormState>();
-  int _currentIndex = 0;
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
@@ -109,12 +112,13 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextFormField(
+                      CustomTextFormField(
                         controller: _titleController,
+                        hintText: 'TITLE',
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         inputFormatters: [LengthLimitingTextInputFormatter(38)],
-                        style: GoogleFonts.deliciousHandrawn(
+                        textStyle: GoogleFonts.deliciousHandrawn(
                           textStyle: const TextStyle(
                             height: 1.3,
                             fontSize: 30,
@@ -122,143 +126,30 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             color: Color(0xFF2E5355),
                           ),
                         ),
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12,
+                        hintStyle: GoogleFonts.deliciousHandrawn(
+                          textStyle: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2E5355),
                           ),
-                          hintText: 'Title',
-                          hintStyle: GoogleFonts.deliciousHandrawn(
-                            textStyle: const TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF2E5355),
-                            ),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF9EDD2),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(9),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8CCB1),
-                              width: 9,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(9),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8CCB1),
-                              width: 9,
-                            ),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFD8CCB1),
+                            width: 9,
                           ),
                         ),
                       ),
 
-                      CarouselSlider(
-                        options: CarouselOptions(
-                          height: 180,
-                          enableInfiniteScroll: false,
-                          viewportFraction: 1.0,
-                          enlargeCenterPage: true,
-                          scrollPhysics: const BouncingScrollPhysics(),
-                        ),
-                        items: List.generate(
-                          _photoUrls.length < 5 ? _photoUrls.length + 1 : 5,
-                          (index) {
-                            final isAddCard =
-                                index == _photoUrls.length &&
-                                _photoUrls.length < 5;
-
-                            if (isAddCard) {
-                              return GestureDetector(
-                                onTap: () {
-                                  widget.switchToCameraScreen?.call();
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF2D8),
-                                    border: Border.all(
-                                      color: const Color(0xFFD8CCB1),
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.add_a_photo,
-                                      size: 48,
-                                      color: Color(0xFF2E5355),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-
-                            final photoUrl = _photoUrls[index];
-                            return Stack(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    showDialog(
-                                      context: context,
-                                      builder:
-                                          (_) => Dialog(
-                                            backgroundColor: Colors.black,
-                                            insetPadding: const EdgeInsets.all(
-                                              16,
-                                            ),
-                                            child: InteractiveViewer(
-                                              child: Image.file(
-                                                File(photoUrl),
-                                                fit: BoxFit.contain,
-                                              ),
-                                            ),
-                                          ),
-                                    );
-                                  },
-                                  child: Container(
-                                    margin: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        image: FileImage(File(photoUrl)),
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 6,
-                                  right: 6,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _photoUrls.removeAt(index);
-                                      });
-                                    },
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                        color: Colors.black54,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      padding: const EdgeInsets.all(4),
-                                      child: const Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                      DiaryPhotoCarousel(
+                        photoUrls: widget.initialPhotoUrls,
+                        onAddPhoto: () => widget.switchToCameraScreen?.call(),
+                        onRemovePhoto: (index) {
+                          setState(() {
+                            _photoUrls.removeAt(index);
+                          });
+                        },
                       ),
 
                       Row(
@@ -269,111 +160,54 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           ),
                           const SizedBox(width: 12),
                           Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                _handleMapButtonPressed(context);
-                              },
-                              icon: const Icon(
-                                Icons.location_on,
-                                size: 18,
-                                color: Color(0xFF2E5355),
-                              ),
-                              label: const Text(
-                                'Find me',
-                                style: TextStyle(
-                                  color: Color(0xFF2E5355),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFE8A951),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 10,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: const BorderSide(
-                                    color: Color(0xFFA75119),
-                                    width: 2,
-                                  ),
-                                ),
-                                elevation: 0,
-                              ),
+                            padding: const EdgeInsets.only(top: 24),
+                            child: DiaryActionButton(
+                              onPressed: () => _handleMapButtonPressed(context),
+                              icon: Icons.location_on,
+                              label: 'Find me',
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 12),
-                      TextFormField(
+                      CustomTextFormField(
                         controller: _locationController,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF6ECD4),
-                          hintText: 'Location',
-                          hintStyle: const TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF2E5355),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8CCB1),
-                              width: 2,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8CCB1),
-                              width: 2,
-                            ),
+                        hintText: 'Location',
+                        hintStyle: const TextStyle(
+                          fontSize: 16,
+                          color: Color(0xFF2E5355),
+                        ),
+                        fillColor: const Color(0xFFF6ECD4),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFD8CCB1),
+                            width: 2,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      TextFormField(
+
+                      CustomTextFormField(
                         controller: _descriptionController,
-                        maxLines: 5,
-                        decoration: InputDecoration(
-                          hintText: 'Write your story...',
-                          hintStyle: const TextStyle(
-                            fontSize: 16,
-                            color: Color(0xFF2E5355),
-                          ),
-                          filled: true,
-                          fillColor: const Color(0xFFF6ECD4),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8CCB1),
-                              width: 2,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFD8CCB1),
-                              width: 2,
-                            ),
+                        hintText: 'Write your story...',
+                        multiline: true,
+                        hintStyle: const TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF2E5355),
+                        ),
+                        fillColor: const Color(0xFFF6ECD4),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFD8CCB1),
+                            width: 2,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+
                       Align(
                         alignment: Alignment.bottomRight,
-                        child: ElevatedButton.icon(
+                        child: DiaryActionButton(
                           onPressed: () {
                             if (_titleController.text.isEmpty ||
                                 _photoUrls.isEmpty ||
@@ -400,36 +234,13 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                               );
                             }
                           },
-                          icon: const Icon(
-                            Icons.auto_fix_high,
-                            size: 20,
-                            color: Color(0xFF2E5355),
-                          ),
-                          label: const Text(
-                            'AI Writer',
-                            style: TextStyle(
-                              color: Color(0xFF2E5355),
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFBEE2F5),
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(
-                                color: Color(0xFF3194B4),
-                                width: 2,
-                              ),
-                            ),
-                          ),
+                          icon: Icons.auto_fix_high,
+                          label: 'AI Writer',
+                          backgroundColor: const Color(0xFFBEE2F5),
+                          borderColor: const Color(0xFF3194B4),
                         ),
                       ),
-                      const SizedBox(height: 12),
+
                       ElevatedButton(
                         onPressed: () {
                           if (_titleController.text.isEmpty ||
@@ -450,9 +261,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFF385A55,
-                          ), 
+                          backgroundColor: const Color(0xFF385A55),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 28,
@@ -503,7 +312,7 @@ void _handleMapButtonPressed(BuildContext context) async {
 }
 
 
-void _callAiWriter(
+ void _callAiWriter(
   BuildContext context,
   String title,
   List<String> photoUrls,
@@ -515,7 +324,6 @@ void _callAiWriter(
   showLoadingDialog(context, "Give it a sec, AI's on deck!");
 String location='';
 if(latitude != 0.0 && longitude != 0.0) {
-    // Crea un oggetto Position con le coordinate fornite
 Position position = Position(latitude: latitude, longitude: longitude, timestamp: DateTime.now() , accuracy: 0, altitude: 0, speed: 0, speedAccuracy: 0, heading: 0, altitudeAccuracy: 0, headingAccuracy: 0);
 
     try {
@@ -558,65 +366,4 @@ location = optionalLocation;
     ItinereoSnackBar.show(context, "Error generating description: ${e.toString()}");
   }
 }
-}
-
-class DateField extends StatefulWidget {
-  final TextEditingController dateController;
-  const DateField({super.key, required this.dateController});
-
-  @override
-  State<DateField> createState() =>
-      _DateFieldState(dateController: dateController);
-}
-
-class _DateFieldState extends State<DateField> {
-  final TextEditingController dateController;
-
-  _DateFieldState({required this.dateController});
-  @override
-  void initState() {
-    super.initState();
-    dateController.text = _formatDate(DateTime.now());
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  Future<void> _pickDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        dateController.text = _formatDate(picked);
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: dateController,
-      readOnly: true,
-      onTap: _pickDate,
-      style: const TextStyle(fontStyle: FontStyle.italic),
-      decoration: InputDecoration(
-        filled: true,
-        fillColor: const Color(0xFFF6ECD4),
-        hintText: 'Select date',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(color: Color(0xFFD8CCB1), width: 2),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(color: Color(0xFFD8CCB1), width: 2),
-        ),
-      ),
-    );
-  }
 }
