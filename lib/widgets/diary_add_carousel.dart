@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
@@ -8,12 +10,12 @@ class DiaryPhotoCarousel extends StatelessWidget {
   final double height;
 
   const DiaryPhotoCarousel({
-    Key? key,
+    super.key,
     required this.photoUrls,
     required this.onAddPhoto,
     required this.onRemovePhoto,
     this.height = 250,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class DiaryPhotoCarousel extends StatelessWidget {
                   color: Color(0xFF2E5355),
                 ),
                 splashRadius: 32,
-                tooltip: 'Aggiungi foto',
+                tooltip: 'Add a new Photo',
               ),
             ),
           );
@@ -65,7 +67,7 @@ class DiaryPhotoCarousel extends StatelessWidget {
                         backgroundColor: Colors.black,
                         insetPadding: const EdgeInsets.all(16),
                         child: InteractiveViewer(
-                          child: Image.network(photoUrl),
+                          child: Image.file(File(photoUrl)),
                         ),
                       ),
                 );
@@ -78,7 +80,7 @@ class DiaryPhotoCarousel extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
                   image: DecorationImage(
-                    image: NetworkImage(photoUrl),
+                    image:  FileImage(File(photoUrl)) as ImageProvider,
                     fit: BoxFit.cover,
                   ),
                 ),
