@@ -38,6 +38,24 @@ class _ItinereoState extends State<ItinereoManager> {
   List<String> _pendingPhotoUrls = [];
   String? _selectedEntryId;
 
+  /// Handles taps on the bottom navigation bar.
+  void handleBottomNavTap(int index) {
+    if (index == 0) {
+      switchToMapPage();
+    } else if (index == 1) {
+      switchToHome();
+    } else if (index == 2) {
+      switchToEntriesPreview();
+    }
+  }
+
+  /// Switches the active screen to the home screen.
+  void switchToHome() {
+    setState(() {
+      activeScreen = 'home-screen';
+    });
+  }
+
   /// Switches the active screen to the diary screen.
   void switchToDiary() {
     setState(() {
@@ -66,6 +84,7 @@ class _ItinereoState extends State<ItinereoManager> {
     });
   }
 
+  /// Switches the active screen to the detail page of a diary entry.
   void switchToDetailPage(String entryId) {
     setState(() {
       _selectedEntryId = entryId;
@@ -73,7 +92,7 @@ class _ItinereoState extends State<ItinereoManager> {
     });
   }
 
-  void switchToMapPage() async{
+  void switchToMapPage() async {
     setState(() {
       activeScreen = 'map-page-screen';
     });
@@ -93,6 +112,7 @@ class _ItinereoState extends State<ItinereoManager> {
       screenWidget = DiaryPreview(
         onViewPage: switchToDetailPage,
         onBack: switchToDiary,
+        onBottomTap: handleBottomNavTap,
       );
     } else if (activeScreen == 'add-diary-page-screen') {
       screenWidget = AddDiaryEntryPage(
@@ -113,9 +133,7 @@ class _ItinereoState extends State<ItinereoManager> {
     } else if (activeScreen == 'detail-page') {
       screenWidget = DiaryEntryDetailPage(entryId: _selectedEntryId!);
     } else if (activeScreen == 'map-page-screen') {
-      screenWidget =  DiaryMapPage(
-        onBack: switchToDiary,
-      );
+      screenWidget = DiaryMapPage(onBack: switchToDiary);
     }
 
     return MaterialApp(

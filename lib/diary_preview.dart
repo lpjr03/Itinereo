@@ -10,7 +10,8 @@ import 'package:itinereo/widgets/travel_card.dart';
 class DiaryPreview extends StatelessWidget {
   final void Function(String entryId) onViewPage;
   final VoidCallback? onBack;
-  const DiaryPreview({super.key, required this.onViewPage, required this.onBack});
+  final void Function(int)? onBottomTap;
+  const DiaryPreview({super.key, required this.onViewPage, required this.onBack, this.onBottomTap,});
   
 
   Future<List<DiaryCard>> fetchDiaryCards() {
@@ -55,7 +56,7 @@ class DiaryPreview extends StatelessWidget {
         },
       ),
 
-      bottomNavigationBar: ItinereoBottomBar(currentIndex: 2),
+      bottomNavigationBar: ItinereoBottomBar(currentIndex: 2, onTap: onBottomTap),
     );
   }
 }
