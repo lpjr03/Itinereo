@@ -6,13 +6,18 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color textColor;
   final Color pillColor;
   final Color topBarColor;
+  bool? isBackButtonVisible;
+  final VoidCallback? onBack;
 
-  const ItinereoAppBar({
+
+   ItinereoAppBar({
     super.key,
     required this.title,
     required this.textColor,
     required this.pillColor,
     required this.topBarColor,
+    this.isBackButtonVisible = false,
+    this.onBack,
   });
 
   @override
@@ -32,6 +37,15 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
               Container(height: 35, color: const Color(0xFFF6E1C4)),
             ],
           ),
+          if(isBackButtonVisible ?? false)
+            Positioned(
+              left: 10,
+              top: 35,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: onBack,
+              ),
+            ),
           Positioned(
             top: 35,
             child: Container(
