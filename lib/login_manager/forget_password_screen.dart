@@ -1,12 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:itinereo/widgets/alert_widget.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'validator.dart';
 
 import '../widgets/button_widget.dart';
 import '../widgets/text_field_widget.dart';
 import '../widgets/text_widget.dart';
 
+/// A screen that allows users to reset their password via email.
+///
+/// This screen provides:
+/// - an input field for the user’s email address
+/// - a submit button that sends a password reset email
+/// - feedback via a styled snackbar
+/// - a button to return to the login screen
 class ForgetPasswordScreen extends StatefulWidget {
+  /// Creates the [ForgetPasswordScreen].
   const ForgetPasswordScreen({Key? key}) : super(key: key);
 
   @override
@@ -14,91 +24,57 @@ class ForgetPasswordScreen extends StatefulWidget {
 }
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
+  /// Controller for the email input field.
   TextEditingController emailController = TextEditingController();
 
   @override
   void dispose() {
-    super.dispose();
     emailController.dispose();
+    super.dispose();
   }
 
-  Future forgetPassword() async {
+  /// Sends a password reset email to the entered address.
+  ///
+  /// Shows a custom error dialog if the field is empty.
+  /// If the email is sent successfully, a snackbar is shown
+  /// and the screen closes after 2 seconds.
+  Future<void> forgetPassword() async {
     final String email = emailController.text;
-    try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.redAccent,
-          content: TextWidget(
-            title: "Password Reset Email has been sent!",
-            txtSize: 18.0,
-            txtColor: Theme.of(context).primaryColor,
-          ),
-        ),
+
+    if (email.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const ErrorDialog(message: "Please enter your email address.");
+        },
       );
-    } on FirebaseAuthException catch (e) {
-      if (emailController.text.isEmpty) {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                title: const TextWidget(
-                  title: "Error",
-                  txtSize: 25.0,
-                  txtColor: Colors.white,
-                ),
-                content: const TextWidget(
-                  title: "Please Enter the email",
-                  txtSize: 20.0,
-                  txtColor: Colors.white,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const TextWidget(
-                      title: "Ok",
-                      txtSize: 18.0,
-                      txtColor: Colors.blue,
-                    ),
-                  ),
-                ],
-              );
-            });
-      }
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: TextWidget(
-              title: "No User Found for that Email",
-              txtSize: 18.0,
-              txtColor: Theme.of(context).primaryColor,
-            ),
-          ),
-        );
-      }
+      return;
     }
+
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    ItinereoSnackBar.show(context, "Password reset email sent.");
+    await Future.delayed(const Duration(seconds: 2));
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF3E2C7),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Divider(
-              height: 50,
-            ),
+            const SizedBox(height: 50),
+
             Center(
               child: Container(
                 height: MediaQuery.of(context).size.height / 3.5,
-                child: Image.asset("assets/images/logo.jpeg"),
+                child: Image.asset("assets/images/logo.png"),
               ),
             ),
+
             const SizedBox(height: 10),
+
             Container(
               margin: const EdgeInsets.only(left: 16.0, right: 21.0),
               height: MediaQuery.of(context).size.height / 2.5,
@@ -107,22 +83,19 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextWidget(
-                    title: "Forgot password",
-                    txtSize: 30,
-                    txtColor: Theme.of(context).primaryColor,
-                  ),
                   const TextWidget(
                     title: "Email",
                     txtSize: 22,
-                    txtColor: Color(0xffdddee3),
+                    txtColor: Color(0xFF20535B),
                   ),
+
                   InputTxtField(
                     hintText: "Your Email id",
                     controller: emailController,
                     validator: emailValidator,
                     obscureText: false,
                   ),
+
                   SizedBox(
                     height: 55,
                     width: MediaQuery.of(context).size.width,
@@ -131,6 +104,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       onPress: forgetPassword,
                     ),
                   ),
+
                   Center(
                     child: GestureDetector(
                       onTap: () {
@@ -139,13 +113,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       child: const TextWidget(
                         title: "Back to login",
                         txtSize: 18,
-                        txtColor: Color(0xff999a9e),
+                        txtColor: Color(0xFF20535B),
                       ),
                     ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

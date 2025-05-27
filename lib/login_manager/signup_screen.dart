@@ -1,43 +1,75 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/itinereo_manager.dart';
-import 'package:itinereo/services/google_services.dart';
+import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/login_manager/welcome_screen.dart';
+import 'package:itinereo/widgets/alert_widget.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/social_button_widget.dart';
 import 'validator.dart';
 import 'package:itinereo/widgets/button_widget.dart';
 import 'package:itinereo/widgets/text_field_widget.dart';
 import 'package:itinereo/widgets/text_widget.dart';
 
+/// A screen that allows users to sign up for an account in the Itinereo app.
+///
+/// This screen provides form inputs for name, email, and password,
+/// and handles user registration through Firebase Authentication.
+/// It also saves user info in Firestore and supports Google Sign-In.
 class SignUpScreen extends StatefulWidget {
+  /// Creates a [SignUpScreen] widget.
   const SignUpScreen({Key? key}) : super(key: key);
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
+/// The state for the [SignUpScreen] widget.
 class _SignUpScreenState extends State<SignUpScreen> {
+  /// Controller for the name input field.
   TextEditingController nameController = TextEditingController();
+
+  /// Controller for the email input field.
   TextEditingController emailController = TextEditingController();
+
+  /// Controller for the password input field.
   TextEditingController passwordController = TextEditingController();
+
+  /// Indicates whether the password is obscured.
   bool obscureText = true;
 
   @override
   void dispose() {
-    super.dispose();
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    super.dispose();
   }
 
+  /// Handles user registration using Firebase Authentication.
+  ///
+  /// Validates inputs, creates a user with email and password,
+  /// stores additional user info in Firestore, and navigates to the [WelcomeScreen].
+  /// Shows error dialogs for weak passwords or existing accounts.
   void register() async {
     FirebaseAuth auth = FirebaseAuth.instance;
-
     FirebaseFirestore db = FirebaseFirestore.instance;
     final String name = nameController.text;
     final String email = emailController.text;
     final String password = passwordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          message: "Please make sure to fill in all fields.",
+        ),
+      );
+      return;
+    }
+
     try {
       final UserCredential userCredential = await auth
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -47,69 +79,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
         "Email": email,
       });
 
-      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (context) => const WelcomeScreen(), //mettere HomePage()
-        ),
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
       );
     } on FirebaseAuthException catch (e) {
-      if (nameController.text.isEmpty &&
-          emailController.text.isEmpty &&
-          passwordController.text.isEmpty) {
+      if (e.code == 'weak-password') {
         showDialog(
           context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              title: const TextWidget(
-                title: "Error",
-                txtSize: 25.0,
-                txtColor: Colors.white,
-              ),
-              content: const TextWidget(
-                title: "Please fill the fields",
-                txtSize: 20.0,
-                txtColor: Colors.white,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const TextWidget(
-                    title: "Ok",
-                    txtSize: 18.0,
-                    txtColor: Colors.blue,
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      }
-      if (e.code == 'weak-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: TextWidget(
-              title: "Password Provided is too Weak",
-              txtSize: 18.0,
-              txtColor: Theme.of(context).primaryColor,
-            ),
-          ),
+          builder: (context) =>
+              const ErrorDialog(message: "Password provided is too weak."),
         );
       } else if (e.code == 'email-already-in-use') {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: TextWidget(
-              title: "Account Already exists",
-              txtSize: 18.0,
-              txtColor: Theme.of(context).primaryColor,
-            ),
-          ),
+        showDialog(
+          context: context,
+          builder: (context) =>
+              const ErrorDialog(message: "The account already exists for that email."),
         );
       }
     }
