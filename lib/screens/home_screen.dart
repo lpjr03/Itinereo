@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
+import 'package:itinereo/widgets/itinerary_card.dart';
+import 'package:itinereo/widgets/itinereo_bottomBar.dart';
+import 'package:itinereo/widgets/suggestion_box.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -14,8 +18,7 @@ class HomeScreen extends StatefulWidget {
   });
 
   final Function() switchScreen;
-  final Function(List<Marker> markers, String title, {bool polyline})
-  switchToCustomMap;
+  final Function(List<Marker> markers, String title, {bool polyline}) switchToCustomMap;
   final Future<List<List<Marker>>>? cachedItineraries;
   final void Function(Future<List<List<Marker>>>) setCachedItineraries;
 
@@ -40,9 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<List<Marker>>> _loadItineraries() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
-    final entries = await LocalDiaryDatabase().getRecentDiaryEntries(
-      userId: userId,
-    );
+    final entries = await LocalDiaryDatabase().getRecentDiaryEntries(userId: userId);
 
     if (entries.isEmpty) throw Exception("Nessuna entry trovata.");
     return await GoogleService.generateItinerariesFromEntries(entries);
@@ -58,73 +59,107 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final user = FirebaseAuth.instance.currentUser;
+    final fullName = user?.displayName ?? 'Traveler';
+    final firstName = fullName.split(' ').first;
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        title: const Text("Itinereo"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: "Rigenera itinerari",
-            onPressed: refreshItineraries,
-          ),
-        ],
-      ),
-      body: FutureBuilder<List<List<Marker>>>(
-        future: itineraries,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Errore: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Nessun itinerario trovato.'));
-          }
-
-          final itinerariesData = snapshot.data!;
-
-          return ListView.builder(
-            itemCount: itinerariesData.length,
-            itemBuilder: (context, index) {
-              return Card(
-                margin: const EdgeInsets.all(12),
-                color: const Color(0xFFF6ECD4),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  title: Text(
-                    'Itinerary ${index + 1}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+      backgroundColor: const Color(0xFFF6E1C4),
+      body: SafeArea(
+        child: FutureBuilder<List<List<Marker>>>(
+          future: itineraries,
+          builder: (context, snapshot) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Center(
+                    child: Text(
+                      'Itinerèo',
+                      style: GoogleFonts.libreBaskerville(
+                        textStyle: TextStyle(
+                          fontSize: width * 0.1,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF385A55),
+                          letterSpacing: -0.8,
+                        ),
+                      ),
                     ),
                   ),
-                  trailing: const Icon(Icons.map, color: Color(0xFF385A55)),
-                  onTap: () {
-                    widget.switchToCustomMap(
-                      itinerariesData[index],
-                      'Itinerary ${index + 1}',
-                      polyline: true,
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
+                  const SizedBox(height: 24),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEEEC9),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Welcome Back, $firstName!',
+                          style: GoogleFonts.libreBaskerville(
+                            textStyle: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF385A55),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Ready for a new adventure?',
+                          style: GoogleFonts.libreBaskerville(
+                            textStyle: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF385A55),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 150),
+
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const CircularProgressIndicator()
+                  else if (snapshot.hasError)
+                    Text('Errore: ${snapshot.error}')
+                  else if (!snapshot.hasData || snapshot.data!.isEmpty)
+                    const Text('Nessun itinerario trovato.')
+                  else
+                    SuggestedItinerariesBox(
+                      cards: List.generate(snapshot.data!.length, (index) {
+                        return ItineraryCard(
+                          markers: snapshot.data![index],
+                          onTap: () {
+                            widget.switchToCustomMap(
+                              snapshot.data![index],
+                              'Itinerario ${index + 1}',
+                              polyline: true,
+                            );
+                          },
+                        );
+                      }),
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: ItinereoBottomBar(
         currentIndex: _selectedIndex,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined),
-            label: 'Explore',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Diary'),
-        ],
-        selectedItemColor: Colors.amber[800],
         onTap: (index) {
           setState(() => _selectedIndex = index);
           if (index == 2) widget.switchScreen();
