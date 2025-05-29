@@ -121,6 +121,7 @@ class _ItinereoState extends State<ItinereoManager> {
       polyline: polyline,
     );
   },
+  switchToDetailPage: switchToDetailPage,
 );
 
     if (activeScreen == 'diary-screen') {

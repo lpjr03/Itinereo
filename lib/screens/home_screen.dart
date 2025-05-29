@@ -1,11 +1,16 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinerary_card.dart';
+import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
+import 'package:itinereo/widgets/recent_diary_cards.dart';
 import 'package:itinereo/widgets/suggestion_box.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,10 +20,13 @@ class HomeScreen extends StatefulWidget {
     required this.cachedItineraries,
     required this.setCachedItineraries,
     required this.switchToCustomMap,
+    required this.switchToDetailPage,
   });
 
   final Function() switchScreen;
-  final Function(List<Marker> markers, String title, {bool polyline}) switchToCustomMap;
+  final Function(String entryId) switchToDetailPage;
+  final Function(List<Marker> markers, String title, {bool polyline})
+  switchToCustomMap;
   final Future<List<List<Marker>>>? cachedItineraries;
   final void Function(Future<List<List<Marker>>>) setCachedItineraries;
 
@@ -43,7 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<List<Marker>>> _loadItineraries() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
-    final entries = await LocalDiaryDatabase().getRecentDiaryEntries(userId: userId);
+    final entries = await LocalDiaryDatabase().getRecentDiaryEntries(
+      userId: userId,
+    );
 
     if (entries.isEmpty) throw Exception("Nessuna entry trovata.");
     return await GoogleService.generateItinerariesFromEntries(entries);
@@ -59,39 +69,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
     final user = FirebaseAuth.instance.currentUser;
     final fullName = user?.displayName ?? 'Traveler';
     final firstName = fullName.split(' ').first;
 
     return Scaffold(
+      appBar: ItinereoAppBar(
+        title: 'Itinerèo',
+        textColor: const Color(0xFFF6E1C4),
+        pillColor: const Color(0xFF385A55),
+        topBarColor: const Color(0xFF385A55),
+      ),
       backgroundColor: const Color(0xFFF6E1C4),
       body: SafeArea(
         child: FutureBuilder<List<List<Marker>>>(
           future: itineraries,
           builder: (context, snapshot) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Center(
-                    child: Text(
-                      'Itinerèo',
-                      style: GoogleFonts.libreBaskerville(
-                        textStyle: TextStyle(
-                          fontSize: width * 0.1,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF385A55),
-                          letterSpacing: -0.8,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                    padding: EdgeInsets.symmetric(
+                      vertical: MediaQuery.of(context).size.height * 0.02,
+                      horizontal: MediaQuery.of(context).size.width * 0.05,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFEEEC9),
                       borderRadius: BorderRadius.circular(12),
@@ -106,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       children: [
                         Text(
-                          'Welcome Back, $firstName!',
+                          'Welcome back, $firstName!',
                           style: GoogleFonts.libreBaskerville(
                             textStyle: const TextStyle(
                               fontSize: 22,
@@ -128,9 +131,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  FutureBuilder<List<DiaryCard>>(
+                    future: LocalDiaryDatabase().getDiaryCardsFromLocalDb(
+                      userId: FirebaseAuth.instance.currentUser!.uid,
+                      limit: 5,
+                      offset: 0,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError ||
+                          !snapshot.hasData ||
+                          snapshot.data!.isEmpty) {
+                        return const SizedBox();
+                      }
 
-                  const SizedBox(height: 150),
-
+                      return RecentDiaryCardsBox(
+                        cards: snapshot.data!,
+                        onViewPage: widget.switchToDetailPage,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 15),
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const CircularProgressIndicator()
                   else if (snapshot.hasError)
