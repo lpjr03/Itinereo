@@ -10,9 +10,12 @@ class HomeScreen extends StatefulWidget {
     required this.switchScreen,
     required this.cachedItineraries,
     required this.setCachedItineraries,
+    required this.switchToCustomMap,
   });
 
   final Function() switchScreen;
+  final Function(List<Marker> markers, String title, {bool polyline})
+  switchToCustomMap;
   final Future<List<List<Marker>>>? cachedItineraries;
   final void Function(Future<List<List<Marker>>>) setCachedItineraries;
 
@@ -99,15 +102,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   trailing: const Icon(Icons.map, color: Color(0xFF385A55)),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (_) => ItineraryMapPage(
-                              itineraryIndex: index + 1,
-                              markers: itinerariesData[index],
-                            ),
-                      ),
+                    widget.switchToCustomMap(
+                      itinerariesData[index],
+                      'Itinerary ${index + 1}',
+                      polyline: true,
                     );
                   },
                 ),
@@ -131,45 +129,6 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() => _selectedIndex = index);
           if (index == 2) widget.switchScreen();
         },
-      ),
-    );
-  }
-}
-
-class ItineraryMapPage extends StatelessWidget {
-  final int itineraryIndex;
-  final List<Marker> markers;
-
-  const ItineraryMapPage({
-    Key? key,
-    required this.itineraryIndex,
-    required this.markers,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Itinerary $itineraryIndex'),
-        backgroundColor: const Color(0xFF385A55),
-      ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target:
-              markers.isNotEmpty ? markers.first.position : const LatLng(0, 0),
-          zoom: 12,
-        ),
-        polylines: {
-          Polyline(
-            polylineId: const PolylineId('itinerary_path'),
-            points: markers.map((marker) => marker.position).toList(),
-            color: Colors.blueAccent,
-            width: 5,
-          ),
-        },
-        markers: Set<Marker>.of(markers),
-        myLocationButtonEnabled: true,
-        zoomControlsEnabled: true,
       ),
     );
   }

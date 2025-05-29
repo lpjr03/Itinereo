@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:itinereo/models/diary_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryMapPage extends StatefulWidget {
@@ -24,7 +23,9 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
   }
 
   Future<void> _loadMarkers() async {
-    final entries = await LocalDiaryDatabase().getAllEntries(userId: FirebaseAuth.instance.currentUser!.uid);
+    final entries = await LocalDiaryDatabase().getAllEntries(
+      userId: FirebaseAuth.instance.currentUser!.uid,
+    );
 
     final List<Marker> loadedMarkers = [];
     for (var entry in entries) {
@@ -51,13 +52,13 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
-      children: [
-        _isMapReady
-            ? GoogleMap(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          _isMapReady
+              ? GoogleMap(
                 initialCameraPosition: CameraPosition(
                   target: _initialPosition,
                   zoom: 12,
@@ -68,26 +69,25 @@ Widget build(BuildContext context) {
                 zoomControlsEnabled: true,
                 onMapCreated: (controller) {},
               )
-            : const Center(child: CircularProgressIndicator()),
+              : const Center(child: CircularProgressIndicator()),
 
-        Positioned(
-          top: 5,
-          left: 16,
-          child: SafeArea(
-            child: FloatingActionButton(
-              mini: true,
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              onPressed: () {
-                widget.onBack?.call();
-              },
-              child: const Icon(Icons.arrow_back),
+          Positioned(
+            top: 5,
+            left: 16,
+            child: SafeArea(
+              child: FloatingActionButton(
+                mini: true,
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                onPressed: () {
+                  widget.onBack?.call();
+                },
+                child: const Icon(Icons.arrow_back),
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 }

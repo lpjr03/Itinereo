@@ -13,6 +13,7 @@ class DiaryPreview extends StatelessWidget {
   final void Function(int)? onBottomTap;
   const DiaryPreview({super.key, required this.onViewPage, required this.onBack, this.onBottomTap,});
   
+  
 
   Future<List<DiaryCard>> fetchDiaryCards() {
     return LocalDiaryDatabase().getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: 10, offset: 0);
