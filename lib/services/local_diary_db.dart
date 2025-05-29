@@ -34,98 +34,133 @@ class LocalDiaryDatabase {
     );
   }
 
-Future<void> insertEntry(DiaryEntry entry, String userId) async {
-  final db = await database;
+  Future<void> insertEntry(DiaryEntry entry, String userId) async {
+    final db = await database;
 
-  final position = Position(
-    latitude: entry.latitude,
-    longitude: entry.longitude,
-    timestamp: entry.date,
-    accuracy: 0,
-    altitude: 0,
-    heading: 0,
-    speed: 0,
-    altitudeAccuracy: 0,
-    headingAccuracy: 0,
-    speedAccuracy: 0,
-  );
+    final position = Position(
+      latitude: entry.latitude,
+      longitude: entry.longitude,
+      timestamp: entry.date,
+      accuracy: 0,
+      altitude: 0,
+      heading: 0,
+      speed: 0,
+      altitudeAccuracy: 0,
+      headingAccuracy: 0,
+      speedAccuracy: 0,
+    );
 
-  String location = '';
-  try {
-    location = await _geolocatorService.getCityAndCountryFromPosition(position);
-  } catch (e) {
-    location = 'Sconosciuta';
+    String location = '';
+    try {
+      location = await _geolocatorService.getCityAndCountryFromPosition(
+        position,
+      );
+    } catch (e) {
+      location = 'Sconosciuta';
+    }
+
+    final entryMap =
+        entry.toJson()
+          ..['userId'] = userId
+          ..['photoUrls'] = entry.photoUrls.join(',')
+          ..['location'] = location;
+
+    await db.insert(
+      'diary_entries',
+      entryMap,
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  final entryMap = entry.toJson()
-    ..['userId'] = userId
-    ..['photoUrls'] = entry.photoUrls.join(',')
-    ..['location'] = location;
+  Future<List<DiaryEntry>> getAllEntries({required String userId}) async {
+    final db = await database;
 
-  await db.insert(
-    'diary_entries',
-    entryMap,
-    conflictAlgorithm: ConflictAlgorithm.replace,
-  );
-}
-
-
-
-Future<List<DiaryEntry>> getAllEntries({required String userId}) async {
-  final db = await database;
-
-  final maps = await db.query(
-    'diary_entries',
-    where: 'userId = ?',
-    whereArgs: [userId],
-    orderBy: 'date DESC',
-  );
-
-  return maps.map((map) {
-    final raw = map['photoUrls'] as String?;
-    final list = (raw == null || raw.trim().isEmpty)
-        ? <String>[]
-        : raw.split(',').where((e) => e.trim().isNotEmpty).toList();
-
-    return DiaryEntry.fromJson({...map, 'photoUrls': list});
-  }).toList();
-}
-
-
-Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
-  required String userId, 
-  required int limit,
-  required int offset,
-}) async {
-  final db = await database;
-
-  final maps = await db.query(
-    'diary_entries',
-    columns: ['id', 'title', 'date', 'location', 'photoUrls'],
-    where: 'userId = ?',             
-    whereArgs: [userId],
-    orderBy: 'date DESC',
-    limit: limit,
-    offset: offset,
-  );
-
-  return maps.map((map) {
-    final photoUrls = (map['photoUrls'] as String?)
-        ?.split(',')
-        .where((url) => url.trim().isNotEmpty)
-        .toList() ?? [];
-
-    return DiaryCard(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      date: DateTime.parse(map['date'] as String),
-      place: map['location'] as String? ?? '',
-      imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
+    final maps = await db.query(
+      'diary_entries',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
     );
-  }).toList();
-}
 
+    return maps.map((map) {
+      final raw = map['photoUrls'] as String?;
+      final list =
+          (raw == null || raw.trim().isEmpty)
+              ? <String>[]
+              : raw.split(',').where((e) => e.trim().isNotEmpty).toList();
 
+      return DiaryEntry.fromJson({...map, 'photoUrls': list});
+    }).toList();
+  }
+
+  Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
+    required String userId,
+    required int limit,
+    required int offset,
+  }) async {
+    final db = await database;
+
+    final maps = await db.query(
+      'diary_entries',
+      columns: ['id', 'title', 'date', 'location', 'photoUrls'],
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+      limit: limit,
+      offset: offset,
+    );
+
+    return maps.map((map) {
+      final photoUrls =
+          (map['photoUrls'] as String?)
+              ?.split(',')
+              .where((url) => url.trim().isNotEmpty)
+              .toList() ??
+          [];
+
+      return DiaryCard(
+        id: map['id'] as String,
+        title: map['title'] as String,
+        date: DateTime.parse(map['date'] as String),
+        place: map['location'] as String? ?? '',
+        imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
+      );
+    }).toList();
+  }
+
+  Future<List<DiaryEntry>> getRecentDiaryEntries({
+    required String userId,
+    int count = 5,
+  }) async {
+    final db = await database;
+
+    final maps = await db.query(
+      'diary_entries',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+      limit: count,
+    );
+
+    return maps.map((map) {
+      final photoUrls =
+          (map['photoUrls'] as String?)
+              ?.split(',')
+              .where((url) => url.trim().isNotEmpty)
+              .toList() ??
+          [];
+
+      return DiaryEntry(
+        id: map['id'] as String,
+        title: map['title'] as String,
+        description: map['description'] as String? ?? '',
+        date: DateTime.parse(map['date'] as String),
+        latitude: map['latitude'] as double? ?? 0.0,
+        longitude: map['longitude'] as double? ?? 0.0,
+        photoUrls: photoUrls,
+      );
+    }).toList();
+  }
 
   Future<DiaryEntry?> getEntryById(String id) async {
     final db = await database;
