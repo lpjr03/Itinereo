@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:itinereo/screens/add_diary_page.dart';
 import 'package:itinereo/screens/camera_screen.dart';
 import 'package:itinereo/screens/diary_map_page.dart';
@@ -14,6 +15,10 @@ import 'package:itinereo/screens/home_screen.dart';
 /// - Starts with the [HomeScreen] by default.
 /// - Switches to [DiaryScreen] when `switchToDiary()` is called.
 /// - Switches to [DiaryPreview] when `switchToEntriesPreview()` is called.
+/// - Switches to [AddDiaryEntryPage] when `switchToAddDiaryPage()` is called.
+/// - Switches to [CameraScreen] when `switchToCameraScreen()` is called.
+/// - Switches to [DiaryEntryDetailPage] when `switchToDetailPage()` is called.
+/// - Switches to [DiaryMapPage] when `switchToMapPage()` is called.
 ///
 /// The navigation state is lifted up to this parent widget,
 /// which controls which screen is currently shown.
@@ -23,7 +28,6 @@ import 'package:itinereo/screens/home_screen.dart';
 /// ItinereoManager()
 /// ```
 class ItinereoManager extends StatefulWidget {
-  /// Creates an [ItinereoManager] widget.
   const ItinereoManager({super.key});
 
   @override
@@ -32,9 +36,16 @@ class ItinereoManager extends StatefulWidget {
 
 class _ItinereoState extends State<ItinereoManager> {
   /// Stores the identifier of the currently active screen.
-  var activeScreen = 'home-screen';
+  String activeScreen = 'home-screen';
+
+  /// A list of photo URLs that are pending to be saved in the diary entry.
   List<String> _pendingPhotoUrls = [];
+
+  /// The identifier of the diary entry currently selected for detail view.
   String? _selectedEntryId;
+
+  // Cached itineraries generated once the app starts.
+  Future<List<List<Marker>>>? _cachedItineraries;
 
   /// Handles taps on the bottom navigation bar.
   void handleBottomNavTap(int index) {
@@ -48,58 +59,45 @@ class _ItinereoState extends State<ItinereoManager> {
   }
 
   /// Switches the active screen to the home screen.
-  void switchToHome() {
-    setState(() {
-      activeScreen = 'home-screen';
-    });
-  }
+  void switchToHome() => setState(() => activeScreen = 'home-screen');
 
   /// Switches the active screen to the diary screen.
-  void switchToDiary() {
-    setState(() {
-      activeScreen = 'diary-screen';
-    });
-  }
+  void switchToDiary() => setState(() => activeScreen = 'diary-screen');
 
   /// Switches the active screen to the diary entries preview screen.
-  void switchToEntriesPreview() {
-    setState(() {
-      activeScreen = 'preview-screen';
-    });
-  }
+  void switchToEntriesPreview() =>
+      setState(() => activeScreen = 'preview-screen');
 
   /// Switches the active screen to the add diary page screen.
-  void switchToAddDiaryPage() {
-    setState(() {
-      activeScreen = 'add-diary-page-screen';
-    });
-  }
+  void switchToAddDiaryPage() =>
+      setState(() => activeScreen = 'add-diary-page-screen');
 
   /// Switches the active screen to the camera screen.
-  void switchToCameraScreen() async {
-    setState(() {
-      activeScreen = 'camera-screen';
-    });
-  }
+  void switchToCameraScreen() => setState(() => activeScreen = 'camera-screen');
 
   /// Switches the active screen to the detail page of a diary entry.
-  void switchToDetailPage(String entryId) {
-    setState(() {
-      _selectedEntryId = entryId;
-      activeScreen = 'detail-page';
-    });
-  }
+  void switchToDetailPage(String entryId) => setState(() {
+    _selectedEntryId = entryId;
+    activeScreen = 'detail-page';
+  });
 
-  void switchToMapPage() async {
-    setState(() {
-      activeScreen = 'map-page-screen';
-    });
+  /// Switches the active screen to the map page screen.
+  void switchToMapPage() => setState(() => activeScreen = 'map-page-screen');
+
+  /// Method to update the cached itineraries.
+  void updateCachedItineraries(Future<List<List<Marker>>> itinerariesFuture) {
+    _cachedItineraries = itinerariesFuture;
   }
 
   @override
   Widget build(BuildContext context) {
     // Selects the widget to display based on the active screen.
-    Widget screenWidget = HomeScreen(switchToDiary);
+    Widget screenWidget = HomeScreen(
+      switchScreen: switchToDiary,
+      cachedItineraries: _cachedItineraries,
+      setCachedItineraries: updateCachedItineraries,
+    );
+
     if (activeScreen == 'diary-screen') {
       screenWidget = DiaryScreen(
         switchToPreview: switchToEntriesPreview,
