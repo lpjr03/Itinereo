@@ -7,10 +7,26 @@ import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryService {
-  final _firestore = FirebaseFirestore.instance;
-  final _auth = FirebaseAuth.instance;
-  final _localDb = LocalDiaryDatabase();
-  final _geolocatorService = GeolocatorService();
+  final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
+  final LocalDiaryDatabase _localDb;
+  final GeolocatorService _geolocatorService;
+
+  DiaryService()
+      : _firestore = FirebaseFirestore.instance,
+        _auth = FirebaseAuth.instance,
+        _localDb = LocalDiaryDatabase(),
+        _geolocatorService = GeolocatorService();
+
+  DiaryService.test({
+    required FirebaseFirestore firestore,
+    required FirebaseAuth auth,
+    required LocalDiaryDatabase localDb,
+    required GeolocatorService geoService,
+  })  : _firestore = firestore,
+        _auth = auth,
+        _localDb = localDb,
+        _geolocatorService = geoService;
 
   String get _userId => _auth.currentUser!.uid;
 
@@ -68,7 +84,7 @@ class DiaryService {
 
       return cards;
     } catch (e) {
-      return _localDb.getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: limit, offset: offset);
+      return _localDb.getDiaryCardsFromLocalDb(userId: _auth.currentUser!.uid, limit: limit, offset: offset);
     }
   }
 
