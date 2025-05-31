@@ -13,6 +13,7 @@ class CustomTextFormField extends StatelessWidget {
   final TextAlign textAlign;
   final FormFieldValidator<String>? validator;
   final Color? fillColor;
+  final int? minLines;
   final int? maxLines;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -28,6 +29,7 @@ class CustomTextFormField extends StatelessWidget {
     this.textAlign = TextAlign.start,
     this.validator,
     this.fillColor,
+    this.minLines,
     this.maxLines,
     this.inputFormatters,
   });
@@ -45,7 +47,9 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       textAlign: textAlign,
-      maxLines: maxLines ?? (multiline ? 6 : 1),
+      minLines: multiline ? (minLines ?? 1) : 1, // min righe
+      maxLines: multiline ? (maxLines ?? 10) : 1, // max righe
+      keyboardType: multiline ? TextInputType.multiline : TextInputType.text,
       readOnly: readOnly,
       style: textStyle ?? defaultTextStyle,
       validator: validator,
