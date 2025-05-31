@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DiaryActionButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -10,32 +11,40 @@ class DiaryActionButton extends StatelessWidget {
   final Color borderColor;
 
   const DiaryActionButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.icon,
     required this.label,
-    this.backgroundColor = const Color(0xFFE8A951),
-    this.iconColor = const Color(0xFF2E5355),
-    this.textColor = const Color(0xFF2E5355),
-    this.borderColor = const Color(0xFFA75119),
-  }) : super(key: key);
+    required this.backgroundColor,
+    required this.iconColor,
+    required this.textColor,
+    required this.borderColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: onPressed,
-      icon: Icon(icon, size: 20, color: iconColor),
+      icon: Icon(icon, size: 25, color: iconColor),
       label: Text(
         label,
-        style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
+        style: GoogleFonts.playpenSans(
+          textStyle: TextStyle(
+            fontSize: 17,
+            //height: 28 / 16, 
+            //letterSpacing: -0.04 * 16, 
+            color: textColor,
+            fontWeight: FontWeight.w500, 
+          ),
+        ),
       ),
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor,
         elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: borderColor, width: 2),
+          side: BorderSide(color: borderColor, width: 2.7),
         ),
       ),
     );
