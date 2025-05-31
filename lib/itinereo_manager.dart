@@ -114,9 +114,22 @@ class _ItinereoState extends State<ItinereoManager> {
       );
     } else if (activeScreen == 'add-diary-page-screen') {
       screenWidget = AddDiaryEntryPage(
-        onSave: switchToEntriesPreview,
+        onSave: () {
+          _pendingPhotoUrls.clear();
+          switchToEntriesPreview();
+        },
         switchToCameraScreen: switchToCameraScreen,
+        switchToDiaryScreen: () {
+          _pendingPhotoUrls.clear();
+          switchToDiary();
+        },
         initialPhotoUrls: _pendingPhotoUrls,
+        deletePhoto: (photoUrl) {
+          setState(() {
+            _pendingPhotoUrls.remove(photoUrl);
+            activeScreen = 'add-diary-page-screen';
+          });
+        },
       );
     } else if (activeScreen == 'camera-screen') {
       screenWidget = CameraScreen(
@@ -127,6 +140,7 @@ class _ItinereoState extends State<ItinereoManager> {
             activeScreen = 'add-diary-page-screen';
           });
         },
+        saveToGallery: false,
       );
     } else if (activeScreen == 'detail-page') {
       screenWidget = DiaryEntryDetailPage(entryId: _selectedEntryId!);
