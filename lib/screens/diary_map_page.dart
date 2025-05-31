@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:itinereo/models/diary_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryMapPage extends StatefulWidget {
