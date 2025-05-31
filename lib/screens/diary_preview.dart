@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/itinereo_manager.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
@@ -43,6 +42,7 @@ class DiaryPreview extends StatelessWidget {
 
           final cards = snapshot.data!;
           return ListView.builder(
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 16),
             itemCount: cards.length,
           itemBuilder: (context, index) {
