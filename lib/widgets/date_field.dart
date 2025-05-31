@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DateField extends StatefulWidget {
   final TextEditingController dateController;
@@ -43,7 +44,13 @@ class _DateFieldState extends State<DateField> {
       controller: dateController,
       readOnly: true,
       onTap: _pickDate,
-      style: const TextStyle(fontStyle: FontStyle.italic),
+      style: GoogleFonts.playpenSans(
+        textStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF373737),
+        ),
+      ),
       decoration: InputDecoration(
         filled: true,
         fillColor: const Color(0xFFF6ECD4),
