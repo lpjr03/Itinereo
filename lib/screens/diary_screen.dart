@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itinereo/screens/add_diary_page.dart';
 import 'package:itinereo/widgets/bookmark_button.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
 
