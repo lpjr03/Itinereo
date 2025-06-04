@@ -49,6 +49,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   final TextEditingController _dateController = TextEditingController();
   late List<String> _photoUrls = [];
   bool _isAiGenerated = false;
+  String _previousLocationValue = '';
 
   bool _isSubmitting = false;
   double _latitude = 0.0;
@@ -57,6 +58,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   @override
   void initState() {
     super.initState();
+    _previousLocationValue = _locationController.text;
     _photoUrls = List<String>.from(widget.initialPhotoUrls);
   }
 
@@ -190,6 +192,29 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                     controller: _locationController,
                     hintText: 'Location',
                     inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                    onChanged: (value) async {
+                      if (_isAiGenerated) {
+                        final shouldClear = await _showConfirmClearDialog();
+
+                        if (shouldClear) {
+                          setState(() {
+                            _descriptionController.clear();
+                            _isAiGenerated = false;
+                            _previousLocationValue = value;
+                          });
+                        } else {
+                          _locationController.value = TextEditingValue(
+                            text: _previousLocationValue,
+                            selection: TextSelection.collapsed(
+                              offset: _previousLocationValue.length,
+                            ),
+                          );
+                        }
+                      } else {
+                        _previousLocationValue = value;
+                      }
+                    },
+
                     hintStyle: GoogleFonts.playpenSans(
                       textStyle: TextStyle(
                         fontSize: 18,
@@ -208,6 +233,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                       ),
                     ),
                   ),
+
                   CustomTextFormField(
                     controller: _descriptionController,
                     hintText: 'Write your story...',
@@ -246,7 +272,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             builder:
                                 (context) => const ErrorDialog(
                                   message:
-                                      "Please fill every field except for the description.",
+                                      "Please fill every field before using AI Writer. Only description is optional.",
                                 ),
                           );
                         } else {
@@ -541,5 +567,53 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
         "Error generating description: ${e.toString()}",
       );
     }
+  }
+
+  Future<bool> _showConfirmClearDialog() async {
+    bool shouldClear = false;
+    await showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: const Color(0xFFF3E2C7),
+            title: TextWidget(
+              title: 'Aggiornare descrizione AI?',
+              txtSize: 24.0,
+              txtColor: const Color(0xFF20535B),
+            ),
+            content: TextWidget(
+              title:
+                  'Hai già generato una descrizione con l’AI.\nVuoi cancellarla per rigenerarla con la nuova posizione?',
+              txtSize: 18.0,
+              txtColor: const Color(0xFF20535B),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  shouldClear = true;
+                  Navigator.of(context).pop();
+                },
+                child: TextWidget(
+                  title: "Sì",
+                  txtSize: 16.0,
+                  txtColor: const Color(0xFF20535B),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  shouldClear = false;
+                  Navigator.of(context).pop();
+                },
+                child: TextWidget(
+                  title: "No",
+                  txtSize: 16.0,
+                  txtColor: const Color(0xFF20535B),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    return shouldClear;
   }
 }

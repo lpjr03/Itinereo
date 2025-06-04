@@ -17,6 +17,8 @@ class CustomTextFormField extends StatelessWidget {
   final int? maxLines;
   final List<TextInputFormatter>? inputFormatters;
   final EdgeInsetsGeometry? contentPadding;
+  final ValueChanged<String>? onChanged;
+
 
   const CustomTextFormField({
     super.key,
@@ -34,6 +36,7 @@ class CustomTextFormField extends StatelessWidget {
     this.maxLines,
     this.inputFormatters,
     this.contentPadding,
+    this.onChanged,
   });
 
   @override
@@ -53,6 +56,7 @@ class CustomTextFormField extends StatelessWidget {
       maxLines: multiline ? (maxLines ?? 10) : 1,
       keyboardType: multiline ? TextInputType.multiline : TextInputType.text,
       readOnly: readOnly,
+      onChanged: onChanged,
       style: textStyle ?? defaultTextStyle,
       validator: validator,
       inputFormatters: inputFormatters,
