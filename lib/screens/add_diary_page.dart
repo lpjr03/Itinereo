@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
-import 'package:itinereo/login_manager/validator.dart';
 import 'package:itinereo/screens/camera_screen.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/google_service.dart';
@@ -17,6 +15,7 @@ import 'package:itinereo/widgets/diary_action_button.dart';
 import 'package:itinereo/widgets/diary_add_carousel.dart';
 import 'package:itinereo/widgets/loading_dialog.dart';
 import 'package:itinereo/widgets/snackbar.dart';
+import 'package:itinereo/widgets/text_widget.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/diary_entry.dart';
 import '../services/diary_service.dart';
@@ -49,6 +48,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   final _locationController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   late List<String> _photoUrls = [];
+  bool _isAiGenerated = false;
 
   bool _isSubmitting = false;
   double _latitude = 0.0;
@@ -386,7 +386,62 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   }
 
   void _handleMapButtonPressed(BuildContext context) async {
+    if (_isAiGenerated) {
+      bool shouldClear = false;
+
+      await showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              backgroundColor: const Color(0xFFF3E2C7),
+              title: TextWidget(
+                title: 'Attenzione!',
+                txtSize: 24.0,
+                txtColor: const Color(0xFF20535B),
+              ),
+              content: TextWidget(
+                title:
+                    'Hai già generato una descrizione con l’AI.\nVuoi cancellarla per rigenerarla con la nuova posizione?',
+                txtSize: 18.0,
+                txtColor: const Color(0xFF20535B),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    shouldClear = true;
+                    Navigator.of(context).pop();
+                  },
+                  child: TextWidget(
+                    title: "Sì",
+                    txtSize: 16.0,
+                    txtColor: const Color(0xFF20535B),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    shouldClear = false;
+                    Navigator.of(context).pop();
+                  },
+                  child: TextWidget(
+                    title: "No",
+                    txtSize: 16.0,
+                    txtColor: const Color(0xFF20535B),
+                  ),
+                ),
+              ],
+            ),
+      );
+
+      if (!shouldClear) return;
+
+      setState(() {
+        _descriptionController.clear();
+        _isAiGenerated = false;
+      });
+    }
+
     showLoadingDialog(context, "Where in the world are you? Almost there...");
+
     try {
       final position = await GeolocatorService().getCurrentLocation();
       final location = await GeolocatorService().getCityAndCountryFromPosition(
@@ -476,6 +531,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
 
       setState(() {
         _descriptionController.text = response;
+        _isAiGenerated = true;
       });
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
