@@ -50,3 +50,5 @@ macos/Flutter
 linux/
 windows/
 web/
+
+.env
