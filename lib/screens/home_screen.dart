@@ -114,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             Text(
+                              textAlign: TextAlign.center,
                               'Welcome back, $firstName!',
                               style: GoogleFonts.libreBaskerville(
                                 textStyle: const TextStyle(
@@ -125,6 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
+                              textAlign: TextAlign.center,
                               'Ready for a new adventure?',
                               style: GoogleFonts.libreBaskerville(
                                 textStyle: const TextStyle(
