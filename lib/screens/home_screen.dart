@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,13 +51,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<List<Marker>>> _loadItineraries() async {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
-    final entries = await LocalDiaryDatabase().getRecentDiaryEntries(
-      userId: userId,
-    );
+    try {
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      final entries = await LocalDiaryDatabase().getRecentDiaryEntries(
+        userId: userId,
+      );
+      if (entries.isEmpty) throw Exception("No entries found.");
 
-    if (entries.isEmpty) throw Exception("Nessuna entry trovata.");
-    return await GoogleService.generateItinerariesFromEntries(entries);
+      return await GoogleService.generateItinerariesFromEntries(entries);
+    } on SocketException {
+      throw Exception("No connection. Couldn't generate new itineraries.");
+    } 
   }
 
   void refreshItineraries() {
@@ -92,9 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 600,
-                      ),
+                      constraints: const BoxConstraints(maxWidth: 600),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                           vertical: 24,
@@ -167,9 +170,32 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const CircularProgressIndicator()
                   else if (snapshot.hasError)
-                    Text('Errore: ${snapshot.error}')
+                    Center(
+                      child: Text(
+                        snapshot.error.toString().replaceFirst(
+                          'Exception: ',
+                          '',
+                        ),
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.libreBaskerville(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF385A55),
+                        ),
+                      ),
+                    )
                   else if (!snapshot.hasData || snapshot.data!.isEmpty)
-                    const Text('Nessun itinerario trovato.')
+                    Center(
+                      child: Text(
+                        'No itineraries available. Please add diary entries to generate itineraries.',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.libreBaskerville(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF385A55),
+                        ),
+                      ),
+                    )
                   else
                     SuggestedItinerariesBox(
                       cards: List.generate(snapshot.data!.length, (index) {
