@@ -95,6 +95,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       await LocalDiaryDatabase().insertEntry(
         newEntry,
         FirebaseAuth.instance.currentUser!.uid,
+        _locationController.text,
       );
       if (context.mounted) Navigator.pop(context);
     } catch (e) {

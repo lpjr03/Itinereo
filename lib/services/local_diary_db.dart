@@ -34,7 +34,11 @@ class LocalDiaryDatabase {
     );
   }
 
-  Future<void> insertEntry(DiaryEntry entry, String userId) async {
+  Future<void> insertEntry(
+    DiaryEntry entry,
+    String userId,
+    String optionalLocation,
+  ) async {
     final db = await database;
 
     final position = Position(
@@ -50,15 +54,18 @@ class LocalDiaryDatabase {
       speedAccuracy: 0,
     );
 
-    String location = '';
-    try {
-      location = await _geolocatorService.getCityAndCountryFromPosition(
-        position,
-      );
-    } catch (e) {
-      location = 'Sconosciuta';
+    String location;
+    if (optionalLocation.isNotEmpty) {
+      location = optionalLocation;
+    } else {
+      try {
+        location = await _geolocatorService.getCityAndCountryFromPosition(
+          position,
+        );
+      } catch (e) {
+        location = 'Sconosciuta';
+      }
     }
-
     final entryMap =
         entry.toJson()
           ..['userId'] = userId
