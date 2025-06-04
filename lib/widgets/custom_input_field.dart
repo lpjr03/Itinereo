@@ -16,6 +16,7 @@ class CustomTextFormField extends StatelessWidget {
   final int? minLines;
   final int? maxLines;
   final List<TextInputFormatter>? inputFormatters;
+  final EdgeInsetsGeometry? contentPadding;
 
   const CustomTextFormField({
     super.key,
@@ -32,6 +33,7 @@ class CustomTextFormField extends StatelessWidget {
     this.minLines,
     this.maxLines,
     this.inputFormatters,
+    this.contentPadding,
   });
 
   @override
@@ -47,8 +49,8 @@ class CustomTextFormField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       textAlign: textAlign,
-      minLines: multiline ? (minLines ?? 1) : 1, // min righe
-      maxLines: multiline ? (maxLines ?? 10) : 1, // max righe
+      minLines: multiline ? (minLines ?? 1) : 1,
+      maxLines: multiline ? (maxLines ?? 10) : 1,
       keyboardType: multiline ? TextInputType.multiline : TextInputType.text,
       readOnly: readOnly,
       style: textStyle ?? defaultTextStyle,
@@ -59,10 +61,9 @@ class CustomTextFormField extends StatelessWidget {
         hintStyle: hintStyle ?? defaultHintStyle,
         filled: true,
         fillColor: fillColor ?? const Color(0xFFF9EDD2),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ),
+        contentPadding:
+            contentPadding ??
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         border:
             border ??
             OutlineInputBorder(

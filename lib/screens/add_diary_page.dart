@@ -128,7 +128,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                     hintText: 'Title',
                     textAlign: TextAlign.center,
                     multiline: true,
-                    minLines: 2,
+                    minLines: 1,
                     maxLines: 2,
                     inputFormatters: [LengthLimitingTextInputFormatter(50)],
                     textStyle: GoogleFonts.libreBaskerville(
@@ -141,16 +141,20 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                     ),
                     hintStyle: GoogleFonts.libreBaskerville(
                       textStyle: const TextStyle(
-                        fontSize: 28,
+                        fontSize: 18,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF2E5355),
                       ),
                     ).copyWith(color: const Color.fromARGB(255, 84, 124, 126)),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(20),
                       borderSide: const BorderSide(
                         color: Color(0xFFD8CCB1),
-                        width: 9,
+                        width: 2,
                       ),
                     ),
                   ),
