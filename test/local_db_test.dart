@@ -48,7 +48,7 @@ void main() {
       when(mockDb.insert(any, any, conflictAlgorithm: anyNamed('conflictAlgorithm')))
           .thenAnswer((_) async => 1);
 
-      await db.insertEntry(entry, 'user123');
+      await db.insertEntry(entry, 'user123', 'Beled-es-Sudan, Chad');
 
       verify(mockDb.insert(
         'diary_entries',

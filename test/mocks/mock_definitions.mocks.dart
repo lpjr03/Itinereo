@@ -1886,9 +1886,13 @@ class MockLocalDiaryDatabase extends _i1.Mock
           as _i5.Future<_i8.Database>);
 
   @override
-  _i5.Future<void> insertEntry(_i13.DiaryEntry? entry, String? userId) =>
+  _i5.Future<void> insertEntry(
+    _i13.DiaryEntry? entry,
+    String? userId,
+    String? optionalLocation,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#insertEntry, [entry, userId]),
+            Invocation.method(#insertEntry, [entry, userId, optionalLocation]),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
