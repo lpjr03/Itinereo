@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart';
+import 'package:itinereo/login_manager/validator.dart';
 import 'package:itinereo/screens/camera_screen.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/google_service.dart';
@@ -184,6 +185,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                   CustomTextFormField(
                     controller: _locationController,
                     hintText: 'Location',
+                    inputFormatters: [LengthLimitingTextInputFormatter(50)],
                     hintStyle: GoogleFonts.playpenSans(
                       textStyle: TextStyle(
                         fontSize: 18,
@@ -205,6 +207,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                   CustomTextFormField(
                     controller: _descriptionController,
                     hintText: 'Write your story...',
+                    inputFormatters: [LengthLimitingTextInputFormatter(1500)],
                     multiline: true,
                     minLines: 5,
                     maxLines: 5,
