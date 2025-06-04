@@ -5,7 +5,12 @@ import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryMapPage extends StatefulWidget {
   final VoidCallback? onBack;
-  const DiaryMapPage({Key? key, required this.onBack}) : super(key: key);
+  final void Function(String entryId)? onEntrySelected;
+  const DiaryMapPage({
+    Key? key,
+    required this.onBack,
+    required this.onEntrySelected,
+  }) : super(key: key);
 
   @override
   State<DiaryMapPage> createState() => _DiaryMapPageState();
@@ -35,6 +40,11 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
             markerId: MarkerId(entry.id),
             position: LatLng(entry.latitude, entry.longitude),
             infoWindow: InfoWindow(title: entry.title),
+            onTap: () {
+              if (widget.onEntrySelected != null) {
+                widget.onEntrySelected!(entry.id);
+              }
+            },
           ),
         );
       }
