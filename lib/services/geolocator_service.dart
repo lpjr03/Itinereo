@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:itinereo/exceptions/location_exceptions.dart';
@@ -65,7 +66,7 @@ class GeolocatorService {
 Future<String> getCityAndCountryFromPosition(Position position) async {
   final lat = position.latitude;
   final lng = position.longitude;
-  final apiKey = 'AIzaSyBXDRFaSOLLb5z0peibW6wLRk9zfYNQ_O8';
+  final apiKey = dotenv.env['API_KEY'];
   final url = Uri.parse(
     'https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$apiKey',
   );
