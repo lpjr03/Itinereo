@@ -69,32 +69,52 @@ class GoogleService {
     DiaryEntry entry,
     String location,
   ) async {
-    final model = FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-2.0-flash-001',
+    // Define output schema
+    final jsonSchema = Schema.object(
+      properties: {'description': Schema.string()},
     );
+
+    // Prompt testuale
     final prompt = TextPart('''
 Crea una descrizione per una voce di diario di viaggio con queste informazioni:
 Titolo: ${entry.title}
+Descrizione: ${entry.description}
 Località: La posizione è: $location
 Data: ${entry.date.toIso8601String()}
 Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini, descrivendole una per una.
 Massimo 1500 caratteri.
-Parti direttamente con la risposta, come se fosse un diario personale, senza introdurre il testo con "Ecco la descrizione" o simili.
+Parti direttamente con la descrizione, senza frasi introduttive o date e luogo all'inizio con poi la descrizione.
+Fornisci la risposta come JSON con un solo campo chiamato "description".
 ''');
+
     final parts = <Part>[prompt];
 
     for (final url in entry.photoUrls) {
       final file = File(url);
       if (await file.exists()) {
         final bytes = await file.readAsBytes();
-        final mimeType = lookupMimeType(url) ?? 'image/jpg';
+        final mimeType = lookupMimeType(url) ?? 'image/jpeg';
         parts.add(InlineDataPart(mimeType, bytes));
       }
     }
 
+    final model = FirebaseAI.googleAI().generativeModel(
+      model: 'gemini-2.0-flash-001',
+      generationConfig: GenerationConfig(
+        responseMimeType: 'application/json',
+        responseSchema: jsonSchema,
+      ),
+    );
+
     final response = await model.generateContent([Content.multi(parts)]);
 
-    return response.text ?? 'Could not generate description.';
+    final rawText = response.text!;
+    final jsonResponse = jsonDecode(rawText);
+    if (jsonResponse case {'description': final String description}) {
+      return description;
+    } else {
+      return 'Could not generate description.';
+    }
   }
 
   /// Generates 5 suggested itineraries based on a list of [DiaryEntry] objects.

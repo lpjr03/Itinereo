@@ -233,8 +233,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         if (_titleController.text.isEmpty ||
                             _photoUrls.isEmpty ||
                             _locationController.text.isEmpty ||
-                            _dateController.text.isEmpty ||
-                            _descriptionController.text.isNotEmpty) {
+                            _dateController.text.isEmpty) {
                           showDialog(
                             context: context,
                             builder:
@@ -252,6 +251,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             _latitude,
                             _longitude,
                             _locationController.text,
+                            _descriptionController.text,
                           );
                         }
                       },
@@ -410,6 +410,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
     latitude,
     double longitude,
     String optionalLocation,
+    String textDescription,
   ) async {
     showLoadingDialog(context, "Give it a sec, AI's on deck!");
     String location = '';
@@ -455,7 +456,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
         DiaryEntry(
           id: '',
           title: title,
-          description: '',
+          description: textDescription,
           date: date,
           latitude: latitude,
           longitude: longitude,
