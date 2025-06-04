@@ -139,7 +139,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         color: Color(0xFF2E5355),
                       ),
                     ),
-                    hintStyle: GoogleFonts.libreBaskerville(
+                    hintStyle: GoogleFonts.playpenSans(
                       textStyle: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w400,
