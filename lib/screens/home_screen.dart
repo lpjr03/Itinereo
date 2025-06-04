@@ -90,47 +90,55 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: MediaQuery.of(context).size.height * 0.02,
-                      horizontal: MediaQuery.of(context).size.width * 0.05,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEEEC9),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: 600,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 24,
+                          horizontal: 16,
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Welcome back, $firstName!',
-                          style: GoogleFonts.libreBaskerville(
-                            textStyle: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF385A55),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEEEC9),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Ready for a new adventure?',
-                          style: GoogleFonts.libreBaskerville(
-                            textStyle: const TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFF385A55),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Welcome back, $firstName!',
+                              style: GoogleFonts.libreBaskerville(
+                                textStyle: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF385A55),
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Ready for a new adventure?',
+                              style: GoogleFonts.libreBaskerville(
+                                textStyle: const TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFF385A55),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
+
                   const SizedBox(height: 10),
                   FutureBuilder<List<DiaryCard>>(
                     future: LocalDiaryDatabase().getDiaryCardsFromLocalDb(
