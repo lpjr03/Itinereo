@@ -6,15 +6,37 @@ import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
-class DiaryPreview extends StatelessWidget {
+class DiaryPreview extends StatefulWidget {
   final void Function(String entryId) onViewPage;
   final VoidCallback? onBack;
   final void Function(int)? onBottomTap;
-  const DiaryPreview({super.key, required this.onViewPage, required this.onBack, this.onBottomTap,});
-  
 
-  Future<List<DiaryCard>> fetchDiaryCards() {
-    return LocalDiaryDatabase().getDiaryCardsFromLocalDb(userId: FirebaseAuth.instance.currentUser!.uid, limit: 10, offset: 0);
+  const DiaryPreview({
+    super.key,
+    required this.onViewPage,
+    required this.onBack,
+    this.onBottomTap,
+  });
+
+  @override
+  State<DiaryPreview> createState() => _DiaryPreviewState();
+}
+
+class _DiaryPreviewState extends State<DiaryPreview> {
+  late Future<List<DiaryCard>> _futureDiaryCards;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiaryCards();
+  }
+
+  void _loadDiaryCards() {
+    _futureDiaryCards = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
+      userId: FirebaseAuth.instance.currentUser!.uid,
+      limit: 10,
+      offset: 0,
+    );
   }
 
   @override
@@ -26,11 +48,15 @@ class DiaryPreview extends StatelessWidget {
         pillColor: const Color(0xFFC97F4F),
         topBarColor: const Color(0xFFD28F3F),
         isBackButtonVisible: true,
-        onBack: onBack,
+        onBack: () {
+          _loadDiaryCards(); // Reload data when back button pressed
+          setState(() {});
+          if (widget.onBack != null) widget.onBack!();
+        },
       ),
       backgroundColor: const Color(0xFFF6E1C4),
       body: FutureBuilder<List<DiaryCard>>(
-        future: fetchDiaryCards(),
+        future: _futureDiaryCards,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -45,19 +71,22 @@ class DiaryPreview extends StatelessWidget {
             physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: 16),
             itemCount: cards.length,
-          itemBuilder: (context, index) {
+            itemBuilder: (context, index) {
               final diaryCard = cards[index];
               return TravelCard(
                 diaryCard: diaryCard,
-                onViewPage: () => onViewPage(diaryCard.id),
+                onViewPage: () => widget.onViewPage(diaryCard.id),
               );
             },
           );
         },
       ),
-
-      bottomNavigationBar: ItinereoBottomBar(currentIndex: 2, onTap: onBottomTap),
+      bottomNavigationBar: ItinereoBottomBar(
+        currentIndex: 2,
+        onTap: widget.onBottomTap,
+      ),
     );
   }
 }
+
 
