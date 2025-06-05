@@ -80,6 +80,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         "Email": email,
       });
 
+    await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
+
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const WelcomeScreen()),
