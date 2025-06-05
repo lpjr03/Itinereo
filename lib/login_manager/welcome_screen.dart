@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// The initial welcome screen for the Itinereo app.
 ///
@@ -23,19 +24,9 @@ class WelcomeScreen extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/images/logo.png',
-                  height: size.height * 0.30,
+                  height: size.height * 0.35,
                 ),
                 SizedBox(height: size.height * 0.03),
-
-                const Text(
-                  'Welcome!',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF20535B),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.06),
 
                 SizedBox(
                   width: size.width * 0.5,
@@ -50,9 +41,9 @@ class WelcomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Log in',
-                      style: TextStyle(fontSize: 16, color: Color(0xFFF3E2C7)),
+                      style: GoogleFonts.libreBaskerville(fontSize: 16, color: Color(0xFFF3E2C7)),
                     ),
                   ),
                 ),
@@ -71,9 +62,9 @@ class WelcomeScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Sign Up',
-                      style: TextStyle(fontSize: 16, color: Color(0xFFF3E2C7)),
+                      style: GoogleFonts.libreBaskerville(fontSize: 16, color: Color(0xFFF3E2C7)),
                     ),
                   ),
                 ),
