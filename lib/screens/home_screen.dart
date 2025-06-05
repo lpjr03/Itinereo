@@ -83,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: 'Itinerèo',
         textColor: const Color(0xFFF6E1C4),
         pillColor: const Color(0xFF385A55),
-        topBarColor: const Color(0xFF385A55),
+        topBarColor: const Color(0xFF506636),
       ),
       backgroundColor: const Color(0xFFF6E1C4),
       body: SafeArea(
@@ -108,8 +108,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
+                              color: Colors.black12,
+                              blurRadius: 9,
                               offset: const Offset(0, 4),
                             ),
                           ],
@@ -119,9 +119,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             Text(
                               textAlign: TextAlign.center,
                               'Welcome back, $firstName!',
-                              style: GoogleFonts.libreBaskerville(
+                              style: GoogleFonts.playpenSans(
                                 textStyle: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 25,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF385A55),
                                 ),
@@ -134,7 +134,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: GoogleFonts.libreBaskerville(
                                 textStyle: const TextStyle(
                                   fontSize: 16,
-                                  color: Color(0xFF385A55),
+                                  color: Colors.black87,
+                                  letterSpacing: 0.1,
+                                  fontStyle: FontStyle.italic,
                                 ),
                               ),
                             ),
