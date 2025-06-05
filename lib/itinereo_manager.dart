@@ -124,18 +124,14 @@ class _ItinereoState extends State<ItinereoManager> {
   Widget build(BuildContext context) {
     // Selects the widget to display based on the active screen.
     Widget screenWidget = HomeScreen(
-  switchScreen: switchToDiary,
-  cachedItineraries: _cachedItineraries,
-  setCachedItineraries: updateCachedItineraries,
-  switchToCustomMap: (markers, title, {polyline = false}) {
-    switchToCustomMap(
-      markers: markers,
-      title: title,
-      polyline: polyline,
+      switchScreen: switchToDiary,
+      cachedItineraries: _cachedItineraries,
+      setCachedItineraries: updateCachedItineraries,
+      switchToCustomMap: (markers, title, {polyline = false}) {
+        switchToCustomMap(markers: markers, title: title, polyline: polyline);
+      },
+      switchToDetailPage: switchToDetailPage,
     );
-  },
-  switchToDetailPage: switchToDetailPage,
-);
 
     if (activeScreen == 'diary-screen') {
       screenWidget = DiaryScreen(
@@ -184,7 +180,10 @@ class _ItinereoState extends State<ItinereoManager> {
     } else if (activeScreen == 'detail-page') {
       screenWidget = DiaryEntryDetailPage(entryId: _selectedEntryId!);
     } else if (activeScreen == 'map-page-screen') {
-      screenWidget = DiaryMapPage(onBack: switchToDiary);
+      screenWidget = DiaryMapPage(
+        onBack: switchToDiary,
+        onEntrySelected: switchToDetailPage,
+      );
     } else if (activeScreen == 'custom-map-screen') {
       screenWidget = CustomMapPage(
         title: _customMapTitle,
