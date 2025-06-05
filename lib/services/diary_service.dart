@@ -7,26 +7,20 @@ import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
 class DiaryService {
+  static final DiaryService instance = DiaryService._internal();
+
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
   final LocalDiaryDatabase _localDb;
   final GeolocatorService _geolocatorService;
 
-  DiaryService()
-      : _firestore = FirebaseFirestore.instance,
-        _auth = FirebaseAuth.instance,
-        _localDb = LocalDiaryDatabase(),
-        _geolocatorService = GeolocatorService();
+  factory DiaryService() => instance;
 
-  DiaryService.test({
-    required FirebaseFirestore firestore,
-    required FirebaseAuth auth,
-    required LocalDiaryDatabase localDb,
-    required GeolocatorService geoService,
-  })  : _firestore = firestore,
-        _auth = auth,
-        _localDb = localDb,
-        _geolocatorService = geoService;
+  DiaryService._internal()
+    : _firestore = FirebaseFirestore.instance,
+      _auth = FirebaseAuth.instance,
+      _localDb = LocalDiaryDatabase(),
+      _geolocatorService = GeolocatorService();
 
   String get _userId => _auth.currentUser!.uid;
 
@@ -37,12 +31,17 @@ class DiaryService {
     await _entryCollection.doc(entry.id).set(entry.toMap());
   }
 
-  Future<List<DiaryCard>> getDiaryCards(String apiKey, {int limit = 10, int offset = 0}) async {
+  Future<List<DiaryCard>> getDiaryCards(
+    String apiKey, {
+    int limit = 10,
+    int offset = 0,
+  }) async {
     try {
-      final snapshot = await _entryCollection
-          .orderBy('date', descending: true)
-          .limit(limit + offset)
-          .get();
+      final snapshot =
+          await _entryCollection
+              .orderBy('date', descending: true)
+              .limit(limit + offset)
+              .get();
 
       final docs = snapshot.docs.skip(offset).take(limit);
 
@@ -69,7 +68,9 @@ class DiaryService {
           speedAccuracy: 0,
         );
 
-        final place = await _geolocatorService.getCityAndCountryFromPosition(position);
+        final place = await _geolocatorService.getCityAndCountryFromPosition(
+          position,
+        );
 
         cards.add(
           DiaryCard(
@@ -84,7 +85,11 @@ class DiaryService {
 
       return cards;
     } catch (e) {
-      return _localDb.getDiaryCardsFromLocalDb(userId: _auth.currentUser!.uid, limit: limit, offset: offset);
+      return _localDb.getDiaryCardsFromLocalDb(
+        userId: _userId,
+        limit: limit,
+        offset: offset,
+      );
     }
   }
 
