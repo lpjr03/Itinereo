@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
@@ -73,12 +74,55 @@ class _DiaryPreviewState extends State<DiaryPreview> {
             itemCount: cards.length,
             itemBuilder: (context, index) {
               final diaryCard = cards[index];
-              return TravelCard(
-                diaryCard: diaryCard,
-                onViewPage: () => widget.onViewPage(diaryCard.id),
+
+              return Dismissible(
+                key: Key(diaryCard.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  color: const Color.fromARGB(255, 227, 105, 96),
+                  child: const Icon(Icons.delete_sweep_outlined, color: Colors.white, size: 80,),
+                ),
+                confirmDismiss: (direction) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Delete Entry'),
+                          content: const Text(
+                            'Are you sure you want to delete this diary entry?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                  );
+                },
+                onDismissed: (direction) async {
+                  await DiaryService.instance.deleteEntry(diaryCard.id);
+                  setState(() {
+                    cards.removeAt(index);
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Entry deleted')),
+                  );
+                },
+                child: TravelCard(
+                  diaryCard: diaryCard,
+                  onViewPage: () => widget.onViewPage(diaryCard.id),
+                ),
               );
             },
           );
+
         },
       ),
       bottomNavigationBar: ItinereoBottomBar(
