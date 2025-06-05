@@ -26,7 +26,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  
   /// Controller for the email input field.
   TextEditingController emailController = TextEditingController();
 
@@ -43,10 +42,10 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.dispose();
   }
 
-/// Performs login using email and password.
-///
-/// Displays an [ErrorDialog] if fields are empty or if login fails
-/// with a Firebase-specific error. On success, navigates to [ItinereoManager].
+  /// Performs login using email and password.
+  ///
+  /// Displays an [ErrorDialog] if fields are empty or if login fails
+  /// with a Firebase-specific error. On success, navigates to [ItinereoManager].
   void login() async {
     final String email = emailController.text;
     final String password = passwordController.text;
@@ -129,6 +128,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: emailController,
                     validator: emailValidator,
                     obscureText: false,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
+                    keyboardType: TextInputType.emailAddress,
                   ),
                   const TextWidget(
                     title: "Password",
@@ -140,6 +142,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: passwordController,
                     validator: passwordValidator,
                     obscureText: true,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
