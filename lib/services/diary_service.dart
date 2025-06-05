@@ -13,7 +13,6 @@ class DiaryService {
   final FirebaseAuth _auth;
   final LocalDiaryDatabase _localDb;
   final GeolocatorService _geolocatorService;
-
   factory DiaryService() => instance;
 
   DiaryService._internal()
@@ -21,6 +20,16 @@ class DiaryService {
       _auth = FirebaseAuth.instance,
       _localDb = LocalDiaryDatabase(),
       _geolocatorService = GeolocatorService();
+
+  DiaryService.test({
+    required FirebaseFirestore firestore,
+    required FirebaseAuth auth,
+    required LocalDiaryDatabase localDb,
+    required GeolocatorService geoService,
+  }) : _firestore = firestore,
+       _auth = auth,
+       _localDb = localDb,
+       _geolocatorService = geoService;
 
   String get _userId => _auth.currentUser!.uid;
 
