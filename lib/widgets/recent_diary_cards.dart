@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/widgets/horizontal_card.dart';
 
@@ -14,11 +15,11 @@ class RecentDiaryCardsBox extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(left: 8.0, bottom: 12),
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, bottom: 12),
           child: Text(
             'Your recent memories:',
-            style: TextStyle(
+            style: GoogleFonts.playpenSans(
               fontWeight: FontWeight.bold,
               fontSize: 20,
               color: Color(0xFF385A55),
