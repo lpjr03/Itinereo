@@ -28,10 +28,10 @@ class SuggestedItinerariesBox extends StatelessWidget {
         children: [
           Text(
             'Suggested itineraries:',
-            style: GoogleFonts.libreBaskerville(
-              fontSize: 20,
+            style: GoogleFonts.playpenSans(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF385A55),
+              fontSize: 20,
+              color: Color(0xFF385A55),
             ),
           ),
           const SizedBox(height: 12),
