@@ -147,7 +147,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       validator: nameValidator,
                       obscureText: false,
                       autocorrect: false,
-                      textCapitalization: TextCapitalization.none,
                     ),
                     const TextWidget(
                       title: "Email",
