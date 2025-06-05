@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'text_widget.dart';
 
 class SocialButtonWidget extends StatelessWidget {
@@ -30,10 +31,13 @@ class SocialButtonWidget extends StatelessWidget {
         children: [
           Image.asset(imagePath, width: 20),
           const SizedBox(width: 8),
-          TextWidget(
-            title: buttonName, // @todo pass as parameter
-            txtSize: 18.0,
-            txtColor: Colors.black,
+          Text(
+            buttonName,
+            style: GoogleFonts.libreBaskerville(
+              fontSize: 18,
+              color: Colors.black,
+              fontWeight: FontWeight.bold
+            ),
           ),
         ],
       ),
