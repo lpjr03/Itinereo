@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// A custom styled button widget used in the Itinereo app.
 ///
@@ -27,16 +28,16 @@ class ButtonWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPress,
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF20535B), // deep blue
+        backgroundColor: const Color(0xFF20535B),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
       ),
       child: Text(
         btnText,
-        style: const TextStyle(
+        style:  GoogleFonts.libreBaskerville(
           fontSize: 16,
-          color: Color(0xFFF3E2C7), // light beige
+          color: Color(0xFFF3E2C7),
         ),
       ),
     );
