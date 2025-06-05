@@ -13,6 +13,7 @@ import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/recent_diary_cards.dart';
 import 'package:itinereo/widgets/suggestion_box.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    requestStoragePermission();
     if (widget.cachedItineraries != null) {
       itineraries = widget.cachedItineraries!;
     } else {
@@ -61,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return await GoogleService.generateItinerariesFromEntries(entries);
     } on SocketException {
       throw Exception("No connection. Couldn't generate new itineraries.");
-    } 
+    }
   }
 
   void refreshItineraries() {
@@ -227,5 +229,16 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
+  }
+
+  Future<void> requestStoragePermission() async {
+    if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
+      final status = await [Permission.photos, Permission.storage].request();
+
+      if (status[Permission.photos]?.isDenied == true ||
+          status[Permission.storage]?.isDenied == true) {
+        throw Exception('Storage permission not granted');
+      }
+    }
   }
 }
