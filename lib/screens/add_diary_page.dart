@@ -87,7 +87,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       date: DateTime.now(),
       latitude: _latitude,
       longitude: _longitude,
-      photoUrls: _photoUrls,
+      photoUrls: finalGalleryPaths,
     );
 
     try {
