@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-class InputTxtField extends StatefulWidget {
+class InputTxtField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final bool obscureText;
+  final bool autocorrect;
+  final TextCapitalization textCapitalization;
+  final TextInputType keyboardType;
 
   const InputTxtField({
     super.key,
@@ -12,41 +15,25 @@ class InputTxtField extends StatefulWidget {
     required this.controller,
     this.validator,
     this.obscureText = false,
+    this.autocorrect = false,
+    this.textCapitalization = TextCapitalization.none,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
-  State<InputTxtField> createState() => _InputTxtFieldState();
-}
-
-class _InputTxtFieldState extends State<InputTxtField> {
-  String? errorText;
-
-  void _validate(String value) {
-    if (widget.validator != null) {
-      final result = widget.validator!(value);
-      setState(() {
-        errorText = result;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TextField(
-          controller: widget.controller,
-          obscureText: widget.obscureText,
-          onChanged: _validate,
-          decoration: InputDecoration(
-            hintText: widget.hintText,
-            errorText: errorText,
-            border: const OutlineInputBorder(),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-          ),
-        ),
-      ],
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      validator: validator,
+      autocorrect: autocorrect,
+      textCapitalization: textCapitalization,
+      keyboardType:keyboardType,
+      decoration: InputDecoration(
+        hintText: hintText,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      ),
     );
   }
 }
