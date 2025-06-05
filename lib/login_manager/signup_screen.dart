@@ -63,9 +63,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       showDialog(
         context: context,
-        builder: (context) => const ErrorDialog(
-          message: "Please make sure to fill in all fields.",
-        ),
+        builder:
+            (context) => const ErrorDialog(
+              message: "Please make sure to fill in all fields.",
+            ),
       );
       return;
     }
@@ -87,14 +88,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (e.code == 'weak-password') {
         showDialog(
           context: context,
-          builder: (context) =>
-              const ErrorDialog(message: "Password provided is too weak."),
+          builder:
+              (context) =>
+                  const ErrorDialog(message: "Password provided is too weak."),
         );
       } else if (e.code == 'email-already-in-use') {
         showDialog(
           context: context,
-          builder: (context) =>
-              const ErrorDialog(message: "The account already exists for that email."),
+          builder:
+              (context) => const ErrorDialog(
+                message: "The account already exists for that email.",
+              ),
         );
       }
     }
@@ -142,6 +146,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: nameController,
                       validator: nameValidator,
                       obscureText: false,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.none,
                     ),
                     const TextWidget(
                       title: "Email",
@@ -153,6 +159,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: emailController,
                       validator: emailValidator,
                       obscureText: false,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.none,
+                      keyboardType: TextInputType.emailAddress,
                     ),
                     const TextWidget(
                       title: "Password",
@@ -164,6 +173,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: passwordController,
                       validator: passwordValidator,
                       obscureText: true,
+                      autocorrect: false,
+                      textCapitalization: TextCapitalization.none,
                     ),
                     const SizedBox(height: 20),
                     SizedBox(
