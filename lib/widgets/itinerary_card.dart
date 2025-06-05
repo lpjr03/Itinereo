@@ -7,11 +7,7 @@ class ItineraryCard extends StatelessWidget {
   final List<Marker> markers;
   final VoidCallback onTap;
 
-  const ItineraryCard({
-    super.key,
-    required this.markers,
-    required this.onTap,
-  });
+  const ItineraryCard({super.key, required this.markers, required this.onTap});
 
   String buildStaticMapUrl(double lat, double lng) {
     final apiKey = dotenv.env['API_KEY'];
@@ -27,13 +23,13 @@ class ItineraryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final imageUrl = (markers.isNotEmpty)
-        ? buildStaticMapUrl(
-            markers.first.position.latitude,
-            markers.first.position.longitude,
-          )
-        : null;
+    final imageUrl =
+        (markers.isNotEmpty)
+            ? buildStaticMapUrl(
+              markers.first.position.latitude,
+              markers.first.position.longitude,
+            )
+            : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -50,24 +46,25 @@ class ItineraryCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: imageUrl != null
-                    ? Image.network(
-                        imageUrl,
-                        height: 98,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 80,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.broken_image),
-                        ),
-                      )
-                    : Container(
-                        height: 80,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.map_outlined),
-                      ),
+                child: AspectRatio(
+                  aspectRatio: 5 / 2,
+                  child:
+                      imageUrl != null
+                          ? Image.network(
+                            imageUrl,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (_, __, ___) => Container(
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.broken_image),
+                                ),
+                          )
+                          : Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.map_outlined),
+                          ),
+                ),
               ),
               const SizedBox(height: 8),
 
@@ -75,7 +72,11 @@ class ItineraryCard extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: TextButton.icon(
                   onPressed: onTap,
-                  icon: const Icon(Icons.map, size: 16, color: Color(0xFF73370F)),
+                  icon: const Icon(
+                    Icons.map,
+                    size: 16,
+                    color: Color(0xFF73370F),
+                  ),
                   label: Text(
                     'Map',
                     style: GoogleFonts.libreBaskerville(
