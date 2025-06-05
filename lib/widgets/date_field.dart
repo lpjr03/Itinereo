@@ -30,7 +30,26 @@ class _DateFieldState extends State<DateField> {
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF385A55), 
+              onPrimary: Colors.white, 
+              onSurface: Color(0xFF385A55), 
+              surface: Color(0xFFF6ECD4), 
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Color(0xFF385A55),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
     if (picked != null) {
       setState(() {
         dateController.text = _formatDate(picked);
