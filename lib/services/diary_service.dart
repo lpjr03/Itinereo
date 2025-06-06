@@ -5,6 +5,7 @@ import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/models/diary_entry.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DiaryService {
   static final DiaryService instance = DiaryService._internal();
@@ -118,4 +119,48 @@ class DiaryService {
     await _entryCollection.doc(entryId).delete();
     await _localDb.deleteEntry(entryId);
   }
+
+
+  
+
+Future<void> syncLocalEntriesWithFirestore(UserCredential userCredential) async {
+  final userId = userCredential.user!.uid;
+
+      final localEntries = await LocalDiaryDatabase().getRecentDiaryEntries(
+        userId: userId,
+      );
+      if (localEntries.isEmpty) {
+        final snapshot =
+            await FirebaseFirestore.instance
+                .collection("Users")
+                .doc(userId)
+                .collection("diary_entries")
+                .orderBy("date", descending: true)
+                .limit(10)
+                .get();
+
+        for (final doc in snapshot.docs) {
+          final data = doc.data();
+          final entry = DiaryEntry.fromMap(doc.id, data);
+
+          await LocalDiaryDatabase().insertEntry(
+            entry,
+            userId,
+            data['location'] ?? '',
+          );
+        }
+      }
+}
+
+  Future<void> requestStoragePermission() async {
+    if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
+      final status = await [Permission.photos, Permission.storage].request();
+
+      if (status[Permission.photos]?.isDenied == true ||
+          status[Permission.storage]?.isDenied == true) {
+        throw Exception('Storage permission not granted');
+      }
+    }
+  }
+
 }

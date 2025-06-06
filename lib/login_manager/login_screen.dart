@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:itinereo/models/diary_entry.dart';
+import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
-import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/itinereo_manager.dart';
@@ -62,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-
+    DiaryService.instance.requestStoragePermission();
     try {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
@@ -71,34 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
           .collection("Users")
           .doc(userCredential.user!.uid)
           .get();
-
-      final userId = userCredential.user!.uid;
-
-      final localEntries = await LocalDiaryDatabase().getAllEntries(
-        userId: userId,
-      );
-
-      if (localEntries.isEmpty) {
-        final snapshot =
-            await FirebaseFirestore.instance
-                .collection("Users")
-                .doc(userId)
-                .collection("diary_entries")
-                .orderBy("date", descending: true)
-                .limit(10)
-                .get();
-
-        for (final doc in snapshot.docs) {
-          final data = doc.data();
-          final entry = DiaryEntry.fromMap(doc.id, data);
-
-          await LocalDiaryDatabase().insertEntry(
-            entry,
-            userId,
-            data['location'] ?? '',
-          );
-        }
-      }
+      await DiaryService.instance.syncLocalEntriesWithFirestore(userCredential);
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const ItinereoManager()),

@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/models/diary_entry.dart';
+import 'package:itinereo/services/diary_service.dart';
 import 'package:mime/mime.dart';
 
 /// A service class responsible for handling Google Sign-In authentication.
@@ -50,6 +51,9 @@ class GoogleService {
       final UserCredential userCredential = await _auth.signInWithCredential(
         credential,
       );
+
+      DiaryService.instance.requestStoragePermission();
+      await DiaryService.instance.syncLocalEntriesWithFirestore(userCredential);
 
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
