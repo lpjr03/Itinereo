@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itinereo/widgets/loading_button_widget.dart';
 
 /// The initial welcome screen for the Itinereo app.
 ///
@@ -31,20 +32,11 @@ class WelcomeScreen extends StatelessWidget {
                 SizedBox(
                   width: size.width * 0.5,
                   height: size.height * 0.065,
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: LoadingButton(
+                    onPress: () {
                       Navigator.pushNamed(context, '/login');
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF20535B),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      'Log in',
-                      style: GoogleFonts.libreBaskerville(fontSize: 16, color: Color(0xFFF3E2C7)),
-                    ),
+                    btnText: 'Log In',
                   ),
                 ),
                 SizedBox(height: size.height * 0.02),
@@ -52,20 +44,11 @@ class WelcomeScreen extends StatelessWidget {
                 SizedBox(
                   width: size.width * 0.5,
                   height: size.height * 0.065,
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: LoadingButton(
+                    onPress: () {
                       Navigator.pushNamed(context, '/signup');
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF20535B),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      'Sign Up',
-                      style: GoogleFonts.libreBaskerville(fontSize: 16, color: Color(0xFFF3E2C7)),
-                    ),
+                    btnText: 'Sign Up',
                   ),
                 ),
               ],
