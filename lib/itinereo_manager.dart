@@ -11,6 +11,7 @@ import 'package:itinereo/screens/diary_screen.dart';
 import 'package:itinereo/screens/get_diary_page.dart';
 import 'package:itinereo/screens/home_screen.dart';
 import 'package:itinereo/services/local_diary_db.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// A widget that manages the navigation between different screens
 /// of the Itinereo application using state lifting.
@@ -38,7 +39,7 @@ class ItinereoManager extends StatefulWidget {
   State<ItinereoManager> createState() => _ItinereoState();
 }
 
-class _ItinereoState extends State<ItinereoManager> {
+class _ItinereoState extends State<ItinereoManager>  with WidgetsBindingObserver {
   /// Stores the identifier of the currently active screen.
   String activeScreen = 'home-screen';
 
@@ -51,7 +52,36 @@ class _ItinereoState extends State<ItinereoManager> {
   // Cached itineraries generated once the app starts.
   Future<List<List<Marker>>>? _cachedItineraries;
 
+  bool _hasStoragePermission = false;
+
   Future<List<DiaryCard>> _latestDiaryCards = Future.value([]);
+
+@override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkStoragePermission();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkStoragePermission();
+    }
+  }
+
+  Future<void> _checkStoragePermission() async {
+    final status = await Permission.photos.status;
+    setState(() {
+      _hasStoragePermission = status.isGranted;
+    });
+  }
 
   void _refreshDiaryCards() {
     _latestDiaryCards = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
@@ -131,6 +161,7 @@ class _ItinereoState extends State<ItinereoManager> {
         switchToCustomMap(markers: markers, title: title, polyline: polyline);
       },
       switchToDetailPage: switchToDetailPage,
+      hasStoragePermission: _hasStoragePermission,
     );
 
     if (activeScreen == 'diary-screen') {
