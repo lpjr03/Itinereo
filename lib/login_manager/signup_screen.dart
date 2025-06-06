@@ -9,7 +9,7 @@ import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/social_button_widget.dart';
 import 'validator.dart';
-import 'package:itinereo/widgets/button_widget.dart';
+import 'package:itinereo/widgets/loading_button_widget.dart';
 import 'package:itinereo/widgets/text_field_widget.dart';
 import 'package:itinereo/widgets/text_widget.dart';
 
@@ -39,6 +39,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   /// Indicates whether the password is obscured.
   bool obscureText = true;
+
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -71,6 +73,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    setState(() => isLoading = true);
+
     try {
       final UserCredential userCredential = await auth
           .createUserWithEmailAndPassword(email: email, password: password);
@@ -80,13 +84,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
         "Email": email,
       });
 
-    await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
+      await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
 
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-      );
+      if (mounted) {
+        setState(() => isLoading = false);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         showDialog(
@@ -104,6 +110,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
         );
       }
+    } finally {
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -182,9 +190,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     SizedBox(
                       height: 60,
                       width: double.infinity,
-                      child: ButtonWidget(
+                      child: LoadingButton(
                         btnText: "Sign up",
                         onPress: register,
+                        isLoading: isLoading,
                       ),
                     ),
                     const SizedBox(height: 20),
