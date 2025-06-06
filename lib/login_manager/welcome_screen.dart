@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/widgets/loading_button_widget.dart';
 
 /// The initial welcome screen for the Itinereo app.
