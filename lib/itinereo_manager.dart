@@ -11,7 +11,9 @@ import 'package:itinereo/screens/diary_screen.dart';
 import 'package:itinereo/screens/get_diary_page.dart';
 import 'package:itinereo/screens/home_screen.dart';
 import 'package:itinereo/services/local_diary_db.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// A widget that manages the navigation between different screens
 /// of the Itinereo application using state lifting.
@@ -39,7 +41,8 @@ class ItinereoManager extends StatefulWidget {
   State<ItinereoManager> createState() => _ItinereoState();
 }
 
-class _ItinereoState extends State<ItinereoManager>  with WidgetsBindingObserver {
+class _ItinereoState extends State<ItinereoManager>
+    with WidgetsBindingObserver {
   /// Stores the identifier of the currently active screen.
   String activeScreen = 'home-screen';
 
@@ -56,7 +59,7 @@ class _ItinereoState extends State<ItinereoManager>  with WidgetsBindingObserver
 
   Future<List<DiaryCard>> _latestDiaryCards = Future.value([]);
 
-@override
+  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
@@ -83,12 +86,15 @@ class _ItinereoState extends State<ItinereoManager>  with WidgetsBindingObserver
     });
   }
 
-  void _refreshDiaryCards() {
-    _latestDiaryCards = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
+  Future<List<DiaryCard>> _refreshDiaryCards() {
+    final future = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
       userId: FirebaseAuth.instance.currentUser!.uid,
       limit: 10,
       offset: 0,
     );
+
+    _latestDiaryCards = future;
+    return future;
   }
 
   /// Handles taps on the bottom navigation bar.
@@ -168,7 +174,28 @@ class _ItinereoState extends State<ItinereoManager>  with WidgetsBindingObserver
       screenWidget = DiaryScreen(
         switchToPreview: switchToEntriesPreview,
         switchToAddDiaryPage: switchToAddDiaryPage,
-        switchToMapPage: switchToMapPage,
+        switchToMapPage: () async {
+          final hasConnection = await hasInternetConnection();
+
+          if (!hasConnection) {
+            ItinereoSnackBar.show(
+              context,
+              'No internet connection. Please connect and try again.',
+            );
+            return;
+          }
+
+          _refreshDiaryCards().then((cards) {
+            if (cards.isEmpty) {
+              ItinereoSnackBar.show(
+                context,
+                'No precise locations found in your diary.',
+              );
+            } else {
+              switchToMapPage();
+            }
+          });
+        },
       );
     } else if (activeScreen == 'preview-screen') {
       screenWidget = DiaryPreview(
@@ -243,5 +270,10 @@ class _ItinereoState extends State<ItinereoManager>  with WidgetsBindingObserver
         ),
       ),
     );
+  }
+
+  Future<bool> hasInternetConnection() async {
+    final connectivityResult = await Connectivity().checkConnectivity();
+    return connectivityResult != ConnectivityResult.none;
   }
 }
