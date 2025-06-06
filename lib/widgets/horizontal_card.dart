@@ -3,15 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/widgets/safe_local_image.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HorizontalDiaryCard extends StatelessWidget {
   final DiaryCard diaryCard;
   final VoidCallback onViewPage;
+  final bool permission;
 
   const HorizontalDiaryCard({
     super.key,
     required this.diaryCard,
     required this.onViewPage,
+    required this.permission,
   });
 
   @override
@@ -32,12 +36,8 @@ class HorizontalDiaryCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(diaryCard.imageUrl),
-                  fit: BoxFit.cover,
-                  height: MediaQuery.of(context).size.height * 0.13,
-                  width: double.infinity,
-                ),
+                child: SafeLocalImage(path: diaryCard.imageUrl , height: MediaQuery.of(context).size.height * 0.13, 
+                width: double.infinity, hasStoragePermission: permission,),
               ),
               const SizedBox(height: 8),
               Text(
