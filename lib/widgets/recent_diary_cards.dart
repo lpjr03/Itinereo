@@ -6,9 +6,10 @@ import 'package:itinereo/widgets/horizontal_card.dart';
 class RecentDiaryCardsBox extends StatelessWidget {
   final List<DiaryCard> cards;
   final void Function(String entryId) onViewPage;
+  final bool permission;
 
 
-  const RecentDiaryCardsBox({super.key, required this.cards, required this.onViewPage});
+  const RecentDiaryCardsBox({super.key, required this.cards, required this.onViewPage, required this.permission});
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +41,7 @@ class RecentDiaryCardsBox extends StatelessWidget {
                 onViewPage: () { 
                   onViewPage(cards[index].id);
                 },
+                permission: permission,
               ),
             ),
             separatorBuilder: (_, __) => const SizedBox(width: 3),
