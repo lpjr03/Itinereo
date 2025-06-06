@@ -34,14 +34,18 @@ class DiaryCard {
   /// - [id]: Document ID.
   /// - [map]: Map containing the fields.
   factory DiaryCard.fromMap(String id, Map<String, dynamic> map) {
-    return DiaryCard(
-      id: id,
-      date: DateTime.parse(map['date']),
-      title: map['description'] ?? '',
-      place: map['place'] ?? '',
-      imageUrl: map['imageUrl'] ?? '',
-    );
-  }
+  final photoUrls = List<String>.from(map['photoUrls'] ?? []);
+  final imageUrl = photoUrls.isNotEmpty ? photoUrls.first : '';
+
+  return DiaryCard(
+    id: id,
+    title: map['title'] ?? '',
+    date: DateTime.parse(map['date']),
+    place: map['location'] ?? '',
+    imageUrl: imageUrl,
+  );
+}
+
 
   /// Converts this model into a map format for saving to Firestore.
   Map<String, dynamic> toMap() {
