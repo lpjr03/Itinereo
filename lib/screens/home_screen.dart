@@ -20,6 +20,7 @@ class HomeScreen extends StatefulWidget {
     required this.setCachedItineraries,
     required this.switchToCustomMap,
     required this.switchToDetailPage,
+    required this.hasStoragePermission,
   });
 
   final Function() switchScreen;
@@ -28,6 +29,7 @@ class HomeScreen extends StatefulWidget {
   switchToCustomMap;
   final Future<List<List<Marker>>>? cachedItineraries;
   final void Function(Future<List<List<Marker>>>) setCachedItineraries;
+  final bool hasStoragePermission;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -163,6 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return RecentDiaryCardsBox(
                         cards: snapshot.data!,
                         onViewPage: widget.switchToDetailPage,
+                        permission: widget.hasStoragePermission,
                       );
                     },
                   ),
