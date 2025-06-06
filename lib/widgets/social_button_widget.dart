@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'text_widget.dart';
 
 class SocialButtonWidget extends StatelessWidget {
   final Color bgColor;
