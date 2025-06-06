@@ -4,7 +4,7 @@ import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'validator.dart';
 
-import '../widgets/button_widget.dart';
+import '../widgets/loading_button_widget.dart';
 import '../widgets/text_field_widget.dart';
 import '../widgets/text_widget.dart';
 
@@ -99,15 +99,15 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   SizedBox(
                     height: 55,
                     width: MediaQuery.of(context).size.width,
-                    child: ButtonWidget(
+                    child: LoadingButton(
                       btnText: "Submit",
                       onPress: forgetPassword,
                     ),
                   ),
 
                   Center(
-                    child: GestureDetector(
-                      onTap: () {
+                    child: TextButton(
+                      onPressed: () {
                         Navigator.pop(context);
                       },
                       child: const TextWidget(
