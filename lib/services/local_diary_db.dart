@@ -8,6 +8,9 @@ import '../../models/diary_entry.dart';
 class LocalDiaryDatabase {
   static Database? _database;
   final GeolocatorService _geolocatorService = GeolocatorService();
+  final int maxEntries;
+
+  LocalDiaryDatabase({this.maxEntries = 10});
 
   Future<Database> get database async {
     return _database ??= await _initDatabase();
@@ -66,6 +69,7 @@ class LocalDiaryDatabase {
         location = 'Sconosciuta';
       }
     }
+
     final entryMap =
         entry.toJson()
           ..['userId'] = userId
@@ -77,6 +81,23 @@ class LocalDiaryDatabase {
       entryMap,
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+
+    final countResult = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM diary_entries WHERE userId = ?',
+      [userId],
+    );
+    final count = Sqflite.firstIntValue(countResult) ?? 0;
+
+    if (count > maxEntries) {
+      final excess = count - maxEntries;
+
+      await db.delete(
+        'diary_entries',
+        where:
+            'id IN (SELECT id FROM diary_entries WHERE userId = ? ORDER BY date ASC LIMIT ?)',
+        whereArgs: [userId, excess],
+      );
+    }
   }
 
   Future<List<DiaryEntry>> getAllEntries({required String userId}) async {
