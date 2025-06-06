@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
@@ -26,7 +27,7 @@ class _DiaryPreviewState extends State<DiaryPreview> {
   List<DiaryCard> _diaryCards = [];
   bool _isLoading = false;
   bool _hasMore = true;
-QueryDocumentSnapshot<Map<String, dynamic>>? _lastFetchedDocument=null;
+  QueryDocumentSnapshot<Map<String, dynamic>>? _lastFetchedDocument = null;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -37,15 +38,15 @@ QueryDocumentSnapshot<Map<String, dynamic>>? _lastFetchedDocument=null;
   }
 
   void _onScroll() {
-  if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200 &&
-      !_isLoading &&
-      _hasMore) {
-    _loadMoreCardsFromFirebase();
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        _hasMore) {
+      _loadMoreCardsFromFirebase();
+    }
   }
-}
 
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ItinereoAppBar(
@@ -60,7 +61,18 @@ QueryDocumentSnapshot<Map<String, dynamic>>? _lastFetchedDocument=null;
         },
       ),
       backgroundColor: const Color(0xFFF6E1C4),
-      body: ListView.builder(
+      body:
+          _diaryCards.isEmpty && !_isLoading
+              ? Center(
+                child: Text(
+                  'No entries found. Start your journey by adding a new entry!',
+                  style: GoogleFonts.libreBaskerville(
+                    fontSize: 24,
+                    color: Color(0xFF4A4A4A),
+                  ),
+                ),
+              )
+              : ListView.builder(
                 controller: _scrollController,
                 itemExtent: 300,
                 physics: const ClampingScrollPhysics(),
