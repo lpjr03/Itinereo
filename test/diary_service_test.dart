@@ -49,6 +49,7 @@ void main() {
         date: DateTime(2023, 1, 1),
         latitude: 10.0,
         longitude: 20.0,
+        location: 'Roma',
         photoUrls: ['url1'],
       );
 
@@ -71,6 +72,7 @@ void main() {
         'latitude': 10.0,
         'longitude': 20.0,
         'photoUrls': ['img1.jpg'],
+        'location': 'Beled-es-Sudan, Chad',
       };
 
       when(
@@ -90,7 +92,7 @@ void main() {
 
       expect(cards, isNotEmpty);
       expect(cards.first.id, 'entry123');
-      expect(cards.first.place, 'Roma, Italia');
+      expect(cards.first.place, 'Beled-es-Sudan, Chad');
     });
 
     test('getDiaryCards falls back to local DB on error', () async {
@@ -116,17 +118,12 @@ void main() {
         ],
       );
 
-      final result = await diaryService.getDiaryCards(
-        'AIzaSyBXDRFaSOLLb5z0peibW6wLRk9zfYNQ_O8',
-        limit: 10,
-        offset: 0,
-      );
+      final result = await diaryService.getDiaryCards('test-key');
 
       expect(result, isNotEmpty);
       expect(result.first.id, 'offline1');
     });
     test('deleteEntry calls Firestore and local DB', () async {
-
       when(mockCollection.doc('entry123')).thenReturn(mockDocRef);
       when(mockDocRef.delete()).thenAnswer((_) async => null);
 

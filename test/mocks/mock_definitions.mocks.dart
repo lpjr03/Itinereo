@@ -1876,6 +1876,11 @@ class MockLocalDiaryDatabase extends _i1.Mock
   }
 
   @override
+  int get maxEntries =>
+      (super.noSuchMethod(Invocation.getter(#maxEntries), returnValue: 0)
+          as int);
+
+  @override
   _i5.Future<_i8.Database> get database =>
       (super.noSuchMethod(
             Invocation.getter(#database),
