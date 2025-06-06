@@ -186,6 +186,7 @@ class LocalDiaryDatabase {
         latitude: map['latitude'] as double? ?? 0.0,
         longitude: map['longitude'] as double? ?? 0.0,
         photoUrls: photoUrls,
+        location: map['location'] as String? ?? '',
       );
     }).toList();
   }

@@ -78,9 +78,7 @@ class DiaryService {
           speedAccuracy: 0,
         );
 
-        final place = await _geolocatorService.getCityAndCountryFromPosition(
-          position,
-        );
+        final place = data['location'] ?? '';
 
         cards.add(
           DiaryCard(
@@ -204,27 +202,13 @@ Future<List<DiaryCard>> getDiaryCardsPaginated({
       final latitude = (data['latitude'] as num).toDouble();
       final longitude = (data['longitude'] as num).toDouble();
       final photoUrls = List<String>.from(data['photoUrls'] ?? []);
-
-      final place = await _geolocatorService.getCityAndCountryFromPosition(
-        Position(
-          latitude: latitude,
-          longitude: longitude,
-          timestamp: date,
-          accuracy: 0,
-          altitude: 0,
-          heading: 0,
-          speed: 0,
-          altitudeAccuracy: 0,
-          headingAccuracy: 0,
-          speedAccuracy: 0,
-        ),
-      );
+      final location= data['location'] ?? '';
 
       cards.add(
         DiaryCard(
           id: id,
           date: date,
-          place: place,
+          place: location,
           title: title,
           imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
         ),

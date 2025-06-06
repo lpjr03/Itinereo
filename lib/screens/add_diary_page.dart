@@ -87,6 +87,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       date: DateTime.now(),
       latitude: _latitude,
       longitude: _longitude,
+      location: _locationController.text,
       photoUrls: finalGalleryPaths,
     );
 
@@ -577,6 +578,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
           description: textDescription,
           date: date,
           latitude: latitude,
+          location: location,
           longitude: longitude,
           photoUrls: photoUrls,
         ),
