@@ -120,37 +120,36 @@ class DiaryService {
     await _localDb.deleteEntry(entryId);
   }
 
+  Future<void> syncLocalEntriesWithFirestore(
+    UserCredential userCredential,
+  ) async {
+    final userId = userCredential.user!.uid;
 
-  
+    final localEntries = await LocalDiaryDatabase().getRecentDiaryEntries(
+      userId: userId,
+    );
+    if (localEntries.isEmpty) {
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(userId)
+              .collection("diary_entries")
+              .orderBy("date", descending: true)
+              .limit(10)
+              .get();
 
-Future<void> syncLocalEntriesWithFirestore(UserCredential userCredential) async {
-  final userId = userCredential.user!.uid;
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final entry = DiaryEntry.fromMap(doc.id, data);
 
-      final localEntries = await LocalDiaryDatabase().getRecentDiaryEntries(
-        userId: userId,
-      );
-      if (localEntries.isEmpty) {
-        final snapshot =
-            await FirebaseFirestore.instance
-                .collection("Users")
-                .doc(userId)
-                .collection("diary_entries")
-                .orderBy("date", descending: true)
-                .limit(10)
-                .get();
-
-        for (final doc in snapshot.docs) {
-          final data = doc.data();
-          final entry = DiaryEntry.fromMap(doc.id, data);
-
-          await LocalDiaryDatabase().insertEntry(
-            entry,
-            userId,
-            data['location'] ?? '',
-          );
-        }
+        await LocalDiaryDatabase().insertEntry(
+          entry,
+          userId,
+          data['location'] ?? '',
+        );
       }
-}
+    }
+  }
 
   Future<void> requestStoragePermission() async {
     if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
@@ -162,5 +161,88 @@ Future<void> syncLocalEntriesWithFirestore(UserCredential userCredential) async 
       }
     }
   }
+
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> fetchMoreDiaryEntries({
+  QueryDocumentSnapshot<Map<String, dynamic>>? lastDocument,
+  required int limit,
+}) async {
+  Query<Map<String, dynamic>> query = _entryCollection
+      .orderBy('date', descending: true)
+      .limit(limit);
+
+  if (lastDocument != null) {
+    query = query.startAfterDocument(lastDocument);
+  }
+
+  final snapshot = await query.get();
+  return snapshot.docs;
+}
+
+Future<List<DiaryCard>> getDiaryCardsPaginated({
+  required int limit,
+  QueryDocumentSnapshot<Map<String, dynamic>>? lastDocument,
+}) async {
+  try {
+    Query<Map<String, dynamic>> query = _entryCollection
+        .orderBy('date', descending: true)
+        .limit(limit);
+
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+
+    final snapshot = await query.get();
+    final docs = snapshot.docs;
+
+    List<DiaryCard> cards = [];
+
+    for (final doc in docs) {
+      final data = doc.data();
+      final id = doc.id;
+      final date = DateTime.parse(data['date']);
+      final title = data['title'];
+      final latitude = (data['latitude'] as num).toDouble();
+      final longitude = (data['longitude'] as num).toDouble();
+      final photoUrls = List<String>.from(data['photoUrls'] ?? []);
+
+      final place = await _geolocatorService.getCityAndCountryFromPosition(
+        Position(
+          latitude: latitude,
+          longitude: longitude,
+          timestamp: date,
+          accuracy: 0,
+          altitude: 0,
+          heading: 0,
+          speed: 0,
+          altitudeAccuracy: 0,
+          headingAccuracy: 0,
+          speedAccuracy: 0,
+        ),
+      );
+
+      cards.add(
+        DiaryCard(
+          id: id,
+          date: date,
+          place: place,
+          title: title,
+          imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
+        ),
+      );
+    }
+
+    return cards;
+  } catch (e) {
+    // fallback solo se la fetch Firebase fallisce (es. offline)
+    return _localDb.getDiaryCardsFromLocalDb(
+      userId: _userId,
+      limit: limit,
+      offset: 0, // non c'è scroll in fallback
+    );
+  }
+}
+
+
+
 
 }
