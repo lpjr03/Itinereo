@@ -15,7 +15,7 @@ class ErrorDialog extends StatelessWidget {
   /// Whether to show a cancel button (default: false).
   final bool showCancelButton;
 
-  /// Text for the cancel button (default: "Annulla").
+  /// Text for the cancel button (default: "Cancel").
   final String cancelButtonText;
 
   /// Optional callback when pressing OK.
@@ -30,7 +30,7 @@ class ErrorDialog extends StatelessWidget {
     this.title = 'Error!',
     this.okButtonText = 'OK',
     this.showCancelButton = false,
-    this.cancelButtonText = 'Annulla',
+    this.cancelButtonText = 'Cancel',
     this.onOk,
     this.onCancel,
   });
@@ -53,7 +53,7 @@ class ErrorDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, true);
             onOk?.call();
           },
           child: TextWidget(
@@ -65,7 +65,7 @@ class ErrorDialog extends StatelessWidget {
         if (showCancelButton)
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context, false);
               onCancel?.call();
             },
             child: TextWidget(

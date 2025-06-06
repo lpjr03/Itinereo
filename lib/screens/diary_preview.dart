@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/diary_service.dart';
+import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
 class DiaryPreview extends StatefulWidget {
@@ -102,23 +104,13 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                       return await showDialog<bool>(
                         context: context,
                         builder:
-                            (context) => AlertDialog(
-                              title: const Text('Delete Entry'),
-                              content: const Text(
-                                'Are you sure you want to delete this diary entry?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(context).pop(false),
-                                  child: const Text('Cancel'),
-                                ),
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.of(context).pop(true),
-                                  child: const Text('Delete'),
-                                ),
-                              ],
+                            (context) => ErrorDialog(
+                              title: 'Delete Entry',
+                              message:
+                                  'Are you sure you want to delete this diary entry?',
+                              okButtonText: 'Delete',
+                              cancelButtonText: 'Cancel',
+                              showCancelButton: true,
                             ),
                       );
                     },
@@ -127,8 +119,9 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                       setState(() {
                         _diaryCards.removeAt(index);
                       });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Entry deleted')),
+                      ItinereoSnackBar.show(
+                        context,
+                        'Diary entry deleted successfully.',
                       );
                     },
                     child: TravelCard(
