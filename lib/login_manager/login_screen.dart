@@ -10,7 +10,7 @@ import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/social_button_widget.dart';
 import 'forget_password_screen.dart';
 import 'validator.dart';
-import '../widgets/button_widget.dart';
+import '../widgets/loading_button_widget.dart';
 import '../widgets/text_field_widget.dart';
 import '../widgets/text_widget.dart';
 
@@ -35,6 +35,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Instance of FirebaseAuth used for authentication.
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -61,6 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
+
+    setState(() => isLoading = true);
     DiaryService.instance.requestStoragePermission();
     try {
       final UserCredential userCredential = await _auth
@@ -72,9 +76,12 @@ class _LoginScreenState extends State<LoginScreen> {
           .get();
       await DiaryService.instance.syncLocalEntriesWithFirestore(userCredential);
 
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const ItinereoManager()),
-      );
+      if (mounted) {
+        setState(() => isLoading = false);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const ItinereoManager()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String message;
       switch (e.code) {
@@ -84,11 +91,12 @@ class _LoginScreenState extends State<LoginScreen> {
         default:
           message = "Authentication error. Please try again.";
       }
-
       showDialog(
         context: context,
         builder: (context) => ErrorDialog(message: message),
       );
+    } finally {
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -150,13 +158,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      GestureDetector(
-                        onTap: () {
+                      TextButton(
+                        onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
-                                  ((context) => const ForgetPasswordScreen()),
+                                  (context) => const ForgetPasswordScreen(),
                             ),
                           );
                         },
@@ -171,7 +179,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     height: 60,
                     width: MediaQuery.of(context).size.width,
-                    child: ButtonWidget(btnText: "Log in", onPress: login),
+                    child: LoadingButton(
+                      btnText: "Log In",
+                      onPress: login,
+                      isLoading: isLoading,
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
