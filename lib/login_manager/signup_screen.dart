@@ -1,11 +1,13 @@
+// Refactored SignUpScreen with structure and adaptiveness similar to LoginScreen
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/itinereo_manager.dart';
+import 'package:itinereo/login_manager/welcome_screen.dart';
 import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
-import 'package:itinereo/login_manager/welcome_screen.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/social_button_widget.dart';
@@ -39,7 +41,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController passwordController = TextEditingController();
 
   /// Indicates whether the password is obscured.
-  bool obscureText = true;
 
   bool isLoading = false;
 
@@ -77,8 +78,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() => isLoading = true);
 
     try {
-      final UserCredential userCredential = await auth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      final userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       await db.collection("Users").doc(userCredential.user!.uid).set({
         "Name": name,
@@ -95,22 +98,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
       }
     } on FirebaseAuthException catch (e) {
+      String message = "Registration failed. Please try again.";
       if (e.code == 'weak-password') {
-        showDialog(
-          context: context,
-          builder:
-              (context) =>
-                  const ErrorDialog(message: "Password provided is too weak."),
-        );
+        message = "Password provided is too weak.";
       } else if (e.code == 'email-already-in-use') {
-        showDialog(
-          context: context,
-          builder:
-              (context) => const ErrorDialog(
-                message: "The account already exists for that email.",
-              ),
-        );
+        message = "The account already exists for that email.";
       }
+      showDialog(
+        context: context,
+        builder: (context) => ErrorDialog(message: message),
+      );
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
@@ -120,141 +117,136 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3E2C7),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: EdgeInsets.only(
-                left: 16.0,
-                right: 21.0,
-                bottom: MediaQuery.of(context).viewInsets.bottom,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 50),
+            Center(
+              child: Container(
+                height: MediaQuery.of(context).size.height / 3.5,
+                child: Image.asset("assets/images/logo.png"),
               ),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 30),
-                    Center(
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height / 3.5,
-                        child: Image.asset("assets/images/logo.png"),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              height: MediaQuery.of(context).size.height / 1.6,
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextWidget(
+                    title: "Sign-up",
+                    txtSize: 30,
+                    txtColor: const Color(0xFF20535B),
+                  ),
+                  const TextWidget(
+                    title: "Name",
+                    txtSize: 22,
+                    txtColor: Color(0xFF20535B),
+                  ),
+                  InputTxtField(
+                    hintText: "Name",
+                    controller: nameController,
+                    validator: nameValidator,
+                    obscureText: false,
+                    autocorrect: false,
+                  ),
+                  const TextWidget(
+                    title: "Email",
+                    txtSize: 22,
+                    txtColor: Color(0xFF20535B),
+                  ),
+                  InputTxtField(
+                    hintText: "Email",
+                    controller: emailController,
+                    validator: emailValidator,
+                    obscureText: false,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const TextWidget(
+                    title: "Password",
+                    txtSize: 22,
+                    txtColor: Color(0xFF20535B),
+                  ),
+                  InputTxtField(
+                    hintText: "Password",
+                    controller: passwordController,
+                    validator: passwordValidator,
+                    obscureText: true,
+                    autocorrect: false,
+                    textCapitalization: TextCapitalization.none,
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 60,
+                    width: MediaQuery.of(context).size.width,
+                    child: LoadingButton(
+                      btnText: "Sign Up",
+                      onPress: register,
+                      isLoading: isLoading,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Container(
+                          height: 2.0,
+                          width: 70.0,
+                          color: const Color(0xFF20535B),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextWidget(
-                      title: "Sign-up",
-                      txtSize: 30,
-                      txtColor: const Color(0xFF20535B),
-                    ),
-                    const SizedBox(height: 10),
-                    const TextWidget(
-                      title: "Name",
-                      txtSize: 22,
-                      txtColor: Color(0xFF20535B),
-                    ),
-                    InputTxtField(
-                      hintText: "Name",
-                      controller: nameController,
-                      validator: nameValidator,
-                      obscureText: false,
-                      autocorrect: false,
-                    ),
-                    const TextWidget(
-                      title: "Email",
-                      txtSize: 22,
-                      txtColor: Color(0xFF20535B),
-                    ),
-                    InputTxtField(
-                      hintText: "Email",
-                      controller: emailController,
-                      validator: emailValidator,
-                      obscureText: false,
-                      autocorrect: false,
-                      textCapitalization: TextCapitalization.none,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    const TextWidget(
-                      title: "Password",
-                      txtSize: 22,
-                      txtColor: Color(0xFF20535B),
-                    ),
-                    InputTxtField(
-                      hintText: "Password",
-                      controller: passwordController,
-                      validator: passwordValidator,
-                      obscureText: true,
-                      autocorrect: false,
-                      textCapitalization: TextCapitalization.none,
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 60,
-                      width: double.infinity,
-                      child: LoadingButton(
-                        btnText: "Sign up",
-                        onPress: register,
-                        isLoading: isLoading,
+                      const TextWidget(
+                        title: "Or sign up with",
+                        txtSize: 18,
+                        txtColor: Color(0xFF20535B),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: 2,
-                          width: 70,
-                          color: const Color(0xff999a9e),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Container(
+                          height: 2.0,
+                          width: 70.0,
+                          color: const Color(0xFF20535B),
                         ),
-                        const SizedBox(width: 10),
-                        const TextWidget(
-                          title: "Or sign up with",
-                          txtSize: 18,
-                          txtColor: Color(0xFF20535B),
-                        ),
-                        const SizedBox(width: 10),
-                        Container(
-                          height: 2,
-                          width: 70,
-                          color: const Color(0xff999a9e),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: SocialButtonWidget(
-                        bgColor: Colors.white,
-                        imagePath: 'assets/images/Google_G_logo.png',
-                        buttonName: 'Google',
-                        onPress: () async {
-                          await DiaryService.instance
-                              .requestStoragePermission();
-                          try {
-                            User? user = await GoogleService.loginWithGoogle();
-                            if (user != null) {
-                              Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                  builder:
-                                      ((context) => const ItinereoManager()),
-                                ),
-                              );
-                            }
-                          } on SignInException catch (e) {
-                            ItinereoSnackBar.show(context, e.message);
-                          } catch (e) {
-                            ItinereoSnackBar.show(
-                              context,
-                              "Google sign up failed. Please try again.",
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: SocialButtonWidget(
+                      bgColor: Colors.white,
+                      imagePath: 'assets/images/Google_G_logo.png',
+                      buttonName: 'Google',
+                      onPress: () async {
+                        await DiaryService.instance.requestStoragePermission();
+                        try {
+                          User? user = await GoogleService.loginWithGoogle();
+                          if (user != null) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: ((context) => const ItinereoManager()),
+                              ),
                             );
                           }
-                        },
-                      ),
+                        } on SignInException catch (e) {
+                          ItinereoSnackBar.show(context, e.message);
+                        } catch (e) {
+                          ItinereoSnackBar.show(
+                            context,
+                            "Google sign up failed. Please try again.",
+                          );
+                        }
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );
