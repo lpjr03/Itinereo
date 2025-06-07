@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<List<Marker>>> _loadItineraries() async {
     try {
       final userId = FirebaseAuth.instance.currentUser!.uid;
-      final entries = await LocalDiaryDatabase().getRecentDiaryEntries(
+      final entries = await LocalDiaryDatabase().getAllEntries(
         userId: userId,
       );
       if (entries.isEmpty) throw Exception("No entries found.");

@@ -156,41 +156,6 @@ class LocalDiaryDatabase {
     }).toList();
   }
 
-  Future<List<DiaryEntry>> getRecentDiaryEntries({
-    required String userId,
-    int count = 5,
-  }) async {
-    final db = await database;
-
-    final maps = await db.query(
-      'diary_entries',
-      where: 'userId = ?',
-      whereArgs: [userId],
-      orderBy: 'date DESC',
-      limit: count,
-    );
-
-    return maps.map((map) {
-      final photoUrls =
-          (map['photoUrls'] as String?)
-              ?.split(',')
-              .where((url) => url.trim().isNotEmpty)
-              .toList() ??
-          [];
-
-      return DiaryEntry(
-        id: map['id'] as String,
-        title: map['title'] as String,
-        description: map['description'] as String? ?? '',
-        date: DateTime.parse(map['date'] as String),
-        latitude: map['latitude'] as double? ?? 0.0,
-        longitude: map['longitude'] as double? ?? 0.0,
-        photoUrls: photoUrls,
-        location: map['location'] as String? ?? '',
-      );
-    }).toList();
-  }
-
   Future<DiaryEntry?> getEntryById(String id) async {
     final db = await database;
 

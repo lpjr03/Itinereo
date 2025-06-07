@@ -123,7 +123,7 @@ class DiaryService {
   ) async {
     final userId = userCredential.user!.uid;
 
-    final localEntries = await LocalDiaryDatabase().getRecentDiaryEntries(
+    final localEntries = await LocalDiaryDatabase().getAllEntries(
       userId: userId,
     );
     if (localEntries.isEmpty) {
