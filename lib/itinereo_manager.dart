@@ -10,6 +10,7 @@ import 'package:itinereo/screens/diary_preview.dart';
 import 'package:itinereo/screens/diary_screen.dart';
 import 'package:itinereo/screens/get_diary_page.dart';
 import 'package:itinereo/screens/home_screen.dart';
+import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -56,6 +57,9 @@ class _ItinereoState extends State<ItinereoManager>
   Future<List<List<Marker>>>? _cachedItineraries;
 
   bool _hasStoragePermission = false;
+
+  int _lastEntryCount = -1;
+
 
   Future<List<DiaryCard>> _latestDiaryCards = Future.value([]);
 
@@ -109,7 +113,24 @@ class _ItinereoState extends State<ItinereoManager>
   }
 
   /// Switches the active screen to the home screen.
-  void switchToHome() => setState(() => activeScreen = 'home-screen');
+ void switchToHome() async {
+  final userId = FirebaseAuth.instance.currentUser!.uid;
+  final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
+  final currentCount = entries.length;
+
+  if (currentCount != _lastEntryCount) {
+    final newItineraries = currentCount == 0
+        ? null
+        : GoogleService.generateItinerariesFromEntries(entries);
+
+    updateCachedItineraries(newItineraries!);
+    _lastEntryCount = currentCount;
+  }
+
+  setState(() => activeScreen = 'home-screen');
+}
+
+
 
   /// Switches the active screen to the diary screen.
   void switchToDiary() => setState(() => activeScreen = 'diary-screen');
