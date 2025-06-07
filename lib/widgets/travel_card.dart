@@ -7,11 +7,13 @@ import 'package:itinereo/models/card_entry.dart';
 class TravelCard extends StatelessWidget {
   final DiaryCard diaryCard;
   final VoidCallback onViewPage;
+  final ImageProvider? imageProvider; // optional, for testing
 
   const TravelCard({
     super.key,
     required this.diaryCard,
     required this.onViewPage,
+    this.imageProvider,
   });
 
   @override
@@ -44,8 +46,8 @@ class TravelCard extends StatelessWidget {
                   ).createShader(bounds);
                 },
                 blendMode: BlendMode.dstIn,
-                child: Image.file(
-                  File(diaryCard.imageUrl),
+                child: Image(
+                  image: imageProvider ?? FileImage(File(diaryCard.imageUrl)),
                   fit: BoxFit.cover,
                   height: 250,
                 ),
