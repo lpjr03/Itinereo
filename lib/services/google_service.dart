@@ -52,7 +52,6 @@ class GoogleService {
         credential,
       );
 
-      DiaryService.instance.requestStoragePermission();
       await DiaryService.instance.syncLocalEntriesWithFirestore(userCredential);
 
       return userCredential.user;

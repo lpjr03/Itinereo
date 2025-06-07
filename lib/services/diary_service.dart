@@ -149,16 +149,18 @@ class DiaryService {
     }
   }
 
-  Future<void> requestStoragePermission() async {
-    if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
-      final status = await [Permission.photos, Permission.storage].request();
+  Future<bool> requestStoragePermission() async {
+  if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
+    final status = await [Permission.photos, Permission.storage].request();
 
-      if (status[Permission.photos]?.isDenied == true ||
-          status[Permission.storage]?.isDenied == true) {
-        throw Exception('Storage permission not granted');
-      }
+    if (status[Permission.photos]?.isDenied == true ||
+        status[Permission.storage]?.isDenied == true) {
+      return false;
     }
   }
+  return true;
+}
+
 
   Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> fetchMoreDiaryEntries({
   QueryDocumentSnapshot<Map<String, dynamic>>? lastDocument,

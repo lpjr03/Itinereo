@@ -65,7 +65,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     setState(() => isLoading = true);
-    DiaryService.instance.requestStoragePermission();
+    await DiaryService.instance.requestStoragePermission();
+
     try {
       final UserCredential userCredential = await _auth
           .signInWithEmailAndPassword(email: email, password: password);
@@ -218,6 +219,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       buttonName: 'Google',
                       onPress: () async {
                         try {
+                          await DiaryService.instance
+                              .requestStoragePermission();
+
                           User? user = await GoogleService.loginWithGoogle();
                           if (user != null) {
                             Navigator.of(context).pushReplacement(

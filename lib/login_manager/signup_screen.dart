@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:itinereo/exceptions/sign_in_exception.dart';
 import 'package:itinereo/itinereo_manager.dart';
+import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/login_manager/welcome_screen.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
@@ -226,6 +227,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         imagePath: 'assets/images/Google_G_logo.png',
                         buttonName: 'Google',
                         onPress: () async {
+                          await DiaryService.instance
+                              .requestStoragePermission();
                           try {
                             User? user = await GoogleService.loginWithGoogle();
                             if (user != null) {
