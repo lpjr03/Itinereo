@@ -90,6 +90,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
 
+      await FirebaseAuth.instance.signOut();
+
       if (mounted) {
         setState(() => isLoading = false);
         Navigator.pushReplacement(
