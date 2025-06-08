@@ -88,7 +88,7 @@ void main() {
         mockGeo.getCityAndCountryFromPosition(any),
       ).thenAnswer((_) async => 'Roma, Italia');
 
-      final cards = await diaryService.getDiaryCards('apikey');
+      final cards = await diaryService.getDiaryCards();
 
       expect(cards, isNotEmpty);
       expect(cards.first.id, 'entry123');
@@ -118,7 +118,7 @@ void main() {
         ],
       );
 
-      final result = await diaryService.getDiaryCards('test-key');
+      final result = await diaryService.getDiaryCards();
 
       expect(result, isNotEmpty);
       expect(result.first.id, 'offline1');
