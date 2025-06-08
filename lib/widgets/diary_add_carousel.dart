@@ -82,8 +82,6 @@ class DiaryPhotoCarousel extends StatelessWidget {
                 child: PolaroidPhoto(
                   imagePath: photoUrl,
                   backgroundColor: const Color(0xFFFFF2D8),
-                  caption: 'Photo ${index + 1}/5',
-                  width: 325,
                 ),
               ),
               Positioned(
