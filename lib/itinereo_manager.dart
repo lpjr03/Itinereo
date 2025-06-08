@@ -54,7 +54,7 @@ class _ItinereoState extends State<ItinereoManager>
   String? _selectedEntryId;
 
   // Cached itineraries generated once the app starts.
-  Future<List<List<Marker>>>? _cachedItineraries;
+  Future<List<Map<String, dynamic>>>? _cachedItineraries;
 
   bool _hasStoragePermission = false;
 
@@ -156,7 +156,7 @@ class _ItinereoState extends State<ItinereoManager>
   void switchToMapPage() => setState(() => activeScreen = 'map-page-screen');
 
   /// Method to update the cached itineraries.
-  void updateCachedItineraries(Future<List<List<Marker>>> itinerariesFuture) {
+  void updateCachedItineraries(Future<List<Map<String, dynamic>>> itinerariesFuture) {
     _cachedItineraries = itinerariesFuture;
   }
 
