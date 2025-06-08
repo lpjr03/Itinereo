@@ -13,12 +13,15 @@ class DiaryPreview extends StatefulWidget {
   final void Function(String entryId) onViewPage;
   final VoidCallback? onBack;
   final void Function(int)? onBottomTap;
+    final bool permission;
+
 
   const DiaryPreview({
     super.key,
     required this.onViewPage,
     required this.onBack,
     this.onBottomTap,
+    required this.permission,
   });
 
   @override
@@ -87,31 +90,31 @@ class _DiaryPreviewState extends State<DiaryPreview> {
 
                   final diaryCard = _diaryCards[index];
 
-                  return Dismissible(
-                    key: Key(diaryCard.id),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      color: const Color.fromARGB(255, 227, 105, 96),
-                      child: const Icon(
-                        Icons.delete_sweep_outlined,
-                        color: Colors.white,
-                        size: 80,
-                      ),
-                    ),
-                    confirmDismiss: (direction) async {
-                      return await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => ErrorDialog(
-                              title: 'Delete Entry',
-                              message:
-                                  'Are you sure you want to delete this diary entry?',
-                              okButtonText: 'Delete',
-                              cancelButtonText: 'Cancel',
-                              showCancelButton: true,
+              return Dismissible(
+                key: Key(diaryCard.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  color: const Color.fromARGB(255, 227, 105, 96),
+                  child: const Icon(Icons.delete_sweep_outlined, color: Colors.white, size: 80,),
+                ),
+                confirmDismiss: (direction) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: const Text('Delete Entry'),
+                          content: const Text(
+                            'Are you sure you want to delete this diary entry?',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
                             ),
+                          ],
+                        ),
                       );
                     },
                     onDismissed: (direction) async {
@@ -127,16 +130,14 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                     child: TravelCard(
                       diaryCard: diaryCard,
                       onViewPage: () => widget.onViewPage(diaryCard.id),
+                      permission: widget.permission,
                     ),
                   );
-                },
-              ),
-
+                },), 
       bottomNavigationBar: ItinereoBottomBar(
         currentIndex: 2,
-        onTap: widget.onBottomTap,
-      ),
-    );
+        onTap: widget.onBottomTap,),
+      );
   }
 
   Future<void> _loadMoreCardsFromFirebase() async {
