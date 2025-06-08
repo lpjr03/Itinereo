@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/itinerary_card.dart';
@@ -27,8 +28,8 @@ class HomeScreen extends StatefulWidget {
   final Function(String entryId) switchToDetailPage;
   final Function(List<Marker> markers, String title, {bool polyline})
   switchToCustomMap;
-  final Future<List<List<Marker>>>? cachedItineraries;
-  final void Function(Future<List<List<Marker>>>) setCachedItineraries;
+  final Future<List<Map<String, dynamic>>>? cachedItineraries;
+  final void Function(Future<List<Map<String, dynamic>>>) setCachedItineraries;
   final bool hasStoragePermission;
 
   @override
@@ -36,7 +37,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<List<Marker>>> itineraries;
+  late Future<List<Map<String, dynamic>>> itineraries;
   int _selectedIndex = 1;
 
   @override
@@ -50,12 +51,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<List<List<Marker>>> _loadItineraries() async {
+  Future<List<Map<String, dynamic>>> _loadItineraries() async {
     try {
       final userId = FirebaseAuth.instance.currentUser!.uid;
-      final entries = await LocalDiaryDatabase().getAllEntries(
-        userId: userId,
-      );
+      final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
       if (entries.isEmpty) throw Exception("No entries found.");
 
       return await GoogleService.generateItinerariesFromEntries(entries);
@@ -87,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       backgroundColor: const Color(0xFFF6E1C4),
       body: SafeArea(
-        child: FutureBuilder<List<List<Marker>>>(
+        child: FutureBuilder<List<Map<String, dynamic>>>(
           future: itineraries,
           builder: (context, snapshot) {
             return SingleChildScrollView(
@@ -118,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Text(
                               textAlign: TextAlign.center,
-                              'Welcome back, $firstName!',
+                              'Good to see you, $firstName!',
                               style: GoogleFonts.playpenSans(
                                 textStyle: const TextStyle(
                                   fontSize: 25,
@@ -148,8 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 10),
                   FutureBuilder<List<DiaryCard>>(
-                    future: LocalDiaryDatabase().getDiaryCardsFromLocalDb(
-                      userId: FirebaseAuth.instance.currentUser!.uid,
+                    future: DiaryService.instance.getDiaryCards(
                       limit: 5,
                       offset: 0,
                     ),
@@ -166,6 +164,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         cards: snapshot.data!,
                         onViewPage: widget.switchToDetailPage,
                         permission: widget.hasStoragePermission,
+                        onRefresh: () {
+                          refreshItineraries();
+                          setState(() {});
+                        },
                       );
                     },
                   ),
@@ -203,11 +205,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     SuggestedItinerariesBox(
                       cards: List.generate(snapshot.data!.length, (index) {
                         return ItineraryCard(
-                          markers: snapshot.data![index],
+                          markers:
+                              snapshot.data![index]['markers'],
+                          title: snapshot.data![index]['title'],
                           onTap: () {
                             widget.switchToCustomMap(
-                              snapshot.data![index],
-                              'Itinerario ${index + 1}',
+                              snapshot.data![index]['markers'],
+                              snapshot.data![index]['title'],
                               polyline: true,
                             );
                           },
