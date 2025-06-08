@@ -35,7 +35,8 @@ void main() {
             body: TravelCard(
               diaryCard: fakeDiaryCard,
               onViewPage: () => tapped = true,
-              imageProvider: fakeImage,
+              imageProvider: fakeImage, 
+              permission: true, // Assuming permission is true for the test
             ),
           ),
         ),
