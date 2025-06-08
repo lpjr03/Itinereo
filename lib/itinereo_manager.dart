@@ -60,7 +60,6 @@ class _ItinereoState extends State<ItinereoManager>
 
   int _lastEntryCount = -1;
 
-
   Future<List<DiaryCard>> _latestDiaryCards = Future.value([]);
 
   @override
@@ -90,17 +89,6 @@ class _ItinereoState extends State<ItinereoManager>
     });
   }
 
-  Future<List<DiaryCard>> _refreshDiaryCards() {
-    final future = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
-      userId: FirebaseAuth.instance.currentUser!.uid,
-      limit: 10,
-      offset: 0,
-    );
-
-    _latestDiaryCards = future;
-    return future;
-  }
-
   /// Handles taps on the bottom navigation bar.
   void handleBottomNavTap(int index) {
     if (index == 0) {
@@ -113,24 +101,23 @@ class _ItinereoState extends State<ItinereoManager>
   }
 
   /// Switches the active screen to the home screen.
- void switchToHome() async {
-  final userId = FirebaseAuth.instance.currentUser!.uid;
-  final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
-  final currentCount = entries.length;
+  void switchToHome() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
+    final currentCount = entries.length;
 
-  if (currentCount != _lastEntryCount) {
-    final newItineraries = currentCount == 0
-        ? null
-        : GoogleService.generateItinerariesFromEntries(entries);
+    if (currentCount != _lastEntryCount) {
+      final newItineraries =
+          currentCount == 0
+              ? null
+              : GoogleService.generateItinerariesFromEntries(entries);
 
-    updateCachedItineraries(newItineraries!);
-    _lastEntryCount = currentCount;
+      updateCachedItineraries(newItineraries!);
+      _lastEntryCount = currentCount;
+    }
+
+    setState(() => activeScreen = 'home-screen');
   }
-
-  setState(() => activeScreen = 'home-screen');
-}
-
-
 
   /// Switches the active screen to the diary screen.
   void switchToDiary() => setState(() => activeScreen = 'diary-screen');
@@ -175,6 +162,17 @@ class _ItinereoState extends State<ItinereoManager>
       _showPolyline = polyline;
       activeScreen = 'custom-map-screen';
     });
+  }
+
+  Future<List<DiaryCard>> _refreshDiaryCards() {
+    final future = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
+      userId: FirebaseAuth.instance.currentUser!.uid,
+      limit: 10,
+      offset: 0,
+    );
+
+    _latestDiaryCards = future;
+    return future;
   }
 
   @override
@@ -223,6 +221,7 @@ class _ItinereoState extends State<ItinereoManager>
         onViewPage: switchToDetailPage,
         onBack: switchToDiary,
         onBottomTap: handleBottomNavTap,
+        permission: _hasStoragePermission,
       );
     } else if (activeScreen == 'add-diary-page-screen') {
       screenWidget = AddDiaryEntryPage(
@@ -257,7 +256,10 @@ class _ItinereoState extends State<ItinereoManager>
         saveToGallery: false,
       );
     } else if (activeScreen == 'detail-page') {
-      screenWidget = DiaryEntryDetailPage(entryId: _selectedEntryId!);
+      screenWidget = DiaryEntryDetailPage(
+        entryId: _selectedEntryId!,
+        onBack: switchToEntriesPreview,
+      );
     } else if (activeScreen == 'map-page-screen') {
       screenWidget = DiaryMapPage(
         onBack: switchToDiary,
