@@ -6,8 +6,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class ItineraryCard extends StatelessWidget {
   final List<Marker> markers;
   final VoidCallback onTap;
+  final String title;
 
-  const ItineraryCard({super.key, required this.markers, required this.onTap});
+  const ItineraryCard({
+    super.key,
+    required this.markers,
+    required this.onTap,
+    required this.title,
+  });
 
   String buildStaticMapUrl(double lat, double lng) {
     final apiKey = dotenv.env['API_KEY'];
@@ -44,6 +50,7 @@ class ItineraryCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Static map preview
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: AspectRatio(
@@ -68,29 +75,42 @@ class ItineraryCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
 
-              Align(
-                alignment: Alignment.bottomRight,
-                child: TextButton.icon(
-                  onPressed: onTap,
-                  icon: const Icon(
-                    Icons.map,
-                    size: 16,
-                    color: Color(0xFF73370F),
-                  ),
-                  label: Text(
-                    'Map',
-                    style: GoogleFonts.libreBaskerville(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF73370F),
+              // Title + Map button row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: GoogleFonts.libreBaskerville(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF385A55),
+                      ),
                     ),
                   ),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(60, 30),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  TextButton.icon(
+                    onPressed: onTap,
+                    icon: const Icon(
+                      Icons.map,
+                      size: 16,
+                      color: Color(0xFF73370F),
+                    ),
+                    label: Text(
+                      'Map',
+                      style: GoogleFonts.libreBaskerville(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF73370F),
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(60, 30),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
