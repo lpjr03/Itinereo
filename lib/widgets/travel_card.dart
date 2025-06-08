@@ -7,7 +7,7 @@ import 'package:itinereo/models/card_entry.dart';
 class TravelCard extends StatelessWidget {
   final DiaryCard diaryCard;
   final VoidCallback onViewPage;
-  final ImageProvider? imageProvider; // optional, for testing
+  final ImageProvider? imageProvider;
 
   const TravelCard({
     super.key,
@@ -26,36 +26,44 @@ class TravelCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: 5,
       child: SizedBox(
-        height: 250,
+        height: MediaQuery.of(context).size.height * 0.35,
         child: Row(
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(
                 left: Radius.circular(16),
               ),
-              child: ShaderMask(
-                shaderCallback: (Rect bounds) {
-                  return const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Color.fromARGB(255, 255, 244, 217),
-                      Colors.transparent,
-                    ],
-                    stops: [0.7, 1.0],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.dstIn,
-                child: Image(
-                  image: imageProvider ?? FileImage(File(diaryCard.imageUrl)),
-                  fit: BoxFit.cover,
-                  height: 250,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.45,
+                height: MediaQuery.of(context).size.height * 0.35,
+                child: ShaderMask(
+                  shaderCallback: (Rect bounds) {
+                    return const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color.fromARGB(255, 255, 244, 217),
+                        Colors.transparent,
+                      ],
+                      stops: [0.7, 1.0],
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: Image(
+                    image: imageProvider ?? FileImage(File(diaryCard.imageUrl)),
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => const Center(
+                          child: Icon(Icons.broken_image, size: 50),
+                        ),
+                  ),
                 ),
               ),
             ),
-            Expanded(
+            const SizedBox(width: 10),
+            Flexible(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                padding: const EdgeInsets.fromLTRB(0, 12, 16, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -67,7 +75,7 @@ class TravelCard extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 20),
                     Text(
                       diaryCard.place,
                       overflow: TextOverflow.ellipsis,
@@ -78,7 +86,7 @@ class TravelCard extends StatelessWidget {
                         fontSize: 23,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 20),
                     Text(
                       diaryCard.title,
                       style: GoogleFonts.playpenSans(
@@ -88,28 +96,24 @@ class TravelCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     Align(
-                      alignment: Alignment.bottomRight,
+                      alignment: Alignment.bottomLeft,
                       child: ElevatedButton.icon(
                         onPressed: onViewPage,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF8C4B2F),
                           shape: const StadiumBorder(),
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
+                            horizontal: 15,
+                            vertical: 8,
                           ),
-                        ),
-                        icon: const Icon(
-                          Icons.arrow_forward,
-                          size: 16,
-                          color: Colors.white,
                         ),
                         label: Text(
                           'View page',
+                          textAlign: TextAlign.center,
                           style: GoogleFonts.playpenSans(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                            fontSize: 18,
                           ),
                         ),
                       ),
