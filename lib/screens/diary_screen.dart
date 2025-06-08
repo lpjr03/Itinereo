@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/widgets/bookmark_button.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
@@ -18,14 +19,18 @@ class DiaryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
             final height = constraints.maxHeight;
-
             return Stack(
               fit: StackFit.expand,
               children: [
@@ -190,7 +195,6 @@ class DiaryScreen extends StatelessWidget {
                               Positioned(
                                 top: 190,
                                 right: 0,
-                                //height: height * 0.1,
                                 child: Transform.rotate(
                                   angle: -0.1,
                                   child: Image.asset(
@@ -203,7 +207,6 @@ class DiaryScreen extends StatelessWidget {
                               Positioned(
                                 bottom: 0,
                                 left: 50,
-                                //height: height * 0.1,
                                 child: Transform.rotate(
                                   angle: 0,
                                   child: Image.asset(
@@ -220,7 +223,6 @@ class DiaryScreen extends StatelessWidget {
                                 child: PolaroidPhoto(
                                   imagePath: 'assets/images/venice.jpg',
                                   backgroundColor: const Color(0xFFF9EDD2),
-                                  width: screenWidth * 0.35,
                                   angle: 0.25,
                                   isAsset: true,
                                 ),
@@ -232,7 +234,6 @@ class DiaryScreen extends StatelessWidget {
                                 child: PolaroidPhoto(
                                   imagePath: 'assets/images/florence.jpg',
                                   backgroundColor: const Color(0xFFF9EDD2),
-                                  width: screenWidth * 0.35,
                                   angle: -0.12,
                                   isAsset: true,
                                 ),
@@ -244,7 +245,6 @@ class DiaryScreen extends StatelessWidget {
                                 child: PolaroidPhoto(
                                   imagePath: 'assets/images/colosseum.jpg',
                                   backgroundColor: const Color(0xFFF9EDD2),
-                                  width: screenWidth * 0.35,
                                   angle: 0.17,
                                   isAsset: true,
                                 ),
