@@ -125,7 +125,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                   color: const Color(0xFF649991),
                   child: Container(
                     padding: const EdgeInsets.all(16),
-                    color: const Color(0xFFF6E1C4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF6E1C4),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Form(
                       key: _formKey,
                       child: Column(
