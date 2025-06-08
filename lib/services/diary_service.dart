@@ -41,8 +41,7 @@ class DiaryService {
     await _entryCollection.doc(entry.id).set(entry.toMap());
   }
 
-  Future<List<DiaryCard>> getDiaryCards(
-    String apiKey, {
+  Future<List<DiaryCard>> getDiaryCards({
     int limit = 10,
     int offset = 0,
   }) async {
@@ -62,21 +61,7 @@ class DiaryService {
         final id = doc.id;
         final date = DateTime.parse(data['date']);
         final title = data['title'];
-        final latitude = (data['latitude'] as num).toDouble();
-        final longitude = (data['longitude'] as num).toDouble();
         final photoUrls = List<String>.from(data['photoUrls'] ?? []);
-        Position position = Position(
-          latitude: latitude,
-          longitude: longitude,
-          timestamp: date,
-          accuracy: 0,
-          altitude: 0,
-          heading: 0,
-          speed: 0,
-          altitudeAccuracy: 0,
-          headingAccuracy: 0,
-          speedAccuracy: 0,
-        );
 
         final place = data['location'] ?? '';
 
@@ -150,39 +135,22 @@ class DiaryService {
   }
 
   Future<bool> requestStoragePermission() async {
-  if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
-    final status = await [Permission.photos, Permission.storage].request();
+    if (await Permission.photos.isDenied || await Permission.storage.isDenied) {
+      final status = await [Permission.photos, Permission.storage].request();
 
-    if (status[Permission.photos]?.isDenied == true ||
-        status[Permission.storage]?.isDenied == true) {
-      return false;
+      if (status[Permission.photos]?.isDenied == true ||
+          status[Permission.storage]?.isDenied == true) {
+        return false;
+      }
     }
-  }
-  return true;
-}
-
-
-  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> fetchMoreDiaryEntries({
-  QueryDocumentSnapshot<Map<String, dynamic>>? lastDocument,
-  required int limit,
-}) async {
-  Query<Map<String, dynamic>> query = _entryCollection
-      .orderBy('date', descending: true)
-      .limit(limit);
-
-  if (lastDocument != null) {
-    query = query.startAfterDocument(lastDocument);
+    return true;
   }
 
-  final snapshot = await query.get();
-  return snapshot.docs;
-}
-
-Future<List<DiaryCard>> getDiaryCardsPaginated({
-  required int limit,
-  QueryDocumentSnapshot<Map<String, dynamic>>? lastDocument,
-}) async {
-  try {
+  Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>>
+  fetchMoreDiaryEntries({
+    QueryDocumentSnapshot<Map<String, dynamic>>? lastDocument,
+    required int limit,
+  }) async {
     Query<Map<String, dynamic>> query = _entryCollection
         .orderBy('date', descending: true)
         .limit(limit);
@@ -192,43 +160,6 @@ Future<List<DiaryCard>> getDiaryCardsPaginated({
     }
 
     final snapshot = await query.get();
-    final docs = snapshot.docs;
-
-    List<DiaryCard> cards = [];
-
-    for (final doc in docs) {
-      final data = doc.data();
-      final id = doc.id;
-      final date = DateTime.parse(data['date']);
-      final title = data['title'];
-      final latitude = (data['latitude'] as num).toDouble();
-      final longitude = (data['longitude'] as num).toDouble();
-      final photoUrls = List<String>.from(data['photoUrls'] ?? []);
-      final location= data['location'] ?? '';
-
-      cards.add(
-        DiaryCard(
-          id: id,
-          date: date,
-          place: location,
-          title: title,
-          imageUrl: photoUrls.isNotEmpty ? photoUrls.first : '',
-        ),
-      );
-    }
-
-    return cards;
-  } catch (e) {
-    // fallback solo se la fetch Firebase fallisce (es. offline)
-    return _localDb.getDiaryCardsFromLocalDb(
-      userId: _userId,
-      limit: limit,
-      offset: 0, // non c'è scroll in fallback
-    );
+    return snapshot.docs;
   }
-}
-
-
-
-
 }
