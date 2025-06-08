@@ -132,7 +132,7 @@ Fornisci la risposta come JSON con un solo campo chiamato "description".
   ///
   /// Throws an [Exception] if the AI response cannot be parsed.
 
-  static Future<List<List<Marker>>> generateItinerariesFromEntries(
+  static Future<List<Map<String, dynamic>>> generateItinerariesFromEntries(
     List<DiaryEntry> entries,
   ) async {
     // Build entry summaries
@@ -147,38 +147,47 @@ Luogo: lat=${entry.latitude}, lon=${entry.longitude}
         })
         .join('\n\n');
 
-    // This schema defines the expected structure of the response from Gemini.
+    // Updated schema with 'title' for each itinerary
     final jsonSchema = Schema.object(
       properties: {
         'itineraries': Schema.array(
-          items: Schema.array(
-            items: Schema.object(
-              properties: {
-                'name': Schema.string(),
-                'latitude': Schema.number(),
-                'longitude': Schema.number(),
-              },
-            ),
+          items: Schema.object(
+            properties: {
+              'title': Schema.string(),
+              'stops': Schema.array(
+                items: Schema.object(
+                  properties: {
+                    'name': Schema.string(),
+                    'latitude': Schema.number(),
+                    'longitude': Schema.number(),
+                  },
+                ),
+              ),
+            },
           ),
         ),
       },
     );
 
-    // Prompt definition
+    // Updated prompt
     final prompt = TextPart('''
-Ti fornisco un elenco di voci di diario di viaggio (titolo, descrizione, luogo). 
-Crea 5 diversi itinerari turistici ispirati a questi racconti, proponendo nuove località simili o collegate per atmosfera, tema o interesse.
+Ti fornisco un elenco di voci di diario di viaggio (titolo, descrizione, luogo).
+Crea **5 diversi itinerari turistici** ispirati a questi racconti, proponendo nuove località **simili o collegate** per atmosfera, tema o interesse.
 
-Per ogni itinerario, elenca 5 tappe, che devono essere non troppo lontane tra loro (max 200 km).
-Ogni tappa deve contenere:
-- "name": il nome del luogo
-- "latitude": latitudine
-- "longitude": longitudine
+Per ogni itinerario fornisci:
+- **title**: un titolo suggestivo per l’itinerario
+- **stops**: un array di 5 tappe, ognuna con:
+  - "name": il nome del luogo
+  - "latitude": la latitudine
+  - "longitude": la longitudine
+
+Le tappe devono essere **geograficamente vicine** (massimo 200 km l’una dall’altra).
 
 Ecco le voci di diario da cui prendere ispirazione:
 
 $entrySummaries
 ''');
+
     final model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-2.0-flash-001',
       generationConfig: GenerationConfig(
@@ -186,7 +195,7 @@ $entrySummaries
         responseSchema: jsonSchema,
       ),
     );
-    // Request to Gemini
+
     final response = await model.generateContent([Content.text(prompt.text)]);
 
     if (response.text == null) {
@@ -198,17 +207,20 @@ $entrySummaries
       final jsonResponse = jsonDecode(rawText);
       final itineraries = jsonResponse['itineraries'] as List;
 
-      return itineraries.map<List<Marker>>((itinerary) {
-        return (itinerary as List).map<Marker>((tappa) {
-          return Marker(
-            markerId: MarkerId(tappa['name']),
-            position: LatLng(
-              (tappa['latitude'] as num).toDouble(),
-              (tappa['longitude'] as num).toDouble(),
-            ),
-            infoWindow: InfoWindow(title: tappa['name']),
-          );
-        }).toList();
+      return itineraries.map<Map<String, dynamic>>((itinerary) {
+        final title = itinerary['title'] as String;
+        final stops =
+            (itinerary['stops'] as List).map<Marker>((stop) {
+              return Marker(
+                markerId: MarkerId(stop['name']),
+                position: LatLng(
+                  (stop['latitude'] as num).toDouble(),
+                  (stop['longitude'] as num).toDouble(),
+                ),
+                infoWindow: InfoWindow(title: stop['name']),
+              );
+            }).toList();
+        return {'title': title, 'markers': stops};
       }).toList();
     } catch (e) {
       throw Exception('Error parsing response: ${e.toString()}');
