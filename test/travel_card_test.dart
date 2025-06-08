@@ -27,11 +27,16 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(
-          body: TravelCard(
-            diaryCard: fakeDiaryCard,
-            onViewPage: () => tapped = true,
-            imageProvider: fakeImage,
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(800, 1280),
+          ),
+          child: Scaffold(
+            body: TravelCard(
+              diaryCard: fakeDiaryCard,
+              onViewPage: () => tapped = true,
+              imageProvider: fakeImage,
+            ),
           ),
         ),
       ),
