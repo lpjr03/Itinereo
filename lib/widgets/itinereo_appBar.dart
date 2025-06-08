@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -8,6 +9,7 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color topBarColor;
   final bool? isBackButtonVisible;
   final VoidCallback? onBack;
+  final bool showPill;
 
   const ItinereoAppBar({
     super.key,
@@ -17,6 +19,7 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.topBarColor,
     this.isBackButtonVisible = false,
     this.onBack,
+    this.showPill = true,
   });
 
   @override
@@ -24,6 +27,12 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: topBarColor,
+        statusBarIconBrightness: Brightness.light,
+      ),
+    );
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -52,25 +61,29 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
             ],
           ),
 
-          Positioned(
-            top: 35,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 3),
-              decoration: BoxDecoration(
-                color: pillColor,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Text(
-                title,
-                style: GoogleFonts.libreBaskerville(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                  height: 1.3,
+          if (showPill)
+            Positioned(
+              top: 35,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 3,
+                ),
+                decoration: BoxDecoration(
+                  color: pillColor,
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(
+                  title,
+                  style: GoogleFonts.libreBaskerville(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                    height: 1.3,
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
