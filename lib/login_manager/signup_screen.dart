@@ -94,10 +94,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       if (mounted) {
         setState(() => isLoading = false);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-        );
+
+        ItinereoSnackBar.show(context, "Sign-up successful! Please Log In.");
+
+        await Future.delayed(const Duration(milliseconds: 2100));
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       String message = "Registration failed. Please try again.";
