@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itinereo/exceptions/location_exceptions.dart';
+import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/widgets/explore_option.dart';
 import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
+import 'package:itinereo/widgets/snackbar.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({
@@ -30,6 +35,14 @@ class _ExploreScreenState extends State<ExploreScreen> {
     ('Beach', Icons.beach_access),
     ('Park', Icons.park),
   ];
+
+  final Map<String, String> typeMapping = const {
+    'Museum': 'museum',
+    'Art Gallery': 'art_gallery',
+    'Library': 'library',
+    'Beach': 'tourist_attraction',
+    'Park': 'park',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +110,71 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Center(
-                          child: buildExploreTile(
-                            icon: icon,
-                            label: label,
-                            iconBackground: const Color(0xFF5E9C95),
-                            labelBackground: const Color(0xFFFDF5E6),
+                          child: GestureDetector(
+                            onTap: () async {
+                              try {
+                                final position =
+                                    await GeolocatorService()
+                                        .getCurrentLocation();
+                                final type = label;
+
+                                final mapPage = await GeolocatorService()
+                                    .getNearbyPlacesMap(
+                                      position: position,
+                                      type: type,
+                                      title: label,
+                                      onBack: () => Navigator.pop(context),
+                                    );
+
+                                if (mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => mapPage),
+                                  );
+                                }
+                              } on LocationServicesDisabledException {
+                                if (mounted) {
+                                  ItinereoSnackBar.show(
+                                    context,
+                                    'Location services are disabled. Please enable them in your device settings.',
+                                  );
+                                }
+                              } on LocationPermissionDeniedException {
+                                if (mounted) {
+                                  ItinereoSnackBar.show(
+                                    context,
+                                    'Location permission denied. Please grant access to continue.',
+                                  );
+                                }
+                              } on LocationPermissionPermanentlyDeniedException {
+                                if (mounted) {
+                                  ItinereoSnackBar.show(
+                                    context,
+                                    'Location permission permanently denied. Enable it from system settings.',
+                                  );
+                                }
+                              } on SocketException {
+                                if (mounted) {
+                                  ItinereoSnackBar.show(
+                                    context,
+                                    'Network error. Please check your internet connection.',
+                                  );
+                                }
+                              } on PlacesApiException {
+                                if (mounted) {
+                                  ItinereoSnackBar.show(
+                                    context,
+                                    'No relevant places found nearby.',
+                                  );
+                                }
+                              }
+                            },
+                            child: buildExploreTile(
+                              icon: icon,
+                              label: label,
+                              iconBackground: const Color(0xFF5E9C95),
+                              labelBackground: const Color(0xFFFDF5E6),
+                            ),
                           ),
                         ),
                       );
