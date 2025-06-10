@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
-import 'package:itinereo/widgets/text_widget.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../models/diary_entry.dart';
 import '../services/diary_service.dart';
@@ -59,7 +58,7 @@ class DiaryEntryDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       color: const Color(0xFF95A86E),
                       child: Container(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF6E1C4),
                           borderRadius: BorderRadius.circular(10),
@@ -68,14 +67,34 @@ class DiaryEntryDetailPage extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: IconButton(
-                                icon: const Icon(Icons.arrow_back_rounded),
-                                color: const Color(0xFF2E5355),
-                                onPressed: () => onBack(),
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.arrow_back_rounded,size: 30,),
+                                  color: const Color(0xFF2E5355),
+                                  onPressed: () => onBack(),
+                                ),
+                                Expanded(
+                                  child: Center(
+                                    child: Text(
+                                      'Itinerèo',
+                                      style: GoogleFonts.libreBaskerville(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFFD28F3F),
+                                        height: 1.3,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Icon(Icons.photo_album_outlined,
+                                  color: const Color(0xFF2E5355),
+                                  size: 35,
+                                )
+                              ],
                             ),
+
                             Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -92,7 +111,7 @@ class DiaryEntryDetailPage extends StatelessWidget {
                                 children: [
                                   Text(
                                     '"${entry.title}"',
-                                    style: GoogleFonts.libreBaskerville(
+                                    style: GoogleFonts.deliciousHandrawn(
                                       textStyle: const TextStyle(
                                         fontSize: 25,
                                         //height: 1.7,
