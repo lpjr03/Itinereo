@@ -13,7 +13,6 @@ import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/custom_input_field.dart';
 import 'package:itinereo/widgets/date_field.dart';
 import 'package:itinereo/widgets/diary_action_button.dart';
-import 'package:itinereo/widgets/diary_add_carousel.dart';
 import 'package:itinereo/widgets/loading_dialog.dart';
 import 'package:itinereo/widgets/photo_carousel.dart';
 import 'package:itinereo/widgets/snackbar.dart';
