@@ -108,15 +108,20 @@ Fornisci la risposta come JSON con un solo campo chiamato "description".
         responseSchema: jsonSchema,
       ),
     );
+    try {
+      final response = await model.generateContent([Content.multi(parts)]);
 
-    final response = await model.generateContent([Content.multi(parts)]);
-
-    final rawText = response.text!;
-    final jsonResponse = jsonDecode(rawText);
-    if (jsonResponse case {'description': final String description}) {
-      return description;
-    } else {
-      return 'Could not generate description.';
+      final rawText = response.text!;
+      final jsonResponse = jsonDecode(rawText);
+      if (jsonResponse case {'description': final String description}) {
+        return description;
+      } else {
+        return 'Could not generate description.';
+      }
+    } on SocketException {
+      return 'No connection. Could not generate a description.';
+    } catch (e) {
+      return 'Error during the generation of a description';
     }
   }
 
@@ -196,13 +201,13 @@ $entrySummaries
       ),
     );
 
-    final response = await model.generateContent([Content.text(prompt.text)]);
-
-    if (response.text == null) {
-      throw Exception('Empty response.');
-    }
-
     try {
+      final response = await model.generateContent([Content.text(prompt.text)]);
+
+      if (response.text == null) {
+        throw Exception('Empty response.');
+      }
+
       final rawText = response.text!;
       final jsonResponse = jsonDecode(rawText);
       final itineraries = jsonResponse['itineraries'] as List;
@@ -222,6 +227,11 @@ $entrySummaries
             }).toList();
         return {'title': title, 'markers': stops};
       }).toList();
+    } on SocketException {
+      throw Exception(
+        'No connection. Could not generate new itineraries.',
+      );
+      
     } catch (e) {
       throw Exception('Error parsing response: ${e.toString()}');
     }
