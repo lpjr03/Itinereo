@@ -79,7 +79,6 @@ class _DiaryPreviewState extends State<DiaryPreview> {
               )
               : ListView.builder(
                 controller: _scrollController,
-                itemExtent: 300,
                 physics: const ClampingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 itemCount: _diaryCards.length + (_isLoading ? 1 : 0),
