@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class BookMark extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData icon;
-  final String label;
+  final String? label;
   final Color textAndIconColor;
   final Color backgroundColor;
 
@@ -12,7 +12,7 @@ class BookMark extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.icon,
-    required this.label,
+    this.label,
     required this.textAndIconColor,
     required this.backgroundColor,
   });
@@ -36,7 +36,7 @@ class BookMark extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 5),
               child: Column(
                 children:
-                    label.split('').map((lettera) {
+                    label!.split('').map((lettera) {
                       return Text(
                         lettera,
                         style: GoogleFonts.playpenSans(

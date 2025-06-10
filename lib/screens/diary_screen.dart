@@ -8,17 +8,18 @@ class DiaryScreen extends StatelessWidget {
   final Function() switchToPreview;
   final Function() switchToAddDiaryPage;
   final Function() switchToMapPage;
+  final Function() switchToHome;
 
   const DiaryScreen({
     super.key,
     required this.switchToPreview,
     required this.switchToAddDiaryPage,
     required this.switchToMapPage,
+    required this.switchToHome,
   });
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -74,6 +75,14 @@ class DiaryScreen extends StatelessWidget {
                         label: "Diary",
                         textAndIconColor: Colors.white,
                         backgroundColor: const Color(0xFFC97F4F),
+                      ),
+                      const SizedBox(height: 15),
+                      BookMark(
+                        onPressed: switchToHome,
+                        icon: Icons.home,
+                        label: "Home",
+                        textAndIconColor: Colors.white,
+                        backgroundColor: const Color.fromARGB(255, 227, 105, 96),
                       ),
                     ],
                   ),
