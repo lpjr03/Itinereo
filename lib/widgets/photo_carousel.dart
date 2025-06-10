@@ -21,7 +21,7 @@ class PhotoCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool showActionCard = photoUrls.length < maxPhotos;
+    final bool showActionCard = photoUrls.length < maxPhotos && actionCard != null ;
     final int itemCount = photoUrls.length + (showActionCard ? 1 : 0);
 
     return Container(
