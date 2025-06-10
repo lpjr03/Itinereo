@@ -23,10 +23,13 @@ class ExploreScreen extends StatefulWidget {
 class _ExploreScreenState extends State<ExploreScreen> {
   int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  final List<(String, IconData)> options = const [
+    ('Museum', Icons.account_balance),
+    ('Art Gallery', Icons.draw),
+    ('Library', Icons.library_books),
+    ('Beach', Icons.beach_access),
+    ('Park', Icons.park),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -41,95 +44,72 @@ class _ExploreScreenState extends State<ExploreScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Column(
-                    children: [
-                      Text(
-                        textAlign: TextAlign.center,
-                        'Be Curious!',
-                        style: GoogleFonts.playpenSans(
-                          textStyle: const TextStyle(
-                            fontSize: 38,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF9D633D),
-                          ),
-                        ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 700),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Be Curious!',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.playpenSans(
+                      textStyle: const TextStyle(
+                        fontSize: 38,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF9D633D),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Explore New Horizons!',
-                        style: GoogleFonts.libreBaskerville(
-                          textStyle: const TextStyle(
-                            fontSize: 17,
-                            color: Colors.black87,
-                            letterSpacing: 0.1,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'What are you up to today?',
-                  style: GoogleFonts.playpenSans(
-                    textStyle: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF9D633D),
                     ),
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Explore New Horizons!',
+                    style: GoogleFonts.libreBaskerville(
+                      textStyle: const TextStyle(
+                        fontSize: 17,
+                        color: Colors.black87,
+                        letterSpacing: 0.1,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'What are you up to today?',
+                      style: GoogleFonts.playpenSans(
+                        textStyle: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF9D633D),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: options.length,
+                    itemBuilder: (context, index) {
+                      final (label, icon) = options[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Center(
+                          child: buildExploreTile(
+                            icon: icon,
+                            label: label,
+                            iconBackground: const Color(0xFF5E9C95),
+                            labelBackground: const Color(0xFFFDF5E6),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              buildExploreTile(
-                icon: Icons.account_balance,
-                label: 'Museum',
-                iconBackground: const Color(0xFF5E9C95),
-                labelBackground: const Color(0xFFFDF5E6),
-              ),
-              const SizedBox(height: 10),
-
-              buildExploreTile(
-                icon: Icons.draw,
-                label: 'Art Gallery',
-                iconBackground: const Color(0xFF5E9C95),
-                labelBackground: const Color(0xFFFDF5E6),
-              ),
-              const SizedBox(height: 10),
-
-              buildExploreTile(
-                icon: Icons.library_books,
-                label: 'Library',
-                iconBackground: const Color(0xFF5E9C95),
-                labelBackground: const Color(0xFFFDF5E6),
-              ),
-              const SizedBox(height: 10),
-
-              buildExploreTile(
-                icon: Icons.beach_access,
-                label: 'Beach',
-                iconBackground: const Color(0xFF5E9C95),
-                labelBackground: const Color(0xFFFDF5E6),
-              ),
-              const SizedBox(height: 10),
-
-              buildExploreTile(
-                icon: Icons.park,
-                label: 'Park',
-                iconBackground: const Color(0xFF5E9C95),
-                labelBackground: const Color(0xFFFDF5E6),
-              ),
-            ],
+            ),
           ),
         ),
       ),
@@ -137,8 +117,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
-          if (index == 1) widget.switchScreen();
-          if (index == 2) {
+          if (index == 1 || index == 2) {
             widget.switchScreen();
           }
         },
