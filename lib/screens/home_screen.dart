@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
@@ -54,15 +55,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _loadItineraries() async {
-    try {
-      final userId = FirebaseAuth.instance.currentUser!.uid;
-      final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
-      if (entries.isEmpty) throw Exception("No entries found.");
-
-      return await GoogleService.generateItinerariesFromEntries(entries);
-    } on SocketException {
-      throw Exception("No connection. Couldn't generate new itineraries.");
-    }
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
+    if (entries.isEmpty) throw Exception("No entries found.");
+    return await GoogleService.generateItinerariesFromEntries(entries);
   }
 
   void refreshItineraries() {
