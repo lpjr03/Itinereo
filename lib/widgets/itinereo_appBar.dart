@@ -47,13 +47,16 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
                 alignment: Alignment.centerLeft,
                 child:
                     (isBackButtonVisible ?? false)
-                        ? IconButton(
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
+                        ? Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                            ),
+                            onPressed: onBack,
+                            alignment: Alignment.centerLeft,
                           ),
-                          onPressed: onBack,
-                          alignment: Alignment.centerLeft,
                         )
                         : const SizedBox(),
               ),
