@@ -8,12 +8,14 @@ import 'package:itinereo/screens/camera_screen.dart';
 import 'package:itinereo/services/geolocator_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
+import 'package:itinereo/widgets/action_card.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/custom_input_field.dart';
 import 'package:itinereo/widgets/date_field.dart';
 import 'package:itinereo/widgets/diary_action_button.dart';
 import 'package:itinereo/widgets/diary_add_carousel.dart';
 import 'package:itinereo/widgets/loading_dialog.dart';
+import 'package:itinereo/widgets/photo_carousel.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/text_widget.dart';
 import 'package:uuid/uuid.dart';
@@ -25,15 +27,27 @@ class AddDiaryEntryPage extends StatefulWidget {
   final void Function()? switchToCameraScreen;
   final void Function()? switchToDiaryScreen;
   final void Function(String photoPath)? deletePhoto;
+  final TextEditingController titleController;
+  final TextEditingController descriptionController;
+  final TextEditingController locationController;
+  final TextEditingController dateController;
+  bool isAiGenerated;
+  final void Function(bool)? onAiGeneratedChanged;
 
   final List<String> initialPhotoUrls;
 
-  const AddDiaryEntryPage({
+  AddDiaryEntryPage({
     super.key,
     required this.onSave,
     required this.switchToCameraScreen,
     required this.switchToDiaryScreen,
     required this.deletePhoto,
+    required this.titleController,
+    required this.descriptionController,
+    required this.locationController,
+    required this.dateController,
+    required this.isAiGenerated,
+    required this.onAiGeneratedChanged,
     this.initialPhotoUrls = const [],
   });
 
@@ -43,12 +57,7 @@ class AddDiaryEntryPage extends StatefulWidget {
 
 class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _locationController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
   late List<String> _photoUrls = [];
-  bool _isAiGenerated = false;
   String _previousLocationValue = '';
 
   bool _isSubmitting = false;
@@ -58,7 +67,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   @override
   void initState() {
     super.initState();
-    _previousLocationValue = _locationController.text;
+    _previousLocationValue = widget.locationController.text;
     _photoUrls = List<String>.from(widget.initialPhotoUrls);
   }
 
@@ -82,12 +91,12 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
 
     final newEntry = DiaryEntry(
       id: const Uuid().v4(),
-      title: _titleController.text.trim(),
-      description: _descriptionController.text.trim(),
+      title: widget.titleController.text.trim(),
+      description: widget.descriptionController.text.trim(),
       date: DateTime.now(),
       latitude: _latitude,
       longitude: _longitude,
-      location: _locationController.text,
+      location: widget.locationController.text,
       photoUrls: finalGalleryPaths,
     );
 
@@ -96,7 +105,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       await LocalDiaryDatabase().insertEntry(
         newEntry,
         FirebaseAuth.instance.currentUser!.uid,
-        _locationController.text,
+        widget.locationController.text,
       );
       if (context.mounted) Navigator.pop(context);
     } catch (e) {
@@ -135,7 +144,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           CustomTextFormField(
-                            controller: _titleController,
+                            controller: widget.titleController,
                             hintText: 'Title',
                             textAlign: TextAlign.center,
                             multiline: true,
@@ -173,20 +182,24 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                               ),
                             ),
                           ),
-                          DiaryPhotoCarousel(
+                         PhotoCarousel(
                             photoUrls: _photoUrls,
-                            onAddPhoto:
-                                () => widget.switchToCameraScreen?.call(),
-                            onRemovePhoto: (photoPath) {
-                              _photoUrls.remove(photoPath);
-                              widget.deletePhoto?.call(photoPath);
-                            },
+                            controller: PageController(),
+                            caption:
+                                _photoUrls.isEmpty
+                                    ? null
+                                    : '${_photoUrls.length}/5 photos taken',
+                            actionCard: ActionCard(
+                              onPressed:
+                                  () => widget.switchToCameraScreen?.call(),
+                              tooltip: 'Add a new Photo',
+                            ),                           
                           ),
                           Row(
                             children: [
                               Expanded(
                                 child: DateField(
-                                  dateController: _dateController,
+                                  dateController: widget.dateController,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -206,24 +219,24 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             ],
                           ),
                           CustomTextFormField(
-                            controller: _locationController,
+                            controller: widget.locationController,
                             hintText: 'Location',
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(50),
                             ],
                             onChanged: (value) async {
-                              if (_isAiGenerated) {
+                              if (widget.isAiGenerated) {
                                 final shouldClear =
                                     await _showConfirmClearDialog();
 
                                 if (shouldClear) {
                                   setState(() {
-                                    _descriptionController.clear();
-                                    _isAiGenerated = false;
+                                    widget.descriptionController.clear();
+                                    widget.isAiGenerated= false;
                                     _previousLocationValue = value;
                                   });
                                 } else {
-                                  _locationController.value = TextEditingValue(
+                                  widget.locationController.value = TextEditingValue(
                                     text: _previousLocationValue,
                                     selection: TextSelection.collapsed(
                                       offset: _previousLocationValue.length,
@@ -255,7 +268,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                           ),
 
                           CustomTextFormField(
-                            controller: _descriptionController,
+                            controller: widget.descriptionController,
                             hintText: 'Write your story...',
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(1500),
@@ -285,10 +298,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             alignment: Alignment.bottomRight,
                             child: DiaryActionButton(
                               onPressed: () {
-                                if (_titleController.text.isEmpty ||
+                                if (widget.titleController.text.isEmpty ||
                                     _photoUrls.isEmpty ||
-                                    _locationController.text.isEmpty ||
-                                    _dateController.text.isEmpty) {
+                                    widget.locationController.text.isEmpty ||
+                                    widget.dateController.text.isEmpty) {
                                   showDialog(
                                     context: context,
                                     builder:
@@ -300,13 +313,13 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                 } else {
                                   _callAiWriter(
                                     context,
-                                    _titleController.text,
+                                    widget.titleController.text,
                                     _photoUrls,
                                     DateTime.now(),
                                     _latitude,
                                     _longitude,
-                                    _locationController.text,
-                                    _descriptionController.text,
+                                    widget.locationController.text,
+                                    widget.descriptionController.text,
                                   );
                                 }
                               },
@@ -328,10 +341,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                 ),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    if (_titleController.text.isEmpty ||
+                                    if (widget.titleController.text.isEmpty ||
                                         _photoUrls.isEmpty ||
-                                        _locationController.text.isEmpty ||
-                                        _dateController.text.isEmpty) {
+                                        widget.locationController.text.isEmpty ||
+                                        widget.dateController.text.isEmpty) {
                                       showDialog(
                                         context: context,
                                         builder:
@@ -378,10 +391,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                 child: OutlinedButton(
                                   onPressed: () {
                                     final hasChanges =
-                                        _titleController.text.isNotEmpty ||
+                                        widget.titleController.text.isNotEmpty ||
                                         _photoUrls.isNotEmpty ||
-                                        _locationController.text.isNotEmpty ||
-                                        _descriptionController.text.isNotEmpty;
+                                        widget.locationController.text.isNotEmpty ||
+                                        widget.descriptionController.text.isNotEmpty;
 
                                     if (hasChanges) {
                                       showDialog(
@@ -446,7 +459,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
   }
 
   void _handleMapButtonPressed(BuildContext context) async {
-    if (_isAiGenerated) {
+    if (widget.isAiGenerated) {
       bool shouldClear = false;
 
       await showDialog(
@@ -495,8 +508,8 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       if (!shouldClear) return;
 
       setState(() {
-        _descriptionController.clear();
-        _isAiGenerated = false;
+        widget.descriptionController.clear();
+        widget.isAiGenerated = false;
       });
     }
 
@@ -513,7 +526,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       setState(() {
         _latitude = position.latitude;
         _longitude = position.longitude;
-        _locationController.text = location;
+        widget.locationController.text = location;
       });
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
@@ -591,8 +604,8 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       Navigator.of(context, rootNavigator: true).pop();
 
       setState(() {
-        _descriptionController.text = response;
-        _isAiGenerated = true;
+        widget.descriptionController.text = response;
+        widget.isAiGenerated = true;
       });
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
