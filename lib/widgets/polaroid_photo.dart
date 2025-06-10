@@ -10,6 +10,7 @@ class PolaroidPhoto extends StatelessWidget {
   final double? width;
   final Widget? trailingAction;
   final bool showShadow;
+  final double borderWidth; 
 
   const PolaroidPhoto({
     super.key,
@@ -21,6 +22,7 @@ class PolaroidPhoto extends StatelessWidget {
     this.width,
     this.trailingAction,
     this.showShadow = true,
+    this.borderWidth = 10, 
   }) : assert(
          imagePath != null || content != null,
          'You must provide an image or content',
@@ -58,7 +60,10 @@ class PolaroidPhoto extends StatelessWidget {
               showShadow
                   ? const [BoxShadow(color: Colors.black26, blurRadius: 8)]
                   : [],
-          border: Border.all(color: backgroundColor, width: 10),
+          border: Border.all(
+            color: backgroundColor,
+            width: borderWidth,
+          ), 
         ),
         child: AspectRatio(aspectRatio: 1, child: mainContent),
       ),
