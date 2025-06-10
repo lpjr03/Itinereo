@@ -202,7 +202,7 @@ class DiaryScreen extends StatelessWidget {
                                 ),
                               ),
                               Positioned(
-                                top: 190,
+                                bottom: height * 0.13,
                                 right: 0,
                                 child: Transform.rotate(
                                   angle: -0.1,
@@ -215,7 +215,7 @@ class DiaryScreen extends StatelessWidget {
 
                               Positioned(
                                 bottom: 0,
-                                left: 50,
+                                left: 10,
                                 child: Transform.rotate(
                                   angle: 0,
                                   child: Image.asset(
