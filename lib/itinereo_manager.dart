@@ -65,6 +65,12 @@ class _ItinereoState extends State<ItinereoManager>
 
   Future<List<DiaryCard>> _latestDiaryCards = Future.value([]);
 
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _dateController = TextEditingController();
+  bool _isAiGenerated = false;
+
   @override
   void initState() {
     super.initState();
@@ -90,6 +96,14 @@ class _ItinereoState extends State<ItinereoManager>
     setState(() {
       _hasStoragePermission = status.isGranted;
     });
+  }
+
+  void _clearFormFields() {
+    _titleController.clear();
+    _descriptionController.clear();
+    _locationController.clear();
+    _dateController.clear();
+    _isAiGenerated = false;
   }
 
   /// Handles taps on the bottom navigation bar.
@@ -258,6 +272,7 @@ class _ItinereoState extends State<ItinereoManager>
           setState(() {
             switchToEntriesPreview();
           });
+          _clearFormFields();
         },
         switchToCameraScreen: switchToCameraScreen,
         switchToDiaryScreen: () {
@@ -270,6 +285,14 @@ class _ItinereoState extends State<ItinereoManager>
             _pendingPhotoUrls.remove(photoUrl);
             activeScreen = 'add-diary-page-screen';
           });
+        },
+        titleController: _titleController,
+        descriptionController: _descriptionController,
+        locationController: _locationController,
+        dateController: _dateController,
+        isAiGenerated: _isAiGenerated,
+        onAiGeneratedChanged: (value) {
+          setState(() => _isAiGenerated = value);
         },
       );
     } else if (activeScreen == 'camera-screen') {
