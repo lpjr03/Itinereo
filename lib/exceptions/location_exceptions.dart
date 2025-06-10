@@ -22,3 +22,12 @@ class LocationPermissionPermanentlyDeniedException extends LocationException {
   LocationPermissionPermanentlyDeniedException()
       : super('Location permissions are permanently denied.');
 }
+
+/// Exception thrown when using Places API by Google Maps.
+class PlacesApiException implements Exception {
+  final String message;
+  PlacesApiException(this.message);
+
+  @override
+  String toString() => message;
+}
