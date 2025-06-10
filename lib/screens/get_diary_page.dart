@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itinereo/widgets/photo_carousel.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../models/diary_entry.dart';
@@ -127,59 +128,14 @@ class DiaryEntryDetailPage extends StatelessWidget {
                             const SizedBox(height: 10),
 
                             if (entry.photoUrls.isNotEmpty) ...[
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFFFF9EA),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 6,
-                                      offset: Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    SizedBox(
-                                      height: 300,
-                                      child: PageView.builder(
-                                        controller: _pageController,
-                                        itemCount: entry.photoUrls.length,
-                                        allowImplicitScrolling: true,
-                                        physics: const ClampingScrollPhysics(),
-                                        itemBuilder: (context, index) {
-                                          return PolaroidPhoto(
-                                            backgroundColor: Color(0xFFFFF9EA),
-                                            imagePath: entry.photoUrls[index],
-                                            showShadow: false,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    SmoothPageIndicator(
-                                      controller: _pageController,
-                                      count: entry.photoUrls.length,
-                                      effect: WormEffect(
-                                        dotHeight: 8,
-                                        dotWidth: 8,
-                                        activeDotColor: Color(0xFF2E5355),
-                                        dotColor: Color(0xFFB7C4C6),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Text(
+                              if (entry.photoUrls.isNotEmpty)
+                                PhotoCarousel(
+                                  photoUrls: entry.photoUrls,
+                                  controller: _pageController,
+                                  caption:
                                       '${_formatDate(entry.date)} • ${entry.location}',
-                                      style: GoogleFonts.specialElite(
-                                        fontSize: 16,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                  maxPhotos: 5,
                                 ),
-                              ),
                             ],
 
                             Container(
