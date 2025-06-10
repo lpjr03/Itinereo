@@ -13,8 +13,7 @@ class DiaryPreview extends StatefulWidget {
   final void Function(String entryId) onViewPage;
   final VoidCallback? onBack;
   final void Function(int)? onBottomTap;
-    final bool permission;
-
+  final bool permission;
 
   const DiaryPreview({
     super.key,
@@ -33,22 +32,51 @@ class _DiaryPreviewState extends State<DiaryPreview> {
   bool _isLoading = false;
   bool _hasMore = true;
   QueryDocumentSnapshot<Map<String, dynamic>>? _lastFetchedDocument = null;
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _loadMoreCardsFromFirebase();
-    _scrollController.addListener(_onScroll);
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 200 &&
-        !_isLoading &&
-        _hasMore) {
-      _loadMoreCardsFromFirebase();
+  Future<void> _loadMoreCardsFromFirebase() async {
+    if (_isLoading || !_hasMore) return;
+    setState(() => _isLoading = true);
+
+    final newDocs = await DiaryService.instance.fetchMoreDiaryEntries(
+      lastDocument: _lastFetchedDocument,
+      limit: 2,
+    );
+
+    if (newDocs.isNotEmpty) {
+      _lastFetchedDocument = newDocs.last;
+
+      final newCards =
+          newDocs.map((doc) => DiaryCard.fromMap(doc.id, doc.data())).toList();
+      setState(() {
+        _diaryCards.addAll(newCards);
+      });
+    } else {
+      setState(() {
+        _hasMore = false;
+      });
     }
+
+    setState(() => _isLoading = false);
+  }
+
+  Widget _buildLoadMoreButton() {
+    return TextButton(
+      onPressed: _loadMoreCardsFromFirebase,
+      child: Text(
+      'Load More',
+      style: GoogleFonts.libreBaskerville(
+        fontSize: 18,
+        color: const Color(0xFFC97F4F),
+        fontWeight: FontWeight.bold,
+      ),
+      ),
+    );
   }
 
   @override
@@ -69,36 +97,53 @@ class _DiaryPreviewState extends State<DiaryPreview> {
       body:
           _diaryCards.isEmpty && !_isLoading
               ? Center(
-                child: Text(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
                   'No entries found. Start your journey by adding a new entry!',
                   style: GoogleFonts.libreBaskerville(
                     fontSize: 24,
                     color: Color(0xFF4A4A4A),
                   ),
+                  textAlign: TextAlign.center,
+                ),
                 ),
               )
               : ListView.builder(
-                controller: _scrollController,
-                physics: const ClampingScrollPhysics(),
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                itemCount: _diaryCards.length + (_isLoading ? 1 : 0),
+                itemCount:
+                    _diaryCards.length +
+                    (_hasMore ? 1 : 0) +
+                    (_isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == _diaryCards.length) {
-                    return const Center(child: CircularProgressIndicator());
+                  if (_hasMore && index == _diaryCards.length) {
+                    return _buildLoadMoreButton();
                   }
-
+                  if (_isLoading &&
+                      index == _diaryCards.length + (_hasMore ? 1 : 0)) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
                   final diaryCard = _diaryCards[index];
 
-              return Dismissible(
-                key: Key(diaryCard.id),
-                direction: DismissDirection.endToStart,
-                background: Container(
-                  alignment: Alignment.centerRight,
-                  padding: const EdgeInsets.only(right: 20),
-                  color: const Color.fromARGB(255, 227, 105, 96),
-                  child: const Icon(Icons.delete_sweep_outlined, color: Colors.white, size: 80,),
-                ),
-                confirmDismiss: (direction) async {
+                  return Dismissible(
+                    key: Key(diaryCard.id),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.only(right: 20),
+                      color: const Color.fromARGB(255, 227, 105, 96),
+                      child: const Icon(
+                        Icons.delete_sweep_outlined,
+                        color: Colors.white,
+                        size: 80,
+                      ),
+                    ),
+                    confirmDismiss: (direction) async {
                       return await showDialog<bool>(
                         context: context,
                         builder:
@@ -129,36 +174,11 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                     ),
                   );
                 },
-              ), 
+              ),
       bottomNavigationBar: ItinereoBottomBar(
         currentIndex: 2,
-        onTap: widget.onBottomTap,),
-      );
-  }
-
-  Future<void> _loadMoreCardsFromFirebase() async {
-    if (_isLoading || !_hasMore) return;
-    setState(() => _isLoading = true);
-
-    final newDocs = await DiaryService.instance.fetchMoreDiaryEntries(
-      lastDocument: _lastFetchedDocument,
-      limit: 2,
+        onTap: widget.onBottomTap,
+      ),
     );
-
-    if (newDocs.isNotEmpty) {
-      _lastFetchedDocument = newDocs.last;
-
-      final newCards =
-          newDocs.map((doc) => DiaryCard.fromMap(doc.id, doc.data())).toList();
-      setState(() {
-        _diaryCards.addAll(newCards);
-      });
-    } else {
-      setState(() {
-        _hasMore = false;
-      });
-    }
-
-    setState(() => _isLoading = false);
   }
 }
