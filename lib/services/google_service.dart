@@ -79,7 +79,7 @@ class GoogleService {
 
     // Prompt testuale
     final prompt = TextPart('''
-Crea una descrizione per una voce di diario di viaggio con queste informazioni:
+Crea una descrizione (in inglese, non italiano) per una voce di diario di viaggio con queste informazioni:
 Titolo: ${entry.title}
 Descrizione: ${entry.description}
 Località: La posizione è: $location
@@ -175,9 +175,9 @@ Ti fornisco un elenco di voci di diario di viaggio (titolo, descrizione, luogo).
 Crea **5 diversi itinerari turistici** ispirati a questi racconti, proponendo nuove località **simili o collegate** per atmosfera, tema o interesse.
 
 Per ogni itinerario fornisci:
-- **title**: un titolo suggestivo per l’itinerario
+- **title**: un titolo suggestivo per l’itinerario, in inglese
 - **stops**: un array di 5 tappe, ognuna con:
-  - "name": il nome del luogo
+  - "name": il nome del luogo, in inglese
   - "latitude": la latitudine
   - "longitude": la longitudine
 
