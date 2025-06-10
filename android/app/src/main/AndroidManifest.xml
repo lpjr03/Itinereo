@@ -7,7 +7,7 @@
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <application
-        android:label="itinereo"
+        android:label="Itinerèo"
         android:name="${applicationName}"
         android:icon="@drawable/logo_cropped">
         <meta-data
