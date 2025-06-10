@@ -22,6 +22,7 @@ class HomeScreen extends StatefulWidget {
     required this.switchToCustomMap,
     required this.switchToDetailPage,
     required this.hasStoragePermission,
+    required this.onBottomTap,
   });
 
   final Function() switchScreen;
@@ -31,6 +32,7 @@ class HomeScreen extends StatefulWidget {
   final Future<List<Map<String, dynamic>>>? cachedItineraries;
   final void Function(Future<List<Map<String, dynamic>>>) setCachedItineraries;
   final bool hasStoragePermission;
+  final void Function(int index) onBottomTap;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -95,53 +97,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 24,
-                          horizontal: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFEEEC9),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 9,
-                              offset: const Offset(0, 4),
+                    child: Column(
+                      children: [
+                        Text(
+                          textAlign: TextAlign.center,
+                          'Good to see you, $firstName!',
+                          style: GoogleFonts.playpenSans(
+                            textStyle: const TextStyle(
+                              fontSize: 38,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF385A55),
                             ),
-                          ],
+                          ),
                         ),
-                        child: Column(
-                          children: [
-                            Text(
-                              textAlign: TextAlign.center,
-                              'Good to see you, $firstName!',
-                              style: GoogleFonts.playpenSans(
-                                textStyle: const TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF385A55),
-                                ),
-                              ),
+                        const SizedBox(height: 8),
+                        Text(
+                          textAlign: TextAlign.center,
+                          'Ready for a new adventure?',
+                          style: GoogleFonts.libreBaskerville(
+                            textStyle: const TextStyle(
+                              fontSize: 17,
+                              color: Colors.black87,
+                              letterSpacing: 0.1,
+                              fontStyle: FontStyle.italic,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              textAlign: TextAlign.center,
-                              'Ready for a new adventure?',
-                              style: GoogleFonts.libreBaskerville(
-                                textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black87,
-                                  letterSpacing: 0.1,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
 
@@ -205,8 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     SuggestedItinerariesBox(
                       cards: List.generate(snapshot.data!.length, (index) {
                         return ItineraryCard(
-                          markers:
-                              snapshot.data![index]['markers'],
+                          markers: snapshot.data![index]['markers'],
                           title: snapshot.data![index]['title'],
                           onTap: () {
                             widget.switchToCustomMap(
@@ -228,6 +209,11 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
+          if (index == 0) {
+            widget.onBottomTap(0);
+          } else if (index == 1) {
+            widget.onBottomTap(1);
+          }
           if (index == 2) widget.switchScreen();
         },
       ),
