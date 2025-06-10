@@ -1,15 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/screens/add_diary_page.dart';
 import 'package:itinereo/screens/camera_screen.dart';
 import 'package:itinereo/screens/custom_map_page.dart';
+import 'package:itinereo/screens/explore_screen.dart';
 import 'package:itinereo/screens/map_all_entries.dart';
 import 'package:itinereo/screens/diary_preview.dart';
 import 'package:itinereo/screens/diary_screen.dart';
 import 'package:itinereo/screens/get_diary_page.dart';
 import 'package:itinereo/screens/home_screen.dart';
+import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 import 'package:itinereo/widgets/snackbar.dart';
@@ -92,7 +95,7 @@ class _ItinereoState extends State<ItinereoManager>
   /// Handles taps on the bottom navigation bar.
   void handleBottomNavTap(int index) {
     if (index == 0) {
-      switchToMapPage();
+      switchToExplore();
     } else if (index == 1) {
       switchToHome();
     } else if (index == 2) {
@@ -112,8 +115,12 @@ class _ItinereoState extends State<ItinereoManager>
               ? null
               : GoogleService.generateItinerariesFromEntries(entries);
 
-      updateCachedItineraries(newItineraries!);
-      _lastEntryCount = currentCount;
+      if (newItineraries == null) {
+        _cachedItineraries = Future.value([]);
+      } else {
+        updateCachedItineraries(newItineraries);
+        _lastEntryCount = currentCount;
+      }
     }
 
     setState(() => activeScreen = 'home-screen');
@@ -130,6 +137,9 @@ class _ItinereoState extends State<ItinereoManager>
   void switchToAddDiaryPage() =>
       setState(() => activeScreen = 'add-diary-page-screen');
 
+  /// Switches the active screen to the explore screen.
+  void switchToExplore() => setState(() => activeScreen = 'explore-screen');
+
   /// Switches the active screen to the camera screen.
   void switchToCameraScreen() => setState(() => activeScreen = 'camera-screen');
 
@@ -140,10 +150,47 @@ class _ItinereoState extends State<ItinereoManager>
   });
 
   /// Switches the active screen to the map page screen.
-  void switchToMapPage() => setState(() => activeScreen = 'map-page-screen');
+  void switchToMapPage() async {
+    final hasConnection = await hasInternetAccess();
+
+    if (!hasConnection) {
+      ItinereoSnackBar.show(
+        context,
+        'No internet connection. Please connect and try again.',
+      );
+      return;
+    }
+
+    final cards = await _refreshDiaryCards();
+
+    if (cards.isEmpty) {
+      ItinereoSnackBar.show(context, 'No diary entries found.');
+      return;
+    }
+
+    final entries = await Future.wait(
+      cards.map((card) => DiaryService.instance.getEntryById(card.id)),
+    );
+
+    final hasValidLocation = entries.any(
+      (entry) => entry!.latitude != 0.0 && entry.longitude != 0.0,
+    );
+
+    if (!hasValidLocation) {
+      ItinereoSnackBar.show(
+        context,
+        'No precise locations found in your diary.',
+      );
+      return;
+    }
+
+    setState(() => activeScreen = 'map-page-screen');
+  }
 
   /// Method to update the cached itineraries.
-  void updateCachedItineraries(Future<List<Map<String, dynamic>>> itinerariesFuture) {
+  void updateCachedItineraries(
+    Future<List<Map<String, dynamic>>> itinerariesFuture,
+  ) {
     _cachedItineraries = itinerariesFuture;
   }
 
@@ -187,34 +234,15 @@ class _ItinereoState extends State<ItinereoManager>
       },
       switchToDetailPage: switchToDetailPage,
       hasStoragePermission: _hasStoragePermission,
+      onBottomTap: handleBottomNavTap,
     );
 
     if (activeScreen == 'diary-screen') {
       screenWidget = DiaryScreen(
         switchToPreview: switchToEntriesPreview,
         switchToAddDiaryPage: switchToAddDiaryPage,
-        switchToMapPage: () async {
-          final hasConnection = await hasInternetConnection();
-
-          if (!hasConnection) {
-            ItinereoSnackBar.show(
-              context,
-              'No internet connection. Please connect and try again.',
-            );
-            return;
-          }
-
-          _refreshDiaryCards().then((cards) {
-            if (cards.isEmpty) {
-              ItinereoSnackBar.show(
-                context,
-                'No precise locations found in your diary.',
-              );
-            } else {
-              switchToMapPage();
-            }
-          });
-        },
+        switchToMapPage: switchToMapPage,
+        switchToHome: switchToHome,
       );
     } else if (activeScreen == 'preview-screen') {
       screenWidget = DiaryPreview(
@@ -272,6 +300,12 @@ class _ItinereoState extends State<ItinereoManager>
         showPolyline: _showPolyline,
         onBack: switchToHome,
       );
+    } else if (activeScreen == 'explore-screen') {
+      screenWidget = ExploreScreen(
+        switchScreen: switchToHome,
+        switchToDiary: switchToDiary,
+        onBottomTap: handleBottomNavTap,
+      );
     }
 
     return MaterialApp(
@@ -295,8 +329,20 @@ class _ItinereoState extends State<ItinereoManager>
     );
   }
 
-  Future<bool> hasInternetConnection() async {
+  Future<bool> hasInternetAccess() async {
     final connectivityResult = await Connectivity().checkConnectivity();
-    return connectivityResult != ConnectivityResult.none;
+
+    if (connectivityResult == ConnectivityResult.none) {
+      return false;
+    }
+
+    try {
+      final result = await http
+          .get(Uri.parse('https://www.google.com'))
+          .timeout(const Duration(seconds: 5));
+      return result.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
 }
