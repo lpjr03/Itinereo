@@ -18,6 +18,7 @@ class CustomTextFormField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final EdgeInsetsGeometry? contentPadding;
   final ValueChanged<String>? onChanged;
+  final TextCapitalization capitalization;
 
 
   const CustomTextFormField({
@@ -37,6 +38,7 @@ class CustomTextFormField extends StatelessWidget {
     this.inputFormatters,
     this.contentPadding,
     this.onChanged,
+    this.capitalization = TextCapitalization.sentences,
   });
 
   @override
@@ -60,6 +62,7 @@ class CustomTextFormField extends StatelessWidget {
       style: textStyle ?? defaultTextStyle,
       validator: validator,
       inputFormatters: inputFormatters,
+      textCapitalization: capitalization,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: hintStyle ?? defaultHintStyle,
