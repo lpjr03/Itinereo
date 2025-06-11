@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// A custom styled button widget used in the Itinereo app.
+/// A reusable button widget for the Itinereo app, with built-in loading state.
 ///
-/// This button:
-/// - Has a fixed background color (`#20535B`)
-/// - Uses rounded corners with a radius of 10
-/// - Displays a text label passed via [btnText]
-/// - Executes the [onPress] callback when tapped
-///
+/// - Displays a text label or a loading spinner
+/// - Executes an action when tapped via [onPress]
+/// - Shows a [CircularProgressIndicator] when [isLoading] is true
 class LoadingButton extends StatelessWidget {
-  /// The text displayed inside the button.
+  /// The text label displayed inside the button when not loading.
   final String btnText;
 
-  /// The callback function executed when the button is pressed.
+  /// Callback triggered when the button is tapped.
   final VoidCallback onPress;
 
-  /// Loading fleck that checks whether show a [CircularProgressIndicator]
+  /// Whether the button should display a loading spinner instead of text.
+  ///
+  /// When true, disables the label and shows a [CircularProgressIndicator].
   final bool isLoading;
 
-  /// Creates a [LoadingButton] with a text label and an action.
+  /// Creates a [LoadingButton] with a label and optional loading indicator.
   const LoadingButton({
     super.key,
     this.isLoading = false,
@@ -27,34 +26,31 @@ class LoadingButton extends StatelessWidget {
     required this.btnText,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPress,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF20535B),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
-      child: isLoading
-      ? const SizedBox(
-          height: 20,
-          width: 20,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.5,
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-          ),
-        )
-      : Text(
-        btnText,
-        style:  GoogleFonts.libreBaskerville(
-          fontSize: 16,
-          color: Color(0xFFF3E2C7),
-        ),
-      ),
-
+      child:
+          isLoading
+              ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+              : Text(
+                btnText,
+                style: GoogleFonts.libreBaskerville(
+                  fontSize: 16,
+                  color: Color(0xFFF3E2C7),
+                ),
+              ),
     );
   }
 }
