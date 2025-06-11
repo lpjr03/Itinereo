@@ -104,17 +104,20 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
 
           /// Back button floating on top-left corner.
           Positioned(
-            top: 5,
+            top: 10,
             left: 16,
             child: SafeArea(
               child: FloatingActionButton(
+                heroTag: 'backBtn',
                 mini: true,
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                onPressed: () {
-                  widget.onBack?.call();
-                },
-                child: const Icon(Icons.arrow_back),
+                backgroundColor: Colors.white70,
+                foregroundColor: Colors.black87,
+                onPressed: widget.onBack,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.transparent),
+                ),
+                child: const Icon(Icons.arrow_back, size: 25),
               ),
             ),
           ),

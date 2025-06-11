@@ -33,6 +33,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   connectivity_plus: ^6.1.4
   smooth_page_indicator: ^1.2.1
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
