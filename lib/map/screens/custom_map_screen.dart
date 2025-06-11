@@ -3,15 +3,32 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/scheduler.dart' show timeDilation;
 import 'package:share_plus/share_plus.dart';
 
-// CustomMapPage shows a Google Map with markers, optional polylines, and custom controls
+/// A customizable page that displays a Google Map with optional markers,
+/// polylines, and control buttons for map interactions.
+///
+/// This widget is suitable for showing a set of locations, optionally
+/// connecting them with a route (polyline), sharing a location, and
+/// toggling map style.
 class CustomMapPage extends StatefulWidget {
-  final String title; // (Not used in the UI anymore)
-  final List<Marker> markers; // List of markers to display on the map
-  final bool showPolyline; // Whether to draw a polyline between markers
-  final VoidCallback? onBack; // Callback for back button
-  final LatLng? fallbackPosition; // Fallback map center if no markers
-  final bool showUserLocation; // Whether to show the user’s location
+  /// Title of the map page (currently unused in UI).
+  final String title;
 
+  /// List of markers to display on the map.
+  final List<Marker> markers;
+
+  /// Whether to draw a polyline connecting all markers.
+  final bool showPolyline;
+
+  /// Callback function triggered when the back button is pressed.
+  final VoidCallback? onBack;
+
+  /// Map fallback center position in case the marker list is empty.
+  final LatLng? fallbackPosition;
+
+  /// Whether to show the user’s location on the map.
+  final bool showUserLocation;
+
+  /// Creates a [CustomMapPage] with configurable map features.
   const CustomMapPage({
     Key? key,
     required this.title,
@@ -26,6 +43,7 @@ class CustomMapPage extends StatefulWidget {
   _CustomMapPageState createState() => _CustomMapPageState();
 }
 
+/// Internal state of [CustomMapPage], handling map behavior and controls.
 class _CustomMapPageState extends State<CustomMapPage> {
   late GoogleMapController _mapController;
   final Set<Polyline> _polylines = {};
@@ -33,16 +51,16 @@ class _CustomMapPageState extends State<CustomMapPage> {
   bool _showSatelliteView = false;
   double _mapPaddingBottom = 0;
   final double _infoCardHeight = 120;
-  String? _mapStyle; // Custom map style (e.g., dark theme)
+  String? _mapStyle;
 
   @override
   void initState() {
     super.initState();
-    timeDilation = 1.5; // Slow down animations for better UX
-    _setupPolylines(); // Prepare polyline if needed
+    timeDilation = 1.5; // Slows animations for UX/testing
+    _setupPolylines();
   }
 
-  // Create polyline connecting all markers
+  /// Builds a polyline connecting all markers (if enabled).
   void _setupPolylines() {
     if (widget.showPolyline && widget.markers.length > 1) {
       _polylines.add(
@@ -57,14 +75,14 @@ class _CustomMapPageState extends State<CustomMapPage> {
     }
   }
 
-  // Toggle satellite/normal view
+  /// Toggles between normal and satellite map view.
   void _toggleMapStyle() {
     setState(() {
       _showSatelliteView = !_showSatelliteView;
     });
   }
 
-  // Build floating map control buttons (top-right)
+  /// Builds floating control buttons for the map (top-right).
   Widget _buildMapControls() {
     return Positioned(
       right: 10,
@@ -100,7 +118,7 @@ class _CustomMapPageState extends State<CustomMapPage> {
     );
   }
 
-  // Custom reusable square control button
+  /// Builds a stylized square floating button for map controls.
   Widget _buildControlButton({
     required IconData icon,
     required VoidCallback onPressed,
@@ -124,13 +142,12 @@ class _CustomMapPageState extends State<CustomMapPage> {
     final initialPosition =
         widget.markers.isNotEmpty
             ? widget.markers.first.position
-            : widget.fallbackPosition ??
-                const LatLng(41.9028, 12.4964); // Rome by default
+            : widget.fallbackPosition ?? const LatLng(41.9028, 12.4964); // Rome
 
     return Scaffold(
       body: Stack(
         children: [
-          // Google Map widget
+          /// Main Google Map widget
           GoogleMap(
             initialCameraPosition: CameraPosition(
               target: initialPosition,
@@ -156,11 +173,11 @@ class _CustomMapPageState extends State<CustomMapPage> {
             myLocationButtonEnabled: widget.showUserLocation,
             zoomControlsEnabled: false,
             mapType: _showSatelliteView ? MapType.hybrid : MapType.normal,
-            style: _mapStyle, // Custom map style applied here
+            style: _mapStyle,
             padding: EdgeInsets.only(bottom: _mapPaddingBottom),
           ),
 
-          // Back button (top-left)
+          /// Floating back button (top-left corner)
           Positioned(
             top: 10,
             left: 16,
@@ -180,14 +197,14 @@ class _CustomMapPageState extends State<CustomMapPage> {
             ),
           ),
 
-          // Map control buttons
+          /// Control buttons stack
           _buildMapControls(),
         ],
       ),
     );
   }
 
-  // Adjusts map bottom padding and map style when necessary
+  /// Adjusts map bottom padding and custom map style based on state.
   void _adjustMapPadding() {
     setState(() {
       _mapPaddingBottom = _selectedPlaceId != null ? _infoCardHeight + 32 : 0;
@@ -195,19 +212,19 @@ class _CustomMapPageState extends State<CustomMapPage> {
     });
   }
 
-  // Returns custom JSON style for Google Map (optional)
+  /// Returns a JSON string defining the visual style of the map.
   String _getMapStyle(String theme) {
-    return '''[]'''; // Default = no style
+    return '''[]'''; // Default = no custom style
   }
 
-  // Fits all markers into the visible area of the map
+  /// Animates the camera to fit all markers within the visible area.
   void _zoomToFitAllMarkers() {
     if (widget.markers.isEmpty) return;
     final bounds = _calculateBounds();
     _mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
   }
 
-  // Calculates LatLngBounds to fit all markers
+  /// Calculates a bounding box that includes all markers.
   LatLngBounds _calculateBounds() {
     var southwest = widget.markers.first.position;
     var northeast = widget.markers.first.position;
@@ -234,7 +251,7 @@ class _CustomMapPageState extends State<CustomMapPage> {
     return LatLngBounds(southwest: southwest, northeast: northeast);
   }
 
-  // Shares the selected marker's location using share_plus
+  /// Shares the location of the selected marker using a Google Maps link.
   void _shareLocation(Marker marker) {
     final lat = marker.position.latitude;
     final lng = marker.position.longitude;
