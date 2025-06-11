@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 
-/// Utility class to show a custom Itinereo-style SnackBar.
+/// A utility class for displaying custom-styled SnackBars
+/// consistent with the Itinereo design.
 class ItinereoSnackBar {
-  /// Displays a styled SnackBar with a given [message].
-  ///
-  /// The SnackBar uses the Itinereo color palette and appears floating
-  /// with rounded corners.
+  /// Displays a floating [SnackBar] with the given [message] and Itinereo styling.
+  /// [context] is the build context used to access the [ScaffoldMessenger].
+  /// [message] is the text content to be displayed in the SnackBar.
   static void show(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         backgroundColor: const Color(0xFF20535B),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         content: Text(
