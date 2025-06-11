@@ -13,14 +13,12 @@ class DiaryPreview extends StatefulWidget {
   final void Function(String entryId) onViewPage;
   final VoidCallback? onBack;
   final void Function(int)? onBottomTap;
-  final bool permission;
 
   const DiaryPreview({
     super.key,
     required this.onViewPage,
     required this.onBack,
     this.onBottomTap,
-    required this.permission,
   });
 
   @override
@@ -69,12 +67,12 @@ class _DiaryPreviewState extends State<DiaryPreview> {
     return TextButton(
       onPressed: _loadMoreCardsFromFirebase,
       child: Text(
-      'Load More',
-      style: GoogleFonts.libreBaskerville(
-        fontSize: 18,
-        color: const Color(0xFFC97F4F),
-        fontWeight: FontWeight.bold,
-      ),
+        'Load More',
+        style: GoogleFonts.libreBaskerville(
+          fontSize: 18,
+          color: const Color(0xFFC97F4F),
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -100,13 +98,13 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                 child: Padding(
                   padding: EdgeInsets.all(16),
                   child: Text(
-                  'No entries found. Start your journey by adding a new entry!',
-                  style: GoogleFonts.libreBaskerville(
-                    fontSize: 24,
-                    color: Color(0xFF4A4A4A),
+                    'No entries found. Start your journey by adding a new entry!',
+                    style: GoogleFonts.libreBaskerville(
+                      fontSize: 24,
+                      color: Color(0xFF4A4A4A),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
                 ),
               )
               : ListView.builder(
@@ -170,7 +168,6 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                     child: TravelCard(
                       diaryCard: diaryCard,
                       onViewPage: () => widget.onViewPage(diaryCard.id),
-                      permission: true,
                     ),
                   );
                 },
