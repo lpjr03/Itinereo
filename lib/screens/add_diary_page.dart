@@ -124,10 +124,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
             return SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight:
-                      constraints.maxHeight,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   color: const Color(0xFF649991),
@@ -181,7 +178,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                               ),
                             ),
                           ),
-                         PhotoCarousel(
+                          PhotoCarousel(
                             photoUrls: _photoUrls,
                             controller: PageController(),
                             caption:
@@ -191,8 +188,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                             actionCard: ActionCard(
                               onPressed:
                                   () => widget.switchToCameraScreen?.call(),
-                              tooltip: 'Add a new Photo',
-                            ),                           
+                            ),
                           ),
                           Row(
                             children: [
@@ -231,11 +227,13 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                 if (shouldClear) {
                                   setState(() {
                                     widget.descriptionController.clear();
-                                    widget.isAiGenerated= false;
+                                    widget.isAiGenerated = false;
                                     _previousLocationValue = value;
                                   });
                                 } else {
-                                  widget.locationController.value = TextEditingValue(
+                                  widget
+                                      .locationController
+                                      .value = TextEditingValue(
                                     text: _previousLocationValue,
                                     selection: TextSelection.collapsed(
                                       offset: _previousLocationValue.length,
@@ -342,7 +340,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                   onPressed: () {
                                     if (widget.titleController.text.isEmpty ||
                                         _photoUrls.isEmpty ||
-                                        widget.locationController.text.isEmpty ||
+                                        widget
+                                            .locationController
+                                            .text
+                                            .isEmpty ||
                                         widget.dateController.text.isEmpty) {
                                       showDialog(
                                         context: context,
@@ -390,10 +391,19 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                 child: OutlinedButton(
                                   onPressed: () {
                                     final hasChanges =
-                                        widget.titleController.text.isNotEmpty ||
+                                        widget
+                                            .titleController
+                                            .text
+                                            .isNotEmpty ||
                                         _photoUrls.isNotEmpty ||
-                                        widget.locationController.text.isNotEmpty ||
-                                        widget.descriptionController.text.isNotEmpty;
+                                        widget
+                                            .locationController
+                                            .text
+                                            .isNotEmpty ||
+                                        widget
+                                            .descriptionController
+                                            .text
+                                            .isNotEmpty;
 
                                     if (hasChanges) {
                                       showDialog(
