@@ -2,15 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// A custom app bar for the Itinereo app, featuring:
+/// - Optional back button
+/// - Colored top bar and bottom section
+/// - Centered pill-style title
+///
+/// The app bar height is fixed to 90 pixels.
+/// It modifies the system status bar color and icon brightness as well.
 class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
+  /// Main title displayed in the center pill.
   final String title;
+
+  /// Color of the title text inside the pill.
   final Color textColor;
+
+  /// Background color of the pill containing the title.
   final Color pillColor;
+
+  /// Color of the top bar section (55px height).
   final Color topBarColor;
+
+  /// Whether to display the back button on the left.
   final bool? isBackButtonVisible;
+
+  /// Callback executed when the back button is pressed.
   final VoidCallback? onBack;
+
+  /// Controls whether the title pill is shown.
   final bool showPill;
 
+  /// Creates an [ItinereoAppBar] widget with customizable sections and optional back navigation
   const ItinereoAppBar({
     super.key,
     required this.title,
@@ -27,6 +52,7 @@ class ItinereoAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// Set the status bar style to match the top bar color
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: topBarColor,
