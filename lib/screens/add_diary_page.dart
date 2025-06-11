@@ -495,7 +495,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                     ),
                                   ),
                                   child: Text(
-                                    'Annulla',
+                                    'Cancel',
                                     style: GoogleFonts.playpenSans(
                                       textStyle: const TextStyle(
                                         fontSize: 20,
