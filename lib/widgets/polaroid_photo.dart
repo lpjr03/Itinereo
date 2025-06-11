@@ -2,10 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:itinereo/widgets/safe_local_image.dart';
 
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:itinereo/widgets/safe_local_image.dart';
-
 /// A styled photo container inspired by polaroid photography,
 /// supporting local, network, and asset images.
 ///
