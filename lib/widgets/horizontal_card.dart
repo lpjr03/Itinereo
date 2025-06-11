@@ -44,7 +44,13 @@ class HorizontalDiaryCard extends StatelessWidget {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: SafeLocalImage(path: diaryCard.imageUrl),
+                  child: AspectRatio(
+                    aspectRatio: 7/1,
+                    child:  SafeLocalImage(
+                      path: diaryCard.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
