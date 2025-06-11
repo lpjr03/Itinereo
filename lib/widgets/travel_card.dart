@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itinereo/models/card_entry.dart';
-import 'package:itinereo/widgets/safe_local_image.dart';
 
 class TravelCard extends StatelessWidget {
   final DiaryCard diaryCard;

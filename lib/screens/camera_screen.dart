@@ -26,7 +26,6 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   late final File savedPath;
   final ImagePicker _picker = ImagePicker();
-  String? _imagePath;
 
   @override
   void initState() {

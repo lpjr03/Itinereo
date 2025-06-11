@@ -1,10 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/widgets/safe_local_image.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class HorizontalDiaryCard extends StatelessWidget {
   final DiaryCard diaryCard;
