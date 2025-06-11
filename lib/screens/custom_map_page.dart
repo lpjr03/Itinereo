@@ -9,13 +9,13 @@ class CustomMapPage extends StatelessWidget {
   final LatLng? fallbackPosition;
 
   const CustomMapPage({
-    Key? key,
+    super.key,
     required this.title,
     required this.markers,
     this.showPolyline = false,
     required this.onBack,
     this.fallbackPosition,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
