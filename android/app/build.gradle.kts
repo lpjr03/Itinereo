@@ -1,3 +1,13 @@
+import java.util.Properties
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file(".env")
+
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { stream ->
+        localProperties.load(stream)
+    }
+}
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -31,7 +41,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-    }
+        manifestPlaceholders["googleMapsApiKey"] = localProperties["API_KEY"] ?: ""    }
 
     buildTypes {
         release {
