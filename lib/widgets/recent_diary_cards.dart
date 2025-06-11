@@ -3,17 +3,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/widgets/horizontal_card.dart';
 
+/// A scrollable horizontal section that displays the most recent diary entries.
+///
+/// Includes:
+/// - A section title
+/// - A refresh button
+/// - A horizontally scrollable list of [HorizontalDiaryCard]s
+///
+/// Used to highlight the latest memories saved by the user in the diary.
 class RecentDiaryCardsBox extends StatelessWidget {
+  /// List of diary entries to display.
   final List<DiaryCard> cards;
+
+  /// Callback triggered when a diary card is tapped.
+  /// Receives the entry's [id] as parameter.
   final void Function(String entryId) onViewPage;
-  final bool permission;
+
+  /// Callback triggered when the refresh icon is pressed.
   final VoidCallback onRefresh;
 
+  /// Creates a [RecentDiaryCardsBox] showing a list of recent diary entries.
   const RecentDiaryCardsBox({
     super.key,
     required this.cards,
     required this.onViewPage,
-    required this.permission,
     required this.onRefresh,
   });
 
@@ -27,12 +40,14 @@ class RecentDiaryCardsBox extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Your recent memories:',
-                style: GoogleFonts.playpenSans(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Color(0xFF385A55),
+              Expanded(
+                child: Text(
+                  'Your recent memories:',
+                  style: GoogleFonts.playpenSans(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Color(0xFF385A55),
+                  ),
                 ),
               ),
               IconButton(
@@ -59,7 +74,6 @@ class RecentDiaryCardsBox extends StatelessWidget {
                     onViewPage: () {
                       onViewPage(cards[index].id);
                     },
-                    permission: permission,
                   ),
                 ),
             separatorBuilder: (_, __) => const SizedBox(width: 3),
