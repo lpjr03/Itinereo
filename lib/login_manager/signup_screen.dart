@@ -1,5 +1,3 @@
-// Refactored SignUpScreen with structure and adaptiveness similar to LoginScreen
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +16,12 @@ import 'package:itinereo/widgets/text_widget.dart';
 
 /// A screen that allows users to sign up for an account in the Itinereo app.
 ///
-/// This screen provides form inputs for name, email, and password,
-/// and handles user registration through Firebase Authentication.
-/// It also saves user info in Firestore and supports Google Sign-In.
+/// This screen includes:
+/// - Form inputs for name, email, and password, with validation.
+/// - User registration using Firebase Authentication.
+/// - Saving user information in Firestore.
+/// - Option to sign up with Google.
+/// - Error handling for common sign-up failures.
 class SignUpScreen extends StatefulWidget {
   /// Creates a [SignUpScreen] widget.
   const SignUpScreen({Key? key}) : super(key: key);
@@ -29,19 +30,18 @@ class SignUpScreen extends StatefulWidget {
   State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-/// The state for the [SignUpScreen] widget.
+/// State class for the [SignUpScreen] widget.
 class _SignUpScreenState extends State<SignUpScreen> {
   /// Controller for the name input field.
-  TextEditingController nameController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
 
   /// Controller for the email input field.
-  TextEditingController emailController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
   /// Controller for the password input field.
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  /// Indicates whether the password is obscured.
-
+  /// Indicates whether a sign-up operation is in progress.
   bool isLoading = false;
 
   @override
@@ -52,14 +52,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  /// Handles user registration using Firebase Authentication.
+  /// Registers a new user using Firebase Authentication.
   ///
-  /// Validates inputs, creates a user with email and password,
-  /// stores additional user info in Firestore, and navigates to the [WelcomeScreen].
-  /// Shows error dialogs for weak passwords or existing accounts.
-  void register() async {
-    FirebaseAuth auth = FirebaseAuth.instance;
-    FirebaseFirestore db = FirebaseFirestore.instance;
+  /// Validates the form inputs before proceeding.
+  /// - If registration is successful:
+  ///   - Saves user info to Firestore.
+  ///   - Updates the user's display name.
+  ///   - Signs out and redirects to the [WelcomeScreen].
+  /// - If registration fails:
+  ///   - Shows an [ErrorDialog] with an appropriate message.
+  Future<void> register() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final FirebaseFirestore db = FirebaseFirestore.instance;
     final String name = nameController.text;
     final String email = emailController.text;
     final String password = passwordController.text;
@@ -89,7 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
 
       await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
-
+      
       await FirebaseAuth.instance.signOut();
 
       if (mounted) {
@@ -130,13 +134,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Column(
           children: [
             const SizedBox(height: 50),
+
+            /// Logo
             Center(
               child: Container(
                 height: MediaQuery.of(context).size.height / 3.5,
                 child: Image.asset("assets/images/logo.png"),
               ),
             ),
+
             const SizedBox(height: 10),
+
+            /// Form section
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               height: MediaQuery.of(context).size.height / 1.6,
@@ -145,11 +154,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextWidget(
+                  /// Title
+                  const TextWidget(
                     title: "Sign-up",
                     txtSize: 30,
                     txtColor: const Color(0xFF20535B),
                   ),
+
+                  /// Name input
                   const TextWidget(
                     title: "Name",
                     txtSize: 22,
@@ -162,6 +174,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     obscureText: false,
                     autocorrect: false,
                   ),
+
+                  /// Email input
                   const TextWidget(
                     title: "Email",
                     txtSize: 22,
@@ -176,6 +190,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     textCapitalization: TextCapitalization.none,
                     keyboardType: TextInputType.emailAddress,
                   ),
+
+                  /// Password input
                   const TextWidget(
                     title: "Password",
                     txtSize: 22,
@@ -189,7 +205,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     autocorrect: false,
                     textCapitalization: TextCapitalization.none,
                   ),
+
                   const SizedBox(height: 10),
+
+                  /// Sign-up button
                   SizedBox(
                     height: 60,
                     width: MediaQuery.of(context).size.width,
@@ -199,6 +218,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       isLoading: isLoading,
                     ),
                   ),
+
+                  /// Divider with "or"
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -225,6 +246,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ],
                   ),
+
+                  /// Google sign-up button
                   Center(
                     child: SocialButtonWidget(
                       bgColor: Colors.white,

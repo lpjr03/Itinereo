@@ -3,10 +3,13 @@ import 'package:itinereo/widgets/loading_button_widget.dart';
 
 /// The initial welcome screen for the Itinereo app.
 ///
-/// Displays the app logo, a welcome message, and two buttons:
-/// one for logging in and one for signing up.
+/// Displays the app logo and two main buttons:
+/// - **Log In**: navigates to the login screen.
+/// - **Sign Up**: navigates to the sign-up screen.
 ///
+/// This screen is shown when no user is authenticated.
 class WelcomeScreen extends StatelessWidget {
+  /// Creates a [WelcomeScreen] widget.
   const WelcomeScreen({super.key});
 
   @override
@@ -22,12 +25,15 @@ class WelcomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                /// App logo
                 Image.asset(
                   'assets/images/logo.png',
                   height: size.height * 0.35,
                 ),
+
                 SizedBox(height: size.height * 0.03),
 
+                /// Log In button
                 SizedBox(
                   width: size.width * 0.5,
                   height: size.height * 0.065,
@@ -38,8 +44,10 @@ class WelcomeScreen extends StatelessWidget {
                     btnText: 'Log In',
                   ),
                 ),
+
                 SizedBox(height: size.height * 0.02),
 
+                /// Sign Up button
                 SizedBox(
                   width: size.width * 0.5,
                   height: size.height * 0.065,

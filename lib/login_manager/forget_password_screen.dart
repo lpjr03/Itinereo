@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:itinereo/widgets/alert_widget.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'validator.dart';
-
 import '../widgets/loading_button_widget.dart';
 import '../widgets/text_field_widget.dart';
 import '../widgets/text_widget.dart';
 
-/// A screen that allows users to reset their password via email.
+/// A screen that allows users to request a password reset via email.
 ///
-/// This screen provides:
-/// - an input field for the user’s email address
-/// - a submit button that sends a password reset email
-/// - feedback via a styled snackbar
-/// - a button to return to the login screen
+/// This screen includes:
+/// - An input field for the user's email address.
+/// - A submit button that triggers FirebaseAuth's password reset email.
+/// - Feedback via a styled snackbar on success.
+/// - An error dialog if the field is empty.
+/// - A button to return to the login screen.
 class ForgetPasswordScreen extends StatefulWidget {
   /// Creates the [ForgetPasswordScreen].
   const ForgetPasswordScreen({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class ForgetPasswordScreen extends StatefulWidget {
 
 class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   /// Controller for the email input field.
-  TextEditingController emailController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
   @override
   void dispose() {
@@ -33,11 +33,11 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     super.dispose();
   }
 
-  /// Sends a password reset email to the entered address.
+  /// Sends a password reset email using Firebase Authentication.
   ///
-  /// Shows a custom error dialog if the field is empty.
-  /// If the email is sent successfully, a snackbar is shown
-  /// and the screen closes after 2 seconds.
+  /// Validates the input field to ensure it is not empty.
+  /// On success, displays a confirmation snackbar and pops the screen after a short delay.
+  /// On failure (empty input), shows a custom error dialog.
   Future<void> forgetPassword() async {
     final String email = emailController.text;
 
@@ -66,8 +66,9 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
           children: [
             const SizedBox(height: 50),
 
+            /// Logo section
             Center(
-              child: Container(
+              child: SizedBox(
                 height: MediaQuery.of(context).size.height / 3.5,
                 child: Image.asset("assets/images/logo.png"),
               ),
@@ -75,6 +76,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
             const SizedBox(height: 10),
 
+            /// Form section
             Container(
               margin: const EdgeInsets.only(left: 16.0, right: 21.0),
               height: MediaQuery.of(context).size.height / 2.5,
@@ -89,6 +91,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     txtColor: Color(0xFF20535B),
                   ),
 
+                  /// Email input field
                   InputTxtField(
                     hintText: "Your Email id",
                     controller: emailController,
@@ -96,6 +99,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     obscureText: false,
                   ),
 
+                  /// Submit button
                   SizedBox(
                     height: 55,
                     width: MediaQuery.of(context).size.width,
@@ -105,6 +109,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                     ),
                   ),
 
+                  /// Back to login button
                   Center(
                     child: TextButton(
                       onPressed: () {

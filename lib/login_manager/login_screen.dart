@@ -14,12 +14,16 @@ import '../widgets/loading_button_widget.dart';
 import '../widgets/text_field_widget.dart';
 import '../widgets/text_widget.dart';
 
-/// A screen that allows users to log into the Itinereo app.
+/// A screen that allows users to log into the Itinereo app using email/password or Google Sign-In.
 ///
-/// This screen provides login functionality using email and password,
-/// as well as Google Sign-In. It includes field validation, error handling,
-/// and navigation to password recovery or main app upon successful login.
+/// This screen includes:
+/// - Input fields for email and password, with validation.
+/// - A login button that authenticates using Firebase Authentication.
+/// - An option to recover a forgotten password.
+/// - A Google Sign-In button for alternative authentication.
+/// - Automatic synchronization of local diary entries upon successful login.
 class LoginScreen extends StatefulWidget {
+  /// Creates the [LoginScreen].
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
@@ -28,28 +32,34 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   /// Controller for the email input field.
-  TextEditingController emailController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
 
   /// Controller for the password input field.
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  /// Instance of FirebaseAuth used for authentication.
+  /// Instance of Firebase Authentication used for email/password login.
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /// Indicates whether a login operation is in progress.
   bool isLoading = false;
 
   @override
   void dispose() {
-    super.dispose();
     emailController.dispose();
     passwordController.dispose();
+    super.dispose();
   }
 
-  /// Performs login using email and password.
+  /// Logs in the user using email and password.
   ///
-  /// Displays an [ErrorDialog] if fields are empty or if login fails
-  /// with a Firebase-specific error. On success, navigates to [ItinereoManager].
-  void login() async {
+  /// If any field is empty, displays an [ErrorDialog].
+  /// On success:
+  /// - Retrieves the user document from Firestore.
+  /// - Synchronizes local diary entries.
+  /// - Navigates to the [ItinereoManager].
+  /// On failure:
+  /// - Shows an appropriate error message via [ErrorDialog].
+  Future<void> login() async {
     final String email = emailController.text;
     final String password = passwordController.text;
 
@@ -75,6 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
           .collection("Users")
           .doc(userCredential.user!.uid)
           .get();
+
       await DiaryService.instance.syncLocalEntriesWithFirestore(userCredential);
 
       if (mounted) {
@@ -109,13 +120,18 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(
           children: [
             const SizedBox(height: 50),
+
+            /// App logo
             Center(
-              child: Container(
+              child: SizedBox(
                 height: MediaQuery.of(context).size.height / 3.5,
                 child: Image.asset("assets/images/logo.png"),
               ),
             ),
+
             const SizedBox(height: 10),
+
+            /// Login form container
             Container(
               margin: const EdgeInsets.only(left: 16.0, right: 21.0),
               height: MediaQuery.of(context).size.height / 1.67,
@@ -124,11 +140,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextWidget(
+                  /// Title
+                  const TextWidget(
                     title: "Log-in",
                     txtSize: 30,
                     txtColor: Color(0xFF20535B),
                   ),
+
+                  /// Email input
                   const TextWidget(
                     title: "Email",
                     txtSize: 22,
@@ -143,6 +162,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     textCapitalization: TextCapitalization.none,
                     keyboardType: TextInputType.emailAddress,
                   ),
+
+                  /// Password input
                   const TextWidget(
                     title: "Password",
                     txtSize: 22,
@@ -156,6 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     autocorrect: false,
                     textCapitalization: TextCapitalization.none,
                   ),
+
+                  /// Forgot password
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -177,6 +200,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
+
+                  /// Login button
                   SizedBox(
                     height: 60,
                     width: MediaQuery.of(context).size.width,
@@ -186,6 +211,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       isLoading: isLoading,
                     ),
                   ),
+
+                  /// OR separator
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -194,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Container(
                           height: 2.0,
                           width: 70.0,
-                          color: Color(0xFF20535B),
+                          color: const Color(0xFF20535B),
                         ),
                       ),
                       const TextWidget(
@@ -207,11 +234,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Container(
                           height: 2.0,
                           width: 70.0,
-                          color: Color(0xFF20535B),
+                          color: const Color(0xFF20535B),
                         ),
                       ),
                     ],
                   ),
+
+                  /// Google sign-in
                   Center(
                     child: SocialButtonWidget(
                       bgColor: Colors.white,
