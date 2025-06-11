@@ -3,19 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/widgets/safe_local_image.dart';
 
+/// A stylized horizontal card used to preview a travel diary entry.
+///
+/// Includes:
+/// - Image on the left side, with gradient fade
+/// - Title, place, and date on the right
+/// - "View page" button at the bottom
+///
+/// The image is rendered using [SafeLocalImage] with fallback/error handling.
 class TravelCard extends StatelessWidget {
+  /// Diary data model containing title, date, place, and image path.
   final DiaryCard diaryCard;
-  final VoidCallback onViewPage;
-  final ImageProvider? imageProvider;
-  final bool permission;
 
+  /// Callback triggered when the "View page" button is tapped.
+  final VoidCallback onViewPage;
+
+  /// Creates a [TravelCard] representing a single travel diary entry.
   const TravelCard({
     super.key,
     required this.diaryCard,
     required this.onViewPage,
-    this.imageProvider,
-    required this.permission,
   });
 
   @override
@@ -51,13 +60,10 @@ class TravelCard extends StatelessWidget {
                     ).createShader(bounds);
                   },
                   blendMode: BlendMode.dstIn,
-                  child: Image(
-                    image: imageProvider ?? FileImage(File(diaryCard.imageUrl)),
-                    fit: BoxFit.cover,
-                    errorBuilder:
-                        (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.broken_image, size: 50),
-                        ),
+                  child: SafeLocalImage(
+                    path: diaryCard.imageUrl,
+                    verticalLayout: true,
+                    showSettingsButton: false,
                   ),
                 ),
               ),
