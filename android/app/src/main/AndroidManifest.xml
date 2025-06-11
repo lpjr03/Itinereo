@@ -13,7 +13,7 @@
         android:icon="@drawable/logo_cropped">
         <meta-data
       android:name="com.google.android.geo.API_KEY"
-      android:value="${googleMapsApiKey}" />
+      android:value="AIzaSyBXDRFaSOLLb5z0peibW6wLRk9zfYNQ_O8" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
