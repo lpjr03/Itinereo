@@ -391,26 +391,38 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                   bottom: 12,
                                 ),
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    if (widget.titleController.text.isEmpty ||
-                                        _photoUrls.isEmpty ||
-                                        widget
-                                            .locationController
-                                            .text
-                                            .isEmpty ||
-                                        widget.dateController.text.isEmpty) {
-                                      showDialog(
-                                        context: context,
-                                        builder:
-                                            (context) => const ErrorDialog(
-                                              message:
-                                                  "Please fill all fields before saving.",
-                                            ),
-                                      );
-                                    } else {
-                                      _submit();
-                                    }
-                                  },
+                                  onPressed:
+                                      _isSubmitting
+                                          ? null
+                                          : () {
+                                            if (widget
+                                                    .titleController
+                                                    .text
+                                                    .isEmpty ||
+                                                _photoUrls.isEmpty ||
+                                                widget
+                                                    .locationController
+                                                    .text
+                                                    .isEmpty ||
+                                                widget
+                                                    .dateController
+                                                    .text
+                                                    .isEmpty) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (
+                                                      context,
+                                                    ) => const ErrorDialog(
+                                                      message:
+                                                          "Please fill all fields before saving.",
+                                                    ),
+                                              );
+                                            } else {
+                                              _submit();
+                                            }
+                                          },
+
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF2E5355),
                                     foregroundColor: Colors.white,
