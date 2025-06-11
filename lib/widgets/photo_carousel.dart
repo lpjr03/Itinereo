@@ -3,13 +3,34 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
 
+/// A custom horizontal photo carousel used in the Itinereo app.
+///
+/// Displays a list of photo URLs as [PolaroidPhoto] widgets inside a [PageView].
+/// Optionally appends an [actionCard] (e.g., "add photo" button) if the photo count
+/// is less than [maxPhotos].
+///
+/// Includes:
+/// - Page indicator (dots with worm effect)
+/// - Optional caption below the carousel
 class PhotoCarousel extends StatelessWidget {
+  /// List of image paths or URLs to display in the carousel.
   final List<String> photoUrls;
+
+  /// Page controller for managing swipes and page transitions.
   final PageController controller;
+
+  /// Optional caption shown below the photo carousel.
   final String? caption;
+
+  /// An optional card (e.g., action button) displayed at the end of the carousel.
+  ///
+  /// Displayed only if [photoUrls.length] is less than [maxPhotos].
   final Widget? actionCard;
+
+  /// Maximum number of photos allowed before hiding the [actionCard].
   final int maxPhotos;
 
+  /// Creates a [PhotoCarousel] with a list of photos and optional trailing action.
   const PhotoCarousel({
     super.key,
     required this.photoUrls,
@@ -21,7 +42,8 @@ class PhotoCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool showActionCard = photoUrls.length < maxPhotos && actionCard != null ;
+    final bool showActionCard =
+        photoUrls.length < maxPhotos && actionCard != null;
     final int itemCount = photoUrls.length + (showActionCard ? 1 : 0);
 
     return Container(
@@ -82,5 +104,3 @@ class PhotoCarousel extends StatelessWidget {
     );
   }
 }
-
-
