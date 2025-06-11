@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:itinereo/models/card_entry.dart';
-import 'package:itinereo/widgets/travel_card.dart';
+import 'package:itinereo/models/diary_card.dart';
+import 'package:itinereo/diary/widgets/travel_card.dart';
 import 'package:intl/intl.dart';
 
 void main() {

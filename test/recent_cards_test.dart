@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/models/diary_card.dart';
 
 class FakeSafeLocalImage extends StatelessWidget {
   final double height;

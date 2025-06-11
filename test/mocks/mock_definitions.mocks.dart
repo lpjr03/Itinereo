@@ -14,10 +14,10 @@ import 'package:firebase_auth_platform_interface/firebase_auth_platform_interfac
     as _i6;
 import 'package:firebase_core/firebase_core.dart' as _i2;
 import 'package:geolocator/geolocator.dart' as _i9;
-import 'package:itinereo/models/card_entry.dart' as _i14;
+import 'package:itinereo/models/diary_card.dart' as _i14;
 import 'package:itinereo/models/diary_entry.dart' as _i13;
-import 'package:itinereo/services/geolocator_service.dart' as _i15;
-import 'package:itinereo/services/local_diary_db.dart' as _i12;
+import 'package:itinereo/services/location_service.dart' as _i15;
+import 'package:itinereo/services/local_storage_service.dart' as _i12;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:sqflite/sqflite.dart' as _i8;

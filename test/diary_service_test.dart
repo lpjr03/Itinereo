@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/models/diary_card.dart';
 import 'package:mockito/mockito.dart';
 import 'package:itinereo/models/diary_entry.dart';
 import 'package:itinereo/services/diary_service.dart';

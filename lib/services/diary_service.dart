@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:itinereo/models/card_entry.dart';
+import 'package:itinereo/models/diary_card.dart';
 import 'package:itinereo/models/diary_entry.dart';
-import 'package:itinereo/services/geolocator_service.dart';
-import 'package:itinereo/services/local_diary_db.dart';
+import 'package:itinereo/services/location_service.dart';
+import 'package:itinereo/services/local_storage_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 /// Service responsible for managing diary entries in Firestore and local SQLite.

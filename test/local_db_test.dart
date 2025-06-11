@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:itinereo/services/geolocator_service.dart';
+import 'package:itinereo/services/location_service.dart';
 import 'package:mockito/mockito.dart';
 import 'package:itinereo/models/diary_entry.dart';
-import 'package:itinereo/services/local_diary_db.dart';
+import 'package:itinereo/services/local_storage_service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'mocks/mock_definitions.mocks.dart';
 
