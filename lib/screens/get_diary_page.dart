@@ -70,7 +70,10 @@ class DiaryEntryDetailPage extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 IconButton(
-                                  icon: const Icon(Icons.arrow_back_rounded,size: 30,),
+                                  icon: const Icon(
+                                    Icons.arrow_back_rounded,
+                                    size: 30,
+                                  ),
                                   color: const Color(0xFF2E5355),
                                   onPressed: () => onBack(),
                                 ),
@@ -87,10 +90,11 @@ class DiaryEntryDetailPage extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                Icon(Icons.photo_album_outlined,
+                                Icon(
+                                  Icons.photo_album_outlined,
                                   color: const Color(0xFF2E5355),
                                   size: 35,
-                                )
+                                ),
                               ],
                             ),
 
@@ -113,7 +117,6 @@ class DiaryEntryDetailPage extends StatelessWidget {
                                     style: GoogleFonts.deliciousHandrawn(
                                       textStyle: const TextStyle(
                                         fontSize: 25,
-                                        //height: 1.7,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF2E5355),
                                       ),
