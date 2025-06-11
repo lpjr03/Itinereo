@@ -3,26 +3,50 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-enum FileCheckResult { found, notFound }
-
-class SafeLocalImage extends StatefulWidget {
+/// A widget for displaying images from the local file system.
+///
+/// Handles:
+/// - Normal rendering of local image files via [Image.file]
+/// - File permission errors (e.g. "Permission denied") with a user-friendly fallback
+/// - Missing file errors with a customizable placeholder
+///
+class SafeLocalImage extends StatelessWidget {
+  /// Full file path to the image on local storage.
   final String path;
-  final double height;
-  final double? width;
-  final BoxFit fit;
-  final BorderRadius borderRadius;
-  final bool showSettingsButton;
-  final String? placeholderText;
-  final TextStyle? textStyle;
-  final Icon? icon;
-  final bool verticalLayout;
-  final bool hasStoragePermission; // <-- nuovo parametro
 
+  /// Optional fixed height for the image or placeholder.
+  final double? height;
+
+  /// Optional fixed width for the image or placeholder.
+  final double? width;
+
+  /// Defines how the image should be inscribed into the space allocated.
+  final BoxFit fit;
+
+  /// Border radius for rounding the image or placeholder container.
+  final BorderRadius borderRadius;
+
+  /// Whether to show a "Go to Settings" button when permissions are denied.
+  final bool showSettingsButton;
+
+  /// Optional placeholder message when the file is not found.
+  final String? placeholderText;
+
+  /// Custom text style for placeholder messages.
+  final TextStyle? textStyle;
+
+  /// Optional icon to display next to the placeholder message.
+  final Icon? icon;
+
+  /// Whether to display the placeholder layout vertically (column) or horizontally (row).
+  final bool verticalLayout;
+
+  /// Creates a [SafeLocalImage] widget that attempts to load a local image
+  /// and handles missing files or permission issues.
   const SafeLocalImage({
     Key? key,
     required this.path,
-    required this.height,
-    required this.hasStoragePermission, // <-- richiesto
+    this.height,
     this.width,
     this.fit = BoxFit.cover,
     this.borderRadius = const BorderRadius.all(Radius.circular(0)),
@@ -34,99 +58,65 @@ class SafeLocalImage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<SafeLocalImage> createState() => _SafeLocalImageState();
-}
-
-class _SafeLocalImageState extends State<SafeLocalImage> {
-  FileCheckResult? result;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkFileStatus();
-  }
-
-  Future<void> _checkFileStatus() async {
-    try {
-      final file = File(widget.path);
-      final exists = await file.exists();
-
-      setState(() {
-        result = exists ? FileCheckResult.found : FileCheckResult.notFound;
-      });
-    } catch (_) {
-      setState(() => result = FileCheckResult.notFound);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final resolvedWidth = widget.width ?? MediaQuery.of(context).size.width;
+    final resolvedWidth = width ?? MediaQuery.of(context).size.width;
 
-    if (!widget.hasStoragePermission) {
-      return _buildPermissionDeniedUI(resolvedWidth);
-    }
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: Image.file(
+        File(path),
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          if (error is FileSystemException) {
+            if (error.osError?.message.contains('Permission denied') ?? false) {
+              return _buildPermissionDeniedUI(context, resolvedWidth);
+            }
+          }
 
-    if (result == null) {
-      return _buildPlaceholderContainer(
-        context,
-        const CircularProgressIndicator(),
-      );
-    }
-
-    if (result == FileCheckResult.found) {
-      return ClipRRect(
-        borderRadius: widget.borderRadius,
-        child: Image.file(
-          File(widget.path),
-          fit: widget.fit,
-          height: widget.height,
-          width: resolvedWidth,
-        ),
-      );
-    }
-
-    return _buildPlaceholderContainer(
-      context,
-      Text(
-        widget.placeholderText ?? "Image not found",
-        textAlign: TextAlign.center,
-        style:
-            widget.textStyle ??
-            GoogleFonts.libreBaskerville(
-              color: Colors.black54,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+          // Fallback placeholder when image cannot be loaded
+          return _buildPlaceholderContainer(
+            context,
+            Text(
+              placeholderText ?? "Image not found",
+              textAlign: TextAlign.center,
+              style:
+                  textStyle ??
+                  GoogleFonts.libreBaskerville(
+                    color: Colors.black54,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
             ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildPermissionDeniedUI(double width) {
+  /// Builds a UI shown when permission to read local files is denied.
+  Widget _buildPermissionDeniedUI(BuildContext context, double width) {
     return Container(
-      height: widget.height,
+      height: height,
       width: width,
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 164, 163, 208),
-        borderRadius: widget.borderRadius,
+        borderRadius: borderRadius,
       ),
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          widget.verticalLayout
+          verticalLayout
               ? Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  widget.icon ?? const Icon(Icons.lock, size: 17),
+                  icon ?? const Icon(Icons.lock, size: 17),
                   const SizedBox(height: 6),
                   Text(
                     "Permission required to view this image",
                     textAlign: TextAlign.center,
-                    softWrap: true,
-                    overflow: TextOverflow.visible,
                     style:
-                        widget.textStyle ??
+                        textStyle ??
                         GoogleFonts.libreBaskerville(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
@@ -137,16 +127,14 @@ class _SafeLocalImageState extends State<SafeLocalImage> {
               : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  widget.icon ?? const Icon(Icons.lock, size: 17),
+                  icon ?? const Icon(Icons.lock, size: 17),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       "Permission required to view this image",
                       textAlign: TextAlign.center,
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
                       style:
-                          widget.textStyle ??
+                          textStyle ??
                           GoogleFonts.libreBaskerville(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,
@@ -155,7 +143,7 @@ class _SafeLocalImageState extends State<SafeLocalImage> {
                   ),
                 ],
               ),
-          if (widget.showSettingsButton)
+          if (showSettingsButton)
             Flexible(
               child: FilledButton.icon(
                 onPressed: () async {
@@ -187,14 +175,15 @@ class _SafeLocalImageState extends State<SafeLocalImage> {
     );
   }
 
+  /// Builds a default placeholder container with a fallback message or icon.
   Widget _buildPlaceholderContainer(BuildContext context, Widget child) {
     return Container(
-      height: widget.height,
-      width: widget.width ?? double.infinity,
+      height: height,
+      width: width ?? double.infinity,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.grey[300],
-        borderRadius: widget.borderRadius,
+        borderRadius: borderRadius,
       ),
       child: child,
     );
