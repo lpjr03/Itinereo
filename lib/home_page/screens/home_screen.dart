@@ -71,12 +71,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Loads itineraries from diary entries using [GoogleService].
   ///
-  /// If no entries are found, it throws an exception.
+  /// If no entries are found or connection is absent, it throws an exception.
   Future<List<Map<String, dynamic>>> _loadItineraries() async {
-    final userId = FirebaseAuth.instance.currentUser!.uid;
-    final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
-    if (entries.isEmpty) throw Exception("No entries found.");
-    return await GoogleService.generateItinerariesFromEntries(entries);
+    try {
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+      final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
+      if (entries.isEmpty) throw Exception("No entries found.");
+      return await GoogleService.generateItinerariesFromEntries(entries);
+    } catch (e) {
+      throw Exception("No connection. Could not generate itineraries.");
+    }
   }
 
   /// Refreshes itineraries and updates the state and parent cache.
