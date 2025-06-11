@@ -1,12 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// A reusable button widget for third-party/social logins.
+///
+/// Displays a button with:
+/// - A background color ([bgColor])
+/// - An image (e.g. social media logo)
+/// - A label ([buttonName])
+/// - A tap handler ([onPress])
+///
+/// Useful for login or registration flows where social authentication is supported.
 class SocialButtonWidget extends StatelessWidget {
+  /// Background color of the button.
   final Color bgColor;
+
+  /// Path to the logo/image asset displayed to the left of the text.
   final String imagePath;
+
+  /// Label displayed as button text.
   final String buttonName;
+
+  /// Callback triggered when the button is pressed.
   final VoidCallback onPress;
 
+  /// Creates a [SocialButtonWidget] with an image and label.
   const SocialButtonWidget({
     super.key,
     required this.bgColor,
@@ -35,7 +55,7 @@ class SocialButtonWidget extends StatelessWidget {
             style: GoogleFonts.libreBaskerville(
               fontSize: 18,
               color: Colors.black,
-              fontWeight: FontWeight.bold
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
