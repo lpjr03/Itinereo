@@ -75,9 +75,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(
-        source: source,
-      );
+      final XFile? pickedFile = await _picker.pickImage(source: source);
       if (pickedFile == null) {
         widget.onBack?.call();
         return;
@@ -104,18 +102,11 @@ class _CameraScreenState extends State<CameraScreen> {
       }
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
-
-
 }
 
 Future<File> saveToGalleryManually(File imageFile) async {
