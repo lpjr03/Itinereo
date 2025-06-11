@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// A vertical button styled like a bookmark,
+/// displaying an icon followed by a vertical label.
 class BookMark extends StatelessWidget {
+  /// Callback triggered when the button is pressed.
   final VoidCallback onPressed;
+
+  /// Icon displayed above the vertical label.
   final IconData icon;
+
+  /// Optional text label displayed vertically.
   final String? label;
+
+  /// Color applied to both icon and text.
   final Color textAndIconColor;
+
+  /// Background color of the bookmark button.
   final Color backgroundColor;
 
+  /// Creates a [BookMark] widget.
   const BookMark({
     super.key,
     required this.onPressed,
