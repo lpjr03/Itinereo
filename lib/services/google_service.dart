@@ -65,9 +65,17 @@ class GoogleService {
   }
 
   /// Generates a diary description using the Gemini API from a [DiaryEntry].
-  /// The description is based on title, location, date, and photo URLs.
   ///
-  /// Returns a string description if successful, otherwise throws an exception.
+  /// The description is based on the diary's title, date, user location, and associated photo URLs.
+  /// Each image is processed to enrich the final description.
+  ///
+  /// Returns:
+  /// - A [String] containing the generated description.
+  /// - If the generation fails (e.g., due to network errors or invalid response),
+  ///   a fallback error message is returned instead.
+  ///
+  /// Notes:
+  /// - This method does **not** throw exceptions; it returns user-friendly error strings instead.
   static Future<String> generateDescriptionFromEntry(
     DiaryEntry entry,
     String location,
@@ -135,7 +143,10 @@ Fornisci la risposta come JSON con un solo campo chiamato "description".
   /// Returns a [Future] containing a list of 5 itineraries, where each itinerary
   /// is a [List] of [Marker]s.
   ///
-  /// Throws an [Exception] if the AI response cannot be parsed.
+  /// Throws:
+  /// - [SocketException] if there is no internet connection.
+  /// - [FormatException] if the response from the AI model cannot be decoded as JSON.
+  /// - [Exception] if the response is empty or if any other unexpected error occurs during parsing.
 
   static Future<List<Map<String, dynamic>>> generateItinerariesFromEntries(
     List<DiaryEntry> entries,
@@ -228,10 +239,7 @@ $entrySummaries
         return {'title': title, 'markers': stops};
       }).toList();
     } on SocketException {
-      throw Exception(
-        'No connection. Could not generate new itineraries.',
-      );
-      
+      throw Exception('No connection. Could not generate new itineraries.');
     } catch (e) {
       throw Exception('Error parsing response: ${e.toString()}');
     }

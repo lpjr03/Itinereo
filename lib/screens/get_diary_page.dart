@@ -5,31 +5,45 @@ import 'package:itinereo/widgets/photo_carousel.dart';
 import '../../models/diary_entry.dart';
 import '../services/diary_service.dart';
 
+/// A screen that displays detailed information for a specific diary entry.
+///
+/// Shows the title, description, formatted date, location, and a photo carousel
+/// if available. Uses a custom back button to return to the previous screen.
+/// This widget is built using a `FutureBuilder` to asynchronously fetch data
+/// from the `DiaryService` based on the given [entryId].
 class DiaryEntryDetailPage extends StatelessWidget {
+  /// The unique ID of the diary entry to be displayed.
   final String entryId;
+
+  /// Callback to navigate back from the detail view.
   final Function() onBack;
+
+  /// Page controller for the photo carousel.
+  final PageController _pageController = PageController();
 
   DiaryEntryDetailPage({
     super.key,
     required this.entryId,
     required this.onBack,
   });
-  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
 
+      // Loads the diary entry by ID using a FutureBuilder.
       body: FutureBuilder<DiaryEntry?>(
         future: DiaryService().getEntryById(entryId),
         builder: (context, snapshot) {
+          // Show loading spinner while waiting for data.
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
+          // Show error message if the request failed.
           if (snapshot.hasError) {
-            return Center(child: Text('Errore: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
           final entry = snapshot.data;
@@ -37,6 +51,7 @@ class DiaryEntryDetailPage extends StatelessWidget {
             return const Center(child: Text('Page not found.'));
           }
 
+          // Change status bar appearance.
           SystemChrome.setSystemUIOverlayStyle(
             SystemUiOverlayStyle(
               statusBarColor: Color(0xFF95A86E),
@@ -44,6 +59,7 @@ class DiaryEntryDetailPage extends StatelessWidget {
             ),
           );
 
+          // Build the layout once data is available.
           return SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -57,15 +73,15 @@ class DiaryEntryDetailPage extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       color: const Color(0xFF95A86E),
                       child: Container(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF6E1C4),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // Header with back button and app title.
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -98,8 +114,9 @@ class DiaryEntryDetailPage extends StatelessWidget {
                               ],
                             ),
 
+                            // Title of the diary entry.
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 10,
                               ),
@@ -128,17 +145,17 @@ class DiaryEntryDetailPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
 
-                            if (entry.photoUrls.isNotEmpty) ...[
-                              if (entry.photoUrls.isNotEmpty)
-                                PhotoCarousel(
-                                  photoUrls: entry.photoUrls,
-                                  controller: _pageController,
-                                  caption:
-                                      '${_formatDate(entry.date)} • ${entry.location}',
-                                  maxPhotos: 5,
-                                ),
-                            ],
+                            // Photo carousel if there are photos.
+                            if (entry.photoUrls.isNotEmpty)
+                              PhotoCarousel(
+                                photoUrls: entry.photoUrls,
+                                controller: _pageController,
+                                caption:
+                                    '${_formatDate(entry.date)} • ${entry.location}',
+                                maxPhotos: 5,
+                              ),
 
+                            // Description box.
                             Container(
                               width: double.infinity,
                               margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -147,7 +164,7 @@ class DiaryEntryDetailPage extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFF5DD),
                                 borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                     color: Colors.black12,
                                     blurRadius: 6,
@@ -179,15 +196,18 @@ class DiaryEntryDetailPage extends StatelessWidget {
     );
   }
 
+  /// Formats a [DateTime] into a readable string, e.g., "May 10, 2025".
   String _formatDate(DateTime date) {
     return _monthDayYear(date);
   }
 
+  /// Converts a [DateTime] into the "Month Day, Year" format.
   String _monthDayYear(DateTime date) {
     final month = _monthName(date.month);
     return '$month ${date.day}, ${date.year}';
   }
 
+  /// Maps a numeric month to its English name.
   String _monthName(int month) {
     const months = [
       'January',

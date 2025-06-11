@@ -119,7 +119,7 @@ class GeolocatorService {
   /// - A [CustomMapPage] containing markers for each nearby place.
   ///
   /// Throws:
-  /// - A generic [Exception] if the API call fails or the response status is not OK.
+  /// - [PlacesApiException] if the HTTP request fails or the Places API response status is not OK.
   Future<CustomMapPage> getNearbyPlacesMap({
     required Position position,
     int radius = 50000,
