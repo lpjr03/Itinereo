@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the generateDescriptionFromEntry method from the GoogleService class, for the Dart programming language.">
+  <title>generateDescriptionFromEntry method - GoogleService class - google_service library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">itinereo</a></li>
+    <li><a href="../../services_google_service">services\google_service.dart</a></li>
+    <li><a href="../../services_google_service/GoogleService-class.html">GoogleService</a></li>
+    <li class="self-crumb">generateDescriptionFromEntry static method</li>
+  </ol>
+  <div class="self-name">generateDescriptionFromEntry</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="services_google_service&#47;GoogleService-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">generateDescriptionFromEntry</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+<span class="name ">generateDescriptionFromEntry</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="generateDescriptionFromEntry-param-entry"><span class="type-annotation"><a href="../../models_diary_entry/DiaryEntry-class.html">DiaryEntry</a></span> <span class="parameter-name">entry</span>, </span></li>
+<li><span class="parameter" id="generateDescriptionFromEntry-param-location"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">location</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates a diary description using the Gemini API from a <a href="../../models_diary_entry/DiaryEntry-class.html">DiaryEntry</a>.</p>
+<p>The description is based on the diary's title, date, user location, and associated photo URLs.
+Each image is processed to enrich the final description.</p>
+<p>Returns:</p>
+<ul>
+<li>A <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a> containing the generated description.</li>
+<li>If the generation fails (e.g., due to network errors or invalid response),
+a fallback error message is returned instead.</li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>This method does <strong>not</strong> throw exceptions; it returns user-friendly error strings instead.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;String&gt; generateDescriptionFromEntry(
+  DiaryEntry entry,
+  String location,
+) async {
+  &#47;&#47; Define output schema
+  final jsonSchema = Schema.object(
+    properties: {&#39;description&#39;: Schema.string()},
+  );
+
+  &#47;&#47; Prompt testuale
+  final prompt = TextPart(&#39;&#39;&#39;
+Crea una descrizione (in inglese, non italiano) per una voce di diario di viaggio con queste informazioni:
+Titolo: ${entry.title}
+Descrizione: ${entry.description}
+Località: La posizione è: $location
+Data: ${entry.date.toIso8601String()}
+Descrivi l’esperienza in modo personale ed emotivo, coerente con le immagini, descrivendole una per una.
+Massimo 1500 caratteri.
+Parti direttamente con la descrizione, senza frasi introduttive o date e luogo all&#39;inizio con poi la descrizione.
+Fornisci la risposta come JSON con un solo campo chiamato &quot;description&quot;.
+&#39;&#39;&#39;);
+
+  final parts = &lt;Part&gt;[prompt];
+
+  for (final url in entry.photoUrls) {
+    final file = File(url);
+    if (await file.exists()) {
+      final bytes = await file.readAsBytes();
+      final mimeType = lookupMimeType(url) ?? &#39;image&#47;jpeg&#39;;
+      parts.add(InlineDataPart(mimeType, bytes));
+    }
+  }
+
+  final model = FirebaseAI.googleAI().generativeModel(
+    model: &#39;gemini-2.0-flash-001&#39;,
+    generationConfig: GenerationConfig(
+      responseMimeType: &#39;application&#47;json&#39;,
+      responseSchema: jsonSchema,
+    ),
+  );
+  try {
+    final response = await model.generateContent([Content.multi(parts)]);
+
+    final rawText = response.text!;
+    final jsonResponse = jsonDecode(rawText);
+    if (jsonResponse case {&#39;description&#39;: final String description}) {
+      return description;
+    } else {
+      return &#39;Could not generate description.&#39;;
+    }
+  } on SocketException {
+    return &#39;No connection. Could not generate a description.&#39;;
+  } catch (e) {
+    return &#39;Error during the generation of a description&#39;;
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">itinereo</a></li>
+    <li><a href="../../services_google_service">google_service</a></li>
+    <li><a href="../../services_google_service/GoogleService-class.html">GoogleService</a></li>
+    <li class="self-crumb">generateDescriptionFromEntry static method</li>
+</ol>
+
+    <h5>GoogleService class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    itinereo
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

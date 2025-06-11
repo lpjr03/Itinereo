@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the generateItinerariesFromEntries method from the GoogleService class, for the Dart programming language.">
+  <title>generateItinerariesFromEntries method - GoogleService class - google_service library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">itinereo</a></li>
+    <li><a href="../../services_google_service">services\google_service.dart</a></li>
+    <li><a href="../../services_google_service/GoogleService-class.html">GoogleService</a></li>
+    <li class="self-crumb">generateItinerariesFromEntries static method</li>
+  </ol>
+  <div class="self-name">generateItinerariesFromEntries</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="services_google_service&#47;GoogleService-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">generateItinerariesFromEntries</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+<span class="name ">generateItinerariesFromEntries</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="generateItinerariesFromEntries-param-entries"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../models_diary_entry/DiaryEntry-class.html">DiaryEntry</a></span>&gt;</span></span> <span class="parameter-name">entries</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates 5 suggested itineraries based on a list of <a href="../../models_diary_entry/DiaryEntry-class.html">DiaryEntry</a> objects.</p>
+<p>The function sends the entries to the Gemini API, prompting it to return
+five imaginative travel itineraries inspired by the diary entries, each composed
+of a list of Google Maps <a href="https://pub.dev/documentation/google_maps_flutter_platform_interface/2.11.1/google_maps_flutter_platform_interface/Marker-class.html">Marker</a> objects. The generated itineraries suggest
+new locations and are not limited to those found in the original entries.</p>
+<p>Returns a <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> containing a list of 5 itineraries, where each itinerary
+is a <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> of <a href="https://pub.dev/documentation/google_maps_flutter_platform_interface/2.11.1/google_maps_flutter_platform_interface/Marker-class.html">Marker</a>s.</p>
+<p>Throws:</p>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/dart-io/SocketException-class.html">SocketException</a> if there is no internet connection.</li>
+<li><a href="https://api.flutter.dev/flutter/dart-core/FormatException-class.html">FormatException</a> if the response from the AI model cannot be decoded as JSON.</li>
+<li><a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a> if the response is empty or if any other unexpected error occurs during parsing.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;List&lt;Map&lt;String, dynamic&gt;&gt;&gt; generateItinerariesFromEntries(
+  List&lt;DiaryEntry&gt; entries,
+) async {
+  &#47;&#47; Build entry summaries
+  String entrySummaries = entries
+      .map((entry) {
+        return &#39;&#39;&#39;
+Titolo: ${entry.title}
+Data: ${entry.date.toIso8601String()}
+Descrizione: ${entry.description}
+Luogo: lat=${entry.latitude}, lon=${entry.longitude}
+&#39;&#39;&#39;;
+      })
+      .join(&#39;\n\n&#39;);
+
+  &#47;&#47; Updated schema with &#39;title&#39; for each itinerary
+  final jsonSchema = Schema.object(
+    properties: {
+      &#39;itineraries&#39;: Schema.array(
+        items: Schema.object(
+          properties: {
+            &#39;title&#39;: Schema.string(),
+            &#39;stops&#39;: Schema.array(
+              items: Schema.object(
+                properties: {
+                  &#39;name&#39;: Schema.string(),
+                  &#39;latitude&#39;: Schema.number(),
+                  &#39;longitude&#39;: Schema.number(),
+                },
+              ),
+            ),
+          },
+        ),
+      ),
+    },
+  );
+
+  &#47;&#47; Updated prompt
+  final prompt = TextPart(&#39;&#39;&#39;
+Ti fornisco un elenco di voci di diario di viaggio (titolo, descrizione, luogo).
+Crea **5 diversi itinerari turistici** ispirati a questi racconti, proponendo nuove località **simili o collegate** per atmosfera, tema o interesse.
+
+Per ogni itinerario fornisci:
+- **title**: un titolo suggestivo per l’itinerario, in inglese
+- **stops**: un array di 5 tappe, ognuna con:
+- &quot;name&quot;: il nome del luogo, in inglese
+- &quot;latitude&quot;: la latitudine
+- &quot;longitude&quot;: la longitudine
+
+Le tappe devono essere **geograficamente vicine** (massimo 200 km l’una dall’altra).
+
+Ecco le voci di diario da cui prendere ispirazione:
+
+$entrySummaries
+&#39;&#39;&#39;);
+
+  final model = FirebaseAI.googleAI().generativeModel(
+    model: &#39;gemini-2.0-flash-001&#39;,
+    generationConfig: GenerationConfig(
+      responseMimeType: &#39;application&#47;json&#39;,
+      responseSchema: jsonSchema,
+    ),
+  );
+
+  try {
+    final response = await model.generateContent([Content.text(prompt.text)]);
+
+    if (response.text == null) {
+      throw Exception(&#39;Empty response.&#39;);
+    }
+
+    final rawText = response.text!;
+    final jsonResponse = jsonDecode(rawText);
+    final itineraries = jsonResponse[&#39;itineraries&#39;] as List;
+
+    return itineraries.map&lt;Map&lt;String, dynamic&gt;&gt;((itinerary) {
+      final title = itinerary[&#39;title&#39;] as String;
+      final stops =
+          (itinerary[&#39;stops&#39;] as List).map&lt;Marker&gt;((stop) {
+            return Marker(
+              markerId: MarkerId(stop[&#39;name&#39;]),
+              position: LatLng(
+                (stop[&#39;latitude&#39;] as num).toDouble(),
+                (stop[&#39;longitude&#39;] as num).toDouble(),
+              ),
+              infoWindow: InfoWindow(title: stop[&#39;name&#39;]),
+            );
+          }).toList();
+      return {&#39;title&#39;: title, &#39;markers&#39;: stops};
+    }).toList();
+  } on SocketException {
+    throw Exception(&#39;No connection. Could not generate new itineraries.&#39;);
+  } catch (e) {
+    throw Exception(&#39;Error parsing response: ${e.toString()}&#39;);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">itinereo</a></li>
+    <li><a href="../../services_google_service">google_service</a></li>
+    <li><a href="../../services_google_service/GoogleService-class.html">GoogleService</a></li>
+    <li class="self-crumb">generateItinerariesFromEntries static method</li>
+</ol>
+
+    <h5>GoogleService class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    itinereo
+      0.1.0
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
