@@ -4,16 +4,24 @@ import 'package:intl/intl.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/widgets/safe_local_image.dart';
 
+/// A horizontally oriented diary preview card displaying an image,
+/// date, location, title, and a call-to-action button.
+///
+/// This card is used to show recent diary entries
+/// in a horizontal scrollable list.
+///
 class HorizontalDiaryCard extends StatelessWidget {
+  /// Diary data source containing date, image path, location and title.
   final DiaryCard diaryCard;
-  final VoidCallback onViewPage;
-  final bool permission;
 
+  /// Callback executed when the user taps the "View page" button.
+  final VoidCallback onViewPage;
+
+  /// Creates a [HorizontalDiaryCard] with the given diary content.
   const HorizontalDiaryCard({
     super.key,
     required this.diaryCard,
     required this.onViewPage,
-    required this.permission,
   });
 
   @override
@@ -31,11 +39,13 @@ class HorizontalDiaryCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: SafeLocalImage(path: diaryCard.imageUrl , height: MediaQuery.of(context).size.height * 0.13, 
-                width: double.infinity, hasStoragePermission: permission,),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SafeLocalImage(path: diaryCard.imageUrl),
+                ),
               ),
               const SizedBox(height: 8),
               Text(
@@ -71,7 +81,7 @@ class HorizontalDiaryCard extends StatelessWidget {
                   child: Text(
                     'View page',
                     style: GoogleFonts.libreBaskerville(
-                      fontSize: 11,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFF73370F),
                     ),
