@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/exceptions/location_exceptions.dart';
@@ -12,14 +11,10 @@ import 'package:itinereo/widgets/snackbar.dart';
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({
     super.key,
-    required this.switchScreen,
-    required this.switchToDiary,
     required this.onBottomTap,
   });
 
-  final Function() switchScreen;
   final void Function(int index) onBottomTap;
-  final Function() switchToDiary;
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -190,8 +185,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
-          if (index == 1 || index == 2) {
-            widget.switchScreen();
+          switch (index) {
+            case 0:
+              widget.onBottomTap(0);
+              break;
+            case 1:
+              widget.onBottomTap(1);
+              break;
+            case 2:
+              widget.onBottomTap(2);
+              break;
           }
         },
       ),

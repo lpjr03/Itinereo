@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:http/http.dart';
 import 'package:itinereo/models/card_entry.dart';
 import 'package:itinereo/services/diary_service.dart';
 import 'package:itinereo/services/google_service.dart';
@@ -17,7 +15,6 @@ import 'package:itinereo/widgets/suggestion_box.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
-    required this.switchScreen,
     required this.cachedItineraries,
     required this.setCachedItineraries,
     required this.switchToCustomMap,
@@ -26,7 +23,6 @@ class HomeScreen extends StatefulWidget {
     required this.onBottomTap,
   });
 
-  final Function() switchScreen;
   final Function(String entryId) switchToDetailPage;
   final Function(List<Marker> markers, String title, {bool polyline})
   switchToCustomMap;
@@ -205,12 +201,17 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
-          if (index == 0) {
-            widget.onBottomTap(0);
-          } else if (index == 1) {
-            widget.onBottomTap(1);
+          switch (index) {
+            case 0:
+              widget.onBottomTap(0);
+              break;
+            case 1:
+              widget.onBottomTap(1);
+              break;
+            case 2:
+              widget.onBottomTap(2);
+              break;
           }
-          if (index == 2) widget.switchScreen();
         },
       ),
     );
