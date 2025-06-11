@@ -3,11 +3,25 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+/// A card widget that displays a static preview of a location on a map,
+/// along with a title and a "Map" button to trigger a full map view.
+///
+/// This widget uses the Google Maps Static API to render a
+/// map image based on the first marker in the list.
+///
+/// Requires an `API_KEY` to be defined in the `.env` file.
 class ItineraryCard extends StatelessWidget {
+  /// List of [Marker]s used to determine the static map preview location.
+  /// Only the first marker is used for rendering the image.
   final List<Marker> markers;
+
+  /// Callback function executed when the "Map" button is pressed.
   final VoidCallback onTap;
+
+  /// Title shown at the bottom of the card.
   final String title;
 
+  /// Creates an [ItineraryCard] that shows a preview of a destination on the map
   const ItineraryCard({
     super.key,
     required this.markers,
@@ -15,6 +29,9 @@ class ItineraryCard extends StatelessWidget {
     required this.title,
   });
 
+  /// Builds a Google Static Maps URL for the given latitude and longitude.
+  ///
+  /// The image includes a red marker and is rendered with zoom 13,
   String buildStaticMapUrl(double lat, double lng) {
     final apiKey = dotenv.env['API_KEY'];
     return 'https://maps.googleapis.com/maps/api/staticmap'
