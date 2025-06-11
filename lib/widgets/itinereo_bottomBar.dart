@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
+/// A custom bottom navigation bar used in the Itinereo app.
+///
+/// Displays three fixed icons: Explore, Home, and Diary.
+/// - Custom color scheme consistent with the Itinereo visual identity.
+/// - Callback triggered on index tap allows parent widget to handle navigation.
+/// ```
 class ItinereoBottomBar extends StatelessWidget {
+  /// Index of the currently selected navigation item.
   final int currentIndex;
+
+  /// Callback triggered when an item is tapped.
+  /// Provides the tapped index as parameter.
   final Function(int)? onTap;
 
-  const ItinereoBottomBar({
-    super.key,
-    required this.currentIndex,
-    this.onTap,
-  });
+  /// Creates an [ItinereoBottomBar] with the given current index and tap handler.
+  const ItinereoBottomBar({super.key, required this.currentIndex, this.onTap});
 
   @override
   Widget build(BuildContext context) {
