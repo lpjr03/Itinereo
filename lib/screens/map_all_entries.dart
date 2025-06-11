@@ -3,9 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:itinereo/services/local_diary_db.dart';
 
+/// A screen that displays diary entries as markers on a Google Map.
+///
+/// This screen allows users to:
+/// - View all diary entries with geographic coordinates as pins.
+/// - Tap on a marker to trigger an optional callback.
+/// - Return to the previous screen via a floating back button.
 class DiaryMapPage extends StatefulWidget {
+  /// Callback triggered when the back button is pressed.
   final VoidCallback? onBack;
+
+  /// Callback triggered when a marker corresponding to an entry is tapped.
   final void Function(String entryId)? onEntrySelected;
+
+  /// Creates the DiaryMapPage with optional [onBack] and [onEntrySelected] handlers.
   const DiaryMapPage({
     Key? key,
     required this.onBack,
@@ -17,8 +28,13 @@ class DiaryMapPage extends StatefulWidget {
 }
 
 class _DiaryMapPageState extends State<DiaryMapPage> {
+  /// Set of markers to display on the map.
   final Set<Marker> _markers = {};
-  LatLng _initialPosition = const LatLng(41.9028, 12.4964); // Roma default
+
+  /// Initial camera position, defaults to Rome if no entries found.
+  LatLng _initialPosition = const LatLng(41.9028, 12.4964); // Rome
+
+  /// Whether the map has finished loading entries.
   bool _isMapReady = false;
 
   @override
@@ -27,12 +43,16 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
     _loadMarkers();
   }
 
+  /// Loads all diary entries for the current user and creates map markers.
+  ///
+  /// Only entries with valid latitude and longitude are considered.
   Future<void> _loadMarkers() async {
     final entries = await LocalDiaryDatabase().getAllEntries(
       userId: FirebaseAuth.instance.currentUser!.uid,
     );
 
     final List<Marker> loadedMarkers = [];
+
     for (var entry in entries) {
       if (entry.latitude != 0 && entry.longitude != 0) {
         loadedMarkers.add(
@@ -67,6 +87,7 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
     return Scaffold(
       body: Stack(
         children: [
+          /// Main Google Map widget, or loading spinner if not ready.
           _isMapReady
               ? GoogleMap(
                 initialCameraPosition: CameraPosition(
@@ -81,6 +102,7 @@ class _DiaryMapPageState extends State<DiaryMapPage> {
               )
               : const Center(child: CircularProgressIndicator()),
 
+          /// Back button floating on top-left corner.
           Positioned(
             top: 5,
             left: 16,

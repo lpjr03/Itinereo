@@ -12,7 +12,29 @@ import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/recent_diary_cards.dart';
 import 'package:itinereo/widgets/suggestion_box.dart';
 
+/// The main home screen of the Itinerèo app.
+///
+/// Displays a welcome message, recent diary entries,
+/// and suggested itineraries based on previously logged entries.
+/// It also provides navigation to detailed diary views and custom maps.
 class HomeScreen extends StatefulWidget {
+  /// Callback to navigate to the detail view of a diary entry.
+  final Function(String entryId) switchToDetailPage;
+
+  /// Callback to navigate to a custom map view with markers and optional polyline.
+  final Function(List<Marker> markers, String title, {bool polyline})
+  switchToCustomMap;
+
+  /// A cached list of itineraries to prevent recomputation.
+  final Future<List<Map<String, dynamic>>>? cachedItineraries;
+
+  /// Setter to update the cached itineraries in the parent state.
+  final void Function(Future<List<Map<String, dynamic>>>) setCachedItineraries;
+
+  /// Callback to handle bottom navigation taps.
+  final void Function(int index) onBottomTap;
+
+  /// Creates a [HomeScreen] widget.
   const HomeScreen({
     super.key,
     required this.cachedItineraries,
@@ -22,17 +44,14 @@ class HomeScreen extends StatefulWidget {
     required this.onBottomTap,
   });
 
-  final Function(String entryId) switchToDetailPage;
-  final Function(List<Marker> markers, String title, {bool polyline})
-  switchToCustomMap;
-  final Future<List<Map<String, dynamic>>>? cachedItineraries;
-  final void Function(Future<List<Map<String, dynamic>>>) setCachedItineraries;
-  final void Function(int index) onBottomTap;
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+/// The state associated with [HomeScreen].
+///
+/// Manages loading of itineraries, displaying welcome text,
+/// recent entries, and navigating to other sections.
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Map<String, dynamic>>> itineraries;
   int _selectedIndex = 1;
@@ -41,13 +60,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     if (widget.cachedItineraries != null) {
+      // Use cached itineraries if available.
       itineraries = widget.cachedItineraries!;
     } else {
+      // Otherwise, load new itineraries and cache them.
       itineraries = _loadItineraries();
       widget.setCachedItineraries(itineraries);
     }
   }
 
+  /// Loads itineraries from diary entries using [GoogleService].
+  ///
+  /// If no entries are found, it throws an exception.
   Future<List<Map<String, dynamic>>> _loadItineraries() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
@@ -55,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return await GoogleService.generateItinerariesFromEntries(entries);
   }
 
+  /// Refreshes itineraries and updates the state and parent cache.
   void refreshItineraries() {
     final newItineraries = _loadItineraries();
     setState(() {
@@ -86,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  // Welcome text section
                   Center(
                     child: Column(
                       children: [
@@ -118,6 +144,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   const SizedBox(height: 10),
+
+                  /// Shows the five most recent diary entries.
                   FutureBuilder<List<DiaryCard>>(
                     future: DiaryService.instance.getDiaryCards(
                       limit: 5,
@@ -142,7 +170,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
+
                   const SizedBox(height: 15),
+
+                  /// Handles itinerary suggestions display and states
                   if (snapshot.connectionState == ConnectionState.waiting)
                     const CircularProgressIndicator()
                   else if (snapshot.hasError)
@@ -194,21 +225,13 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ),
+
+      /// Bottom navigation bar for the main app sections.
       bottomNavigationBar: ItinereoBottomBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
-          switch (index) {
-            case 0:
-              widget.onBottomTap(0);
-              break;
-            case 1:
-              widget.onBottomTap(1);
-              break;
-            case 2:
-              widget.onBottomTap(2);
-              break;
-          }
+          widget.onBottomTap(index);
         },
       ),
     );

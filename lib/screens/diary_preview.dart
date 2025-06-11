@@ -9,11 +9,27 @@ import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 import 'package:itinereo/widgets/travel_card.dart';
 
+/// A screen that previews the user's diary entries in a scrollable list.
+///
+/// This screen displays [DiaryCard]s fetched from Firebase (or a local fallback).
+/// Users can:
+/// - Tap on a diary card to view the full entry via [onViewPage].
+/// - Swipe to delete an entry with confirmation.
+/// - Load more entries with pagination using Firestore's query cursor.
+///
+/// It also shows a custom [ItinereoAppBar] and a persistent [ItinereoBottomBar].
+/// If no entries are available, a placeholder message is shown.
 class DiaryPreview extends StatefulWidget {
+  /// Callback triggered when a diary entry is selected.
   final void Function(String entryId) onViewPage;
+
+  /// Optional callback for the back button in the app bar.
   final VoidCallback? onBack;
+
+  /// Callback to handle bottom navigation interactions.
   final void Function(int)? onBottomTap;
 
+  /// Constructs the [DiaryPreview] screen.
   const DiaryPreview({
     super.key,
     required this.onViewPage,
@@ -25,10 +41,15 @@ class DiaryPreview extends StatefulWidget {
   State<DiaryPreview> createState() => _DiaryPreviewState();
 }
 
+/// State class that handles loading diary entries with pagination,
+/// deletion with confirmation, and rendering the UI.
 class _DiaryPreviewState extends State<DiaryPreview> {
   List<DiaryCard> _diaryCards = [];
   bool _isLoading = false;
   bool _hasMore = true;
+
+  /// Reference to the last document fetched from Firestore,
+  /// used for pagination (cursor-based).
   QueryDocumentSnapshot<Map<String, dynamic>>? _lastFetchedDocument = null;
 
   @override
@@ -37,6 +58,11 @@ class _DiaryPreviewState extends State<DiaryPreview> {
     _loadMoreCardsFromFirebase();
   }
 
+  /// Loads additional diary entries from Firebase using pagination.
+  ///
+  /// Fetches a limited number of entries from Firestore,
+  /// starting after the last fetched document (if any).
+  /// Updates [_diaryCards], [_lastFetchedDocument], and [_hasMore].
   Future<void> _loadMoreCardsFromFirebase() async {
     if (_isLoading || !_hasMore) return;
     setState(() => _isLoading = true);
@@ -63,6 +89,9 @@ class _DiaryPreviewState extends State<DiaryPreview> {
     setState(() => _isLoading = false);
   }
 
+  /// Builds a 'Load More' button used to trigger pagination manually.
+  ///
+  /// Appears at the bottom of the list when more entries are available.
   Widget _buildLoadMoreButton() {
     return TextButton(
       onPressed: _loadMoreCardsFromFirebase,
@@ -80,6 +109,7 @@ class _DiaryPreviewState extends State<DiaryPreview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Custom top app bar with title and optional back button
       appBar: ItinereoAppBar(
         title: "Diary",
         textColor: const Color(0xFFF6E1C4),
@@ -87,11 +117,14 @@ class _DiaryPreviewState extends State<DiaryPreview> {
         topBarColor: const Color(0xFFD28F3F),
         isBackButtonVisible: true,
         onBack: () {
-          setState(() {});
+          setState(() {}); // Refresh state
           if (widget.onBack != null) widget.onBack!();
         },
       ),
+
       backgroundColor: const Color(0xFFF6E1C4),
+
+      // Body: either shows a placeholder if empty or a scrollable list of diary cards
       body:
           _diaryCards.isEmpty && !_isLoading
               ? Center(
@@ -111,12 +144,15 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 itemCount:
                     _diaryCards.length +
-                    (_hasMore ? 1 : 0) +
-                    (_isLoading ? 1 : 0),
+                    (_hasMore ? 1 : 0) + // Reserve space for "Load More" button
+                    (_isLoading ? 1 : 0), // Reserve space for loading indicator
                 itemBuilder: (context, index) {
+                  // Load More button appears at the end of the list if more items are available
                   if (_hasMore && index == _diaryCards.length) {
                     return _buildLoadMoreButton();
                   }
+
+                  // Loading spinner while more entries are being fetched
                   if (_isLoading &&
                       index == _diaryCards.length + (_hasMore ? 1 : 0)) {
                     return const Center(
@@ -126,11 +162,14 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                       ),
                     );
                   }
+
                   final diaryCard = _diaryCards[index];
 
+                  // Each diary card is dismissible via swipe to delete
                   return Dismissible(
                     key: Key(diaryCard.id),
-                    direction: DismissDirection.endToStart,
+                    direction:
+                        DismissDirection.endToStart, // Swipe from right to left
                     background: Container(
                       alignment: Alignment.centerRight,
                       padding: const EdgeInsets.only(right: 20),
@@ -141,6 +180,7 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                         size: 80,
                       ),
                     ),
+                    // Confirm before deleting the diary entry
                     confirmDismiss: (direction) async {
                       return await showDialog<bool>(
                         context: context,
@@ -155,6 +195,7 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                             ),
                       );
                     },
+                    // Delete from database and update UI if confirmed
                     onDismissed: (direction) async {
                       await DiaryService.instance.deleteEntry(diaryCard.id);
                       setState(() {
@@ -165,6 +206,7 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                         'Diary entry deleted successfully.',
                       );
                     },
+                    // Visual diary card widget
                     child: TravelCard(
                       diaryCard: diaryCard,
                       onViewPage: () => widget.onViewPage(diaryCard.id),
@@ -172,8 +214,10 @@ class _DiaryPreviewState extends State<DiaryPreview> {
                   );
                 },
               ),
+
+      // Bottom navigation bar for switching between app sections
       bottomNavigationBar: ItinereoBottomBar(
-        currentIndex: 2,
+        currentIndex: 2, // Highlights the Diary tab
         onTap: widget.onBottomTap,
       ),
     );

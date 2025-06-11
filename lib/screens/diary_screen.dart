@@ -4,12 +4,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itinereo/widgets/bookmark_button.dart';
 import 'package:itinereo/widgets/polaroid_photo.dart';
 
+/// A welcome screen for the diary section of the app.
+///
+/// This screen serves as a landing page for users who want to interact with
+/// their travel journal. It provides a themed background, playful visual elements,
+/// and buttons to navigate to the diary preview, map view, home screen,
+/// or to add a new diary entry.
 class DiaryScreen extends StatelessWidget {
+  /// Callback that navigates to the diary preview screen.
   final Function() switchToPreview;
+
+  /// Callback that navigates to the screen for adding a new diary entry.
   final Function() switchToAddDiaryPage;
+
+  /// Callback that navigates to the map view screen.
   final Function() switchToMapPage;
+
+  /// Callback that navigates back to the home screen.
   final Function() switchToHome;
 
+  /// Creates a [DiaryScreen] with navigation callbacks.
+  ///
+  /// The [switchToPreview], [switchToAddDiaryPage], [switchToMapPage], and
+  /// [switchToHome] parameters are required and define the behavior of the
+  /// corresponding action buttons and icons.
   const DiaryScreen({
     super.key,
     required this.switchToPreview,
@@ -17,7 +35,6 @@ class DiaryScreen extends StatelessWidget {
     required this.switchToMapPage,
     required this.switchToHome,
   });
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -82,7 +99,12 @@ class DiaryScreen extends StatelessWidget {
                         icon: Icons.home,
                         label: "Home",
                         textAndIconColor: Colors.white,
-                        backgroundColor: const Color.fromARGB(255, 227, 105, 96),
+                        backgroundColor: const Color.fromARGB(
+                          255,
+                          227,
+                          105,
+                          96,
+                        ),
                       ),
                     ],
                   ),
