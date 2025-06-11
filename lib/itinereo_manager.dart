@@ -246,7 +246,6 @@ class _ItinereoState extends State<ItinereoManager>
         switchToCustomMap(markers: markers, title: title, polyline: polyline);
       },
       switchToDetailPage: switchToDetailPage,
-      hasStoragePermission: _hasStoragePermission,
       onBottomTap: handleBottomNavTap,
     );
 
@@ -265,7 +264,6 @@ class _ItinereoState extends State<ItinereoManager>
           onViewPage: switchToDetailPage,
           onBack: switchToDiary,
           onBottomTap: handleBottomNavTap,
-          permission: _hasStoragePermission,
         );
         break;
 
