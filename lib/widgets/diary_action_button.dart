@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+/// A customizable button used for diary-related actions.
+///
+/// Displays an icon and a label side by side, with full control
+/// over colors, border styling, and padding. Useful for
+/// a consistent look across the UI.
+/// ```
 class DiaryActionButton extends StatelessWidget {
+  /// Callback executed when the button is tapped.
   final VoidCallback onPressed;
+
+  /// Icon displayed at the start of the button.
   final IconData icon;
+
+  /// Text label displayed next to the icon.
   final String label;
+
+  /// Background color of the button.
   final Color backgroundColor;
+
+  /// Color of the icon.
   final Color iconColor;
+
+  /// Color of the text label.
   final Color textColor;
+
+  /// Color of the button border.
   final Color borderColor;
 
+  /// Creates a [DiaryActionButton] with the specified properties.
   const DiaryActionButton({
     super.key,
     required this.onPressed,
@@ -31,10 +51,8 @@ class DiaryActionButton extends StatelessWidget {
         style: GoogleFonts.playpenSans(
           textStyle: TextStyle(
             fontSize: 17,
-            //height: 28 / 16, 
-            //letterSpacing: -0.04 * 16, 
             color: textColor,
-            fontWeight: FontWeight.w500, 
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
