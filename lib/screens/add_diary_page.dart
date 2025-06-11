@@ -144,7 +144,9 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
         FirebaseAuth.instance.currentUser!.uid,
         widget.locationController.text,
       );
-      if (context.mounted) Navigator.pop(context);
+      if (context.mounted) {
+        widget.onSave?.call();
+      }
     } catch (e) {
       setState(() => _isSubmitting = false);
       ItinereoSnackBar.show(context, "Error saving entry: ${e.toString()}");
@@ -407,8 +409,6 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                                       );
                                     } else {
                                       _submit();
-                                      if (widget.onSave != null)
-                                        widget.onSave!();
                                     }
                                   },
                                   style: ElevatedButton.styleFrom(
