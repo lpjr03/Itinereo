@@ -19,26 +19,22 @@ import 'package:itinereo/widgets/snackbar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-/// A widget that manages the navigation between different screens
-/// of the Itinereo application using state lifting.
+/// The main app controller and router after login.
 ///
-/// This widget:
-/// - Starts with the [HomeScreen] by default.
-/// - Switches to [DiaryScreen] when `switchToDiary()` is called.
-/// - Switches to [DiaryPreview] when `switchToEntriesPreview()` is called.
-/// - Switches to [AddDiaryEntryPage] when `switchToAddDiaryPage()` is called.
-/// - Switches to [CameraScreen] when `switchToCameraScreen()` is called.
-/// - Switches to [DiaryEntryDetailPage] when `switchToDetailPage()` is called.
-/// - Switches to [DiaryMapPage] when `switchToMapPage()` is called.
+/// This widget uses lifted state to manage navigation between the main
+/// features of the Itinereo app, such as:
+/// - Home
+/// - Diary
+/// - Camera
+/// - Add Entry
+/// - Preview entries
+/// - Maps (standard and custom)
+/// - Explore
 ///
-/// The navigation state is lifted up to this parent widget,
-/// which controls which screen is currently shown.
-///
-/// Example usage:
-/// ```dart
-/// ItinereoManager()
-/// ```
+/// It also handles app lifecycle observation, cached itineraries, and
+/// permission checking.
 class ItinereoManager extends StatefulWidget {
+  /// Creates the [ItinereoManager].
   const ItinereoManager({super.key});
 
   @override
@@ -47,24 +43,25 @@ class ItinereoManager extends StatefulWidget {
 
 class _ItinereoState extends State<ItinereoManager>
     with WidgetsBindingObserver {
-  /// Stores the identifier of the currently active screen.
+  /// Identifier for the current active screen.
   String activeScreen = 'home-screen';
 
-  /// A list of photo URLs that are pending to be saved in the diary entry.
+  /// URLs of photos selected for a new diary entry (unsaved).
   List<String> _pendingPhotoUrls = [];
 
-  /// The identifier of the diary entry currently selected for detail view.
+  /// ID of the diary entry selected for detail view.
   String? _selectedEntryId;
 
-  // Cached itineraries generated once the app starts.
+  /// Cached itineraries shown in the HomeScreen.
   Future<List<Map<String, dynamic>>>? _cachedItineraries;
 
+  /// True if the app has photo storage permission.
   bool _hasStoragePermission = false;
 
+  /// Last known number of diary entries (for cache invalidation).
   int _lastEntryCount = -1;
 
-  Future<List<DiaryCard>> _latestDiaryCards = Future.value([]);
-
+  // Form controllers for AddDiaryEntryPage.
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
@@ -91,6 +88,7 @@ class _ItinereoState extends State<ItinereoManager>
     }
   }
 
+  /// Checks the current permission to access device photos.
   Future<void> _checkStoragePermission() async {
     final status = await Permission.photos.status;
     setState(() {
@@ -98,6 +96,7 @@ class _ItinereoState extends State<ItinereoManager>
     });
   }
 
+  /// Clears the form fields for a new diary entry.
   void _clearFormFields() {
     _titleController.clear();
     _descriptionController.clear();
@@ -106,18 +105,18 @@ class _ItinereoState extends State<ItinereoManager>
     _isAiGenerated = false;
   }
 
-  /// Handles taps on the bottom navigation bar.
+  /// Handles taps on the bottom navigation bar and routes accordingly.
   void handleBottomNavTap(int index) {
     if (index == 0) {
       switchToExplore();
     } else if (index == 1) {
       switchToHome();
     } else if (index == 2) {
-      switchToEntriesPreview();
+      switchToDiary();
     }
   }
 
-  /// Switches the active screen to the home screen.
+  /// Switches to the home screen and refreshes itineraries if needed.
   void switchToHome() async {
     final userId = FirebaseAuth.instance.currentUser!.uid;
     final entries = await LocalDiaryDatabase().getAllEntries(userId: userId);
@@ -140,30 +139,30 @@ class _ItinereoState extends State<ItinereoManager>
     setState(() => activeScreen = 'home-screen');
   }
 
-  /// Switches the active screen to the diary screen.
+  /// Switches to the diary screen.
   void switchToDiary() => setState(() => activeScreen = 'diary-screen');
 
-  /// Switches the active screen to the diary entries preview screen.
+  /// Switches to the diary entries preview screen.
   void switchToEntriesPreview() =>
       setState(() => activeScreen = 'preview-screen');
 
-  /// Switches the active screen to the add diary page screen.
+  /// Switches to the add diary entry screen.
   void switchToAddDiaryPage() =>
       setState(() => activeScreen = 'add-diary-page-screen');
 
-  /// Switches the active screen to the explore screen.
+  /// Switches to the explore screen.
   void switchToExplore() => setState(() => activeScreen = 'explore-screen');
 
-  /// Switches the active screen to the camera screen.
+  /// Switches to the camera screen.
   void switchToCameraScreen() => setState(() => activeScreen = 'camera-screen');
 
-  /// Switches the active screen to the detail page of a diary entry.
+  /// Switches to the diary entry detail screen.
   void switchToDetailPage(String entryId) => setState(() {
     _selectedEntryId = entryId;
     activeScreen = 'detail-page';
   });
 
-  /// Switches the active screen to the map page screen.
+  /// Switches to the diary map screen (entries with coordinates).
   void switchToMapPage() async {
     final hasConnection = await hasInternetAccess();
 
@@ -201,17 +200,19 @@ class _ItinereoState extends State<ItinereoManager>
     setState(() => activeScreen = 'map-page-screen');
   }
 
-  /// Method to update the cached itineraries.
+  /// Updates the cached itineraries in memory.
   void updateCachedItineraries(
     Future<List<Map<String, dynamic>>> itinerariesFuture,
   ) {
     _cachedItineraries = itinerariesFuture;
   }
 
+  // State for custom map screen.
   List<Marker> _customMapMarkers = [];
   String _customMapTitle = '';
   bool _showPolyline = false;
 
+  /// Switches to a custom map screen with given markers and title.
   void switchToCustomMap({
     required List<Marker> markers,
     required String title,
@@ -225,22 +226,20 @@ class _ItinereoState extends State<ItinereoManager>
     });
   }
 
+  /// Retrieves the latest diary cards from the local database.
   Future<List<DiaryCard>> _refreshDiaryCards() {
     final future = LocalDiaryDatabase().getDiaryCardsFromLocalDb(
       userId: FirebaseAuth.instance.currentUser!.uid,
       limit: 10,
       offset: 0,
     );
-
-    _latestDiaryCards = future;
     return future;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Selects the widget to display based on the active screen.
+    /// Selects the screen to display based on `activeScreen`.
     Widget screenWidget = HomeScreen(
-      switchScreen: switchToDiary,
       cachedItineraries: _cachedItineraries,
       setCachedItineraries: updateCachedItineraries,
       switchToCustomMap: (markers, title, {polyline = false}) {
@@ -251,84 +250,96 @@ class _ItinereoState extends State<ItinereoManager>
       onBottomTap: handleBottomNavTap,
     );
 
-    if (activeScreen == 'diary-screen') {
-      screenWidget = DiaryScreen(
-        switchToPreview: switchToEntriesPreview,
-        switchToAddDiaryPage: switchToAddDiaryPage,
-        switchToMapPage: switchToMapPage,
-        switchToHome: switchToHome,
-      );
-    } else if (activeScreen == 'preview-screen') {
-      screenWidget = DiaryPreview(
-        onViewPage: switchToDetailPage,
-        onBack: switchToDiary,
-        onBottomTap: handleBottomNavTap,
-        permission: _hasStoragePermission,
-      );
-    } else if (activeScreen == 'add-diary-page-screen') {
-      screenWidget = AddDiaryEntryPage(
-        onSave: () {
-          _pendingPhotoUrls.clear();
-          setState(() {
-            switchToEntriesPreview();
-          });
-          _clearFormFields();
-        },
-        switchToCameraScreen: switchToCameraScreen,
-        switchToDiaryScreen: () {
-          _pendingPhotoUrls.clear();
-          switchToDiary();
-        },
-        initialPhotoUrls: _pendingPhotoUrls,
-        deletePhoto: (photoUrl) {
-          setState(() {
-            _pendingPhotoUrls.remove(photoUrl);
-            activeScreen = 'add-diary-page-screen';
-          });
-        },
-        titleController: _titleController,
-        descriptionController: _descriptionController,
-        locationController: _locationController,
-        dateController: _dateController,
-        isAiGenerated: _isAiGenerated,
-        onAiGeneratedChanged: (value) {
-          setState(() => _isAiGenerated = value);
-        },
-      );
-    } else if (activeScreen == 'camera-screen') {
-      screenWidget = CameraScreen(
-        onBack: switchToAddDiaryPage,
-        onPhotoCaptured: (photoUrl) {
-          setState(() {
-            _pendingPhotoUrls.add(photoUrl);
-            activeScreen = 'add-diary-page-screen';
-          });
-        },
-        saveToGallery: false,
-      );
-    } else if (activeScreen == 'detail-page') {
-      screenWidget = DiaryEntryDetailPage(
-        entryId: _selectedEntryId!,
-        onBack: switchToEntriesPreview,
-      );
-    } else if (activeScreen == 'map-page-screen') {
-      screenWidget = DiaryMapPage(
-        onBack: switchToDiary,
-        onEntrySelected: switchToDetailPage,
-      );
-    } else if (activeScreen == 'custom-map-screen') {
-      screenWidget = CustomMapPage(
-        title: _customMapTitle,
-        markers: _customMapMarkers,
-        showPolyline: _showPolyline,
-        onBack: switchToHome,
-      );
-    } else if (activeScreen == 'explore-screen') {
-      screenWidget = ExploreScreen(
-        switchScreen: switchToHome,
-        switchToDiary: switchToDiary,
-        onBottomTap: handleBottomNavTap,
-      );
+    switch (activeScreen) {
+      case 'diary-screen':
+        screenWidget = DiaryScreen(
+          switchToPreview: switchToEntriesPreview,
+          switchToAddDiaryPage: switchToAddDiaryPage,
+          switchToMapPage: switchToMapPage,
+          switchToHome: switchToHome,
+        );
+        break;
+
+      case 'preview-screen':
+        screenWidget = DiaryPreview(
+          onViewPage: switchToDetailPage,
+          onBack: switchToDiary,
+          onBottomTap: handleBottomNavTap,
+          permission: _hasStoragePermission,
+        );
+        break;
+
+      case 'add-diary-page-screen':
+        screenWidget = AddDiaryEntryPage(
+          onSave: () {
+            _pendingPhotoUrls.clear();
+            setState(() {
+              switchToEntriesPreview();
+            });
+            _clearFormFields();
+          },
+          switchToCameraScreen: switchToCameraScreen,
+          switchToDiaryScreen: () {
+            _pendingPhotoUrls.clear();
+            switchToDiary();
+          },
+          initialPhotoUrls: _pendingPhotoUrls,
+          deletePhoto: (photoUrl) {
+            setState(() {
+              _pendingPhotoUrls.remove(photoUrl);
+              activeScreen = 'add-diary-page-screen';
+            });
+          },
+          titleController: _titleController,
+          descriptionController: _descriptionController,
+          locationController: _locationController,
+          dateController: _dateController,
+          isAiGenerated: _isAiGenerated,
+          onAiGeneratedChanged: (value) {
+            setState(() => _isAiGenerated = value);
+          },
+        );
+        break;
+
+      case 'camera-screen':
+        screenWidget = CameraScreen(
+          onBack: switchToAddDiaryPage,
+          onPhotoCaptured: (photoUrl) {
+            setState(() {
+              _pendingPhotoUrls.add(photoUrl);
+              activeScreen = 'add-diary-page-screen';
+            });
+          },
+          saveToGallery: false,
+        );
+        break;
+
+      case 'detail-page':
+        screenWidget = DiaryEntryDetailPage(
+          entryId: _selectedEntryId!,
+          onBack: switchToEntriesPreview,
+        );
+        break;
+
+      case 'map-page-screen':
+        screenWidget = DiaryMapPage(
+          onBack: switchToDiary,
+          onEntrySelected: switchToDetailPage,
+        );
+        break;
+
+      case 'custom-map-screen':
+        screenWidget = CustomMapPage(
+          title: _customMapTitle,
+          markers: _customMapMarkers,
+          showPolyline: _showPolyline,
+          onBack: switchToHome,
+        );
+        break;
+
+      case 'explore-screen':
+        screenWidget = ExploreScreen(onBottomTap: handleBottomNavTap);
+        break;
     }
 
     return MaterialApp(
@@ -352,12 +363,10 @@ class _ItinereoState extends State<ItinereoManager>
     );
   }
 
+  /// Checks whether the device has an active internet connection.
   Future<bool> hasInternetAccess() async {
     final connectivityResult = await Connectivity().checkConnectivity();
-
-    if (connectivityResult == ConnectivityResult.none) {
-      return false;
-    }
+    if (connectivityResult == ConnectivityResult.none) return false;
 
     try {
       final result = await http

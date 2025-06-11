@@ -5,24 +5,39 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../models/diary_entry.dart';
 
+/// A local SQLite-backed database for storing [DiaryEntry] and [DiaryCard] data.
+///
+/// This database supports:
+/// - Offline persistence of diary entries.
+/// - Automatic cleanup of oldest entries beyond a configurable [maxEntries].
+/// - Conversion from Firestore-like models to local-friendly formats.
+/// - Lazy location resolution via [GeolocatorService].
 class LocalDiaryDatabase {
   static Database? _database;
   final GeolocatorService _geolocatorService = GeolocatorService();
+
+  /// Maximum number of entries to store per user.
   final int maxEntries;
 
+  /// Creates a [LocalDiaryDatabase] instance.
+  ///
+  /// Defaults to keeping at most [maxEntries] entries per user.
   LocalDiaryDatabase({this.maxEntries = 10});
 
+  /// Returns the active [Database] instance, initializing it if needed.
   Future<Database> get database async {
     return _database ??= await _initDatabase();
   }
 
+  /// Initializes the SQLite database and creates the `diary_entries` table.
   Future<Database> _initDatabase() async {
     final path = join(await getDatabasesPath(), 'diary.db');
     return openDatabase(
       path,
       version: 1,
       onCreate: (db, version) {
-        return db.execute('''CREATE TABLE diary_entries (
+        return db.execute('''
+          CREATE TABLE diary_entries (
             id TEXT PRIMARY KEY,
             userId TEXT, 
             title TEXT,
@@ -32,11 +47,17 @@ class LocalDiaryDatabase {
             longitude REAL,
             location TEXT,
             photoUrls TEXT
-          )''');
+          )
+        ''');
       },
     );
   }
 
+  /// Inserts a [DiaryEntry] into the local database for a specific user.
+  ///
+  /// If [optionalLocation] is provided, it overrides the reverse geolocation lookup.
+  /// Otherwise, a location is derived using [_geolocatorService].
+  /// Automatically removes the oldest entries if the user exceeds [maxEntries].
   Future<void> insertEntry(
     DiaryEntry entry,
     String userId,
@@ -93,13 +114,20 @@ class LocalDiaryDatabase {
 
       await db.delete(
         'diary_entries',
-        where:
-            'id IN (SELECT id FROM diary_entries WHERE userId = ? ORDER BY date ASC LIMIT ?)',
+        where: '''
+          id IN (
+            SELECT id FROM diary_entries
+            WHERE userId = ?
+            ORDER BY date ASC
+            LIMIT ?
+          )
+        ''',
         whereArgs: [userId, excess],
       );
     }
   }
 
+  /// Retrieves all [DiaryEntry]s for a given user, ordered by most recent date.
   Future<List<DiaryEntry>> getAllEntries({required String userId}) async {
     final db = await database;
 
@@ -121,6 +149,9 @@ class LocalDiaryDatabase {
     }).toList();
   }
 
+  /// Retrieves a paginated list of [DiaryCard]s for preview display.
+  ///
+  /// Each card includes id, title, date, location, and the first image (if any).
   Future<List<DiaryCard>> getDiaryCardsFromLocalDb({
     required String userId,
     required int limit,
@@ -156,6 +187,7 @@ class LocalDiaryDatabase {
     }).toList();
   }
 
+  /// Returns a specific [DiaryEntry] by its [id], or null if not found.
   Future<DiaryEntry?> getEntryById(String id) async {
     final db = await database;
 
@@ -172,6 +204,7 @@ class LocalDiaryDatabase {
     }
   }
 
+  /// Deletes a diary entry by its [id].
   Future<void> deleteEntry(String id) async {
     final db = await database;
     await db.delete('diary_entries', where: 'id = ?', whereArgs: [id]);

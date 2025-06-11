@@ -6,6 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:itinereo/login_manager/log_in_checker.dart';
 
+/// Entry point of the Itinereo app.
+///
+/// Initializes:
+/// - Environment variables using `.env`
+/// - Firebase and Firebase App Check
+/// - Firestore settings (with persistence disabled)
+/// - System UI mode (only top status bar visible)
+///
+/// Then runs the [LogInChecker] widget, which determines whether to
+/// display the main app or the authentication flow.
 void main() async {
   await dotenv.load(fileName: ".env");
 
