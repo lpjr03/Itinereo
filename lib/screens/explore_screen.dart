@@ -8,18 +8,28 @@ import 'package:itinereo/widgets/itinereo_appBar.dart';
 import 'package:itinereo/widgets/itinereo_bottomBar.dart';
 import 'package:itinereo/widgets/snackbar.dart';
 
+/// A screen that lets users explore nearby attractions by category,
+/// such as museums, libraries, or parks.
+///
+/// It uses geolocation to suggest nearby places with themed buttons.
+/// When a category is tapped, it fetches nearby locations using the
+/// Google Places API and displays them on a custom map.
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key, required this.onBottomTap});
-
+  /// Callback to handle bottom navigation bar taps.
   final void Function(int index) onBottomTap;
+
+  const ExploreScreen({super.key, required this.onBottomTap});
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
 class _ExploreScreenState extends State<ExploreScreen> {
+  /// Index of the selected bottom bar item.
   int _selectedIndex = 0;
 
+  /// List of categories shown to the user.
+  /// Each tuple contains a label and an icon.
   final List<(String, IconData)> options = const [
     ('Museum', Icons.account_balance),
     ('Art Gallery', Icons.draw),
@@ -28,6 +38,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     ('Park', Icons.park),
   ];
 
+  /// Mapping from user-facing labels to Google Places API types.
   final Map<String, String> typeMapping = const {
     'Museum': 'museum',
     'Art Gallery': 'art_gallery',
@@ -39,6 +50,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Custom app bar with themed colors and fonts
       appBar: ItinereoAppBar(
         title: 'Explore',
         textColor: const Color(0xFFFEEEC9),
@@ -46,6 +58,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
         topBarColor: const Color(0xFFC97F4F),
       ),
       backgroundColor: const Color(0xFFF6E1C4),
+
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -54,6 +67,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
               children: [
+                // Section header
                 Text(
                   'Be Curious!',
                   textAlign: TextAlign.center,
@@ -65,7 +79,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 8),
+
+                // Subtitle
                 Text(
                   'Explore New Horizons!',
                   textAlign: TextAlign.center,
@@ -78,7 +95,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 30),
+
+                // Introductory question
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -92,8 +112,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
 
+                // List of interactive category buttons
                 ...options.map((entry) {
                   final (label, icon) = entry;
                   final tileWidth =
@@ -114,8 +136,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         width: tileWidth,
                         onPressed: () async {
                           try {
+                            // Get user's current position
                             final position =
                                 await GeolocatorService().getCurrentLocation();
+
+                            // Fetch nearby places for the selected type
                             final mapPage = await GeolocatorService()
                                 .getNearbyPlacesMap(
                                   position: position,
@@ -123,6 +148,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                   title: label,
                                   onBack: () => Navigator.pop(context),
                                 );
+
+                            // Navigate to the map screen
                             if (mounted) {
                               Navigator.push(
                                 context,
@@ -175,6 +202,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ),
       ),
+
+      // Custom bottom navigation bar
       bottomNavigationBar: ItinereoBottomBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
