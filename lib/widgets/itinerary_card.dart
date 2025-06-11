@@ -42,7 +42,7 @@ class ItineraryCard extends StatelessWidget {
       color: const Color.fromARGB(255, 255, 244, 217),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.2),
+      shadowColor: Colors.black12,
       child: SizedBox(
         width: 200,
         child: Padding(
