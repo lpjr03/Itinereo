@@ -1,32 +1,52 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:itinereo/widgets/safe_local_image.dart';
 
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:itinereo/widgets/safe_local_image.dart';
+
+/// A styled photo container inspired by polaroid photography,
+/// supporting local, network, and asset images.
+///
+/// This widget:
+/// - Displays the image inside a square frame
+/// - Optionally rotates the image with [angle]
+/// - Supports shadows, borders, and dynamic width
+/// - Automatically chooses how to render the image based on its path
 class PolaroidPhoto extends StatelessWidget {
-  final String? imagePath;
-  final Widget? content;
-  final Color backgroundColor;
-  final double angle;
-  final bool isAsset;
-  final double? width;
-  final Widget? trailingAction;
-  final bool showShadow;
-  final double borderWidth; 
+  /// Path to the image. Can be a local file path, asset name, or network URL.
+  final String imagePath;
 
+  /// Background color of the polaroid frame and the border.
+  final Color backgroundColor;
+
+  /// Rotation angle in radians (e.g., 0.1 for slight tilt).
+  final double angle;
+
+  /// Whether the image is an asset. Set to true for bundled assets.
+  final bool isAsset;
+
+  /// Optional width of the widget. Defaults to 35% of screen width.
+  final double? width;
+
+  /// Whether to show a soft drop shadow below the photo.
+  final bool showShadow;
+
+  /// Width of the border around the image.
+  final double borderWidth;
+
+  /// Creates a [PolaroidPhoto] widget with customizable presentation.
   const PolaroidPhoto({
     super.key,
-    this.imagePath,
-    this.content,
+    required this.imagePath,
     required this.backgroundColor,
     this.angle = 0,
     this.isAsset = false,
     this.width,
-    this.trailingAction,
     this.showShadow = true,
-    this.borderWidth = 10, 
-  }) : assert(
-         imagePath != null || content != null,
-         'You must provide an image or content',
-       );
+    this.borderWidth = 10,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -35,19 +55,18 @@ class PolaroidPhoto extends StatelessWidget {
 
     Widget mainContent;
 
-    if (content != null) {
-      mainContent = content!;
+    ///Determine image source
+    if (isAsset) {
+      mainContent = Image.asset(imagePath, fit: BoxFit.cover);
+    } else if (imagePath.startsWith('http')) {
+      mainContent = Image.network(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => const Icon(Icons.broken_image),
+      );
     } else {
-      ImageProvider imageProvider;
-      if (isAsset) {
-        imageProvider = AssetImage(imagePath!);
-      } else if (imagePath!.startsWith('http')) {
-        imageProvider = NetworkImage(imagePath!);
-      } else {
-        imageProvider = FileImage(File(imagePath!));
-      }
-
-      mainContent = Image(image: imageProvider, fit: BoxFit.cover);
+      mainContent = SafeLocalImage(path: imagePath, fit: BoxFit.cover);
     }
 
     return Transform.rotate(
@@ -60,10 +79,7 @@ class PolaroidPhoto extends StatelessWidget {
               showShadow
                   ? const [BoxShadow(color: Colors.black26, blurRadius: 8)]
                   : [],
-          border: Border.all(
-            color: backgroundColor,
-            width: borderWidth,
-          ), 
+          border: Border.all(color: backgroundColor, width: borderWidth),
         ),
         child: AspectRatio(aspectRatio: 1, child: mainContent),
       ),
