@@ -369,7 +369,7 @@ class _ItinereoState extends State<ItinereoManager>
     try {
       final result = await http
           .get(Uri.parse('https://www.google.com'))
-          .timeout(const Duration(seconds: 5));
+          .timeout(const Duration(seconds: 2));
       return result.statusCode == 200;
     } catch (_) {
       return false;
