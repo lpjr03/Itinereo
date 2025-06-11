@@ -44,9 +44,23 @@ dev_dependencies:
   test: ^1.25.15
   mockito: ^5.4.6
   build_runner: ^2.4.15
+  flutter_native_splash: ^2.4.6
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
     - .env
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/images/logo_splash.png
+  android: true
+  android_gravity: center
+  fullscreen: true
+
+  android_12:
+    color: "#FFFFFF"
+    image: assets/images/logo_splash.png
+    icon_background_color: "#FFFFFF"
+    android_gravity: center
