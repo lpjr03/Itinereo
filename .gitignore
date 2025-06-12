@@ -55,4 +55,4 @@ web/
 .env
 
 # Ignore screenshots of app directory
-# screenshots/
+screenshots/
