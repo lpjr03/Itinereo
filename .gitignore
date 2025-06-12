@@ -51,4 +51,8 @@ linux/
 windows/
 web/
 
+# Ignore .env
 .env
+
+# Ignore screenshots of app directory
+screenshots/
