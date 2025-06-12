@@ -19,6 +19,18 @@ class DateField extends StatefulWidget {
   @override
   State<DateField> createState() =>
       _DateFieldState(dateController: dateController);
+
+      
+  static DateTime parseDate(String input) {
+    final parts = input.split('/');
+    if (parts.length != 3) return DateTime.now(); // fallback
+
+    final int day = int.parse(parts[0]);
+    final int month = int.parse(parts[1]);
+    final int year = int.parse(parts[2]);
+
+    return DateTime(year, month, day);
+  }
 }
 
 class _DateFieldState extends State<DateField> {
@@ -99,3 +111,6 @@ class _DateFieldState extends State<DateField> {
     );
   }
 }
+
+  
+
