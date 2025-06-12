@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -30,6 +32,9 @@ class PhotoCarousel extends StatelessWidget {
   /// Maximum number of photos allowed before hiding the [actionCard].
   final int maxPhotos;
 
+  /// Callback function triggered when a photo is removed.
+  final void Function(String photoPath)? onRemovePhoto;
+
   /// Creates a [PhotoCarousel] with a list of photos and optional trailing action.
   const PhotoCarousel({
     super.key,
@@ -38,6 +43,7 @@ class PhotoCarousel extends StatelessWidget {
     this.caption,
     this.actionCard,
     this.maxPhotos = 5,
+    this.onRemovePhoto,
   });
 
   @override
@@ -64,11 +70,43 @@ class PhotoCarousel extends StatelessWidget {
               physics: const ClampingScrollPhysics(),
               itemBuilder: (context, index) {
                 if (index < photoUrls.length) {
-                  return PolaroidPhoto(
-                    backgroundColor: const Color(0xFFFFF9EA),
-                    imagePath: photoUrls[index],
-                    showShadow: false,
-                    borderWidth: 20,
+                  return Stack(
+                    children: [
+                      Positioned.fill(
+                        child: PolaroidPhoto(
+                          backgroundColor: const Color(0xFFFFF9EA),
+                          imagePath: photoUrls[index],
+                          showShadow: false,
+                          borderWidth: 20,
+                        ),
+                      ),
+                      if (onRemovePhoto != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                              size: 30,
+                            ),
+                            onPressed: () {
+                              onRemovePhoto!(photoUrls[index]);
+                            },
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            splashRadius: 20,
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                Colors.grey,
+                              ),
+                              shape: WidgetStateProperty.all(
+                                const CircleBorder(),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 } else {
                   return actionCard ?? const SizedBox.shrink();
