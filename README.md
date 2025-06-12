@@ -32,20 +32,28 @@ flutter run
 _Itinerèo was created to combine the joy of travel with the beauty of memory. Museums, artworks and landscapes are not just things to see — they are **experiences** to live and **remember**._
 
 
-## Screenshots
+## 📸 Screenshot
 
-![[screenshots/photo_5933539565178570655_y.jpg]]
+### 🏠 Home Page
+![Home Page](screenshots/Home_Page.jpg)
 
-![[screenshots/photo_5933539565178570654_y.jpg]]
+### 🧳 Itinerary Map
+![Itinerary Map](screenshots/Itinerary_Map.jpg)
 
-![[screenshots/photo_5933539565178570652_y.jpg]]
+### 📘 Diary Cover
+![Diary Cover](screenshots/Diary_Cover.jpg)
 
-![[screenshots/photo_5933539565178570646_y.jpg]]
+### ➕ Add Entry
+![Add Entry](screenshots/Add_Entry.jpg)
 
-![[screenshots/photo_5933539565178570649_y.jpg]]
+### 📝 Diary Preview
+![Diary Preview](screenshots/Diary_Preview.jpg)
 
-![[screenshots/photo_5933539565178570648_y.jpg]]
+### ✏️ Entry Page
+![Entry Page](screenshots/Entry_Page.jpg)
 
-![[screenshots/photo_5933539565178570651_y.jpg]]
+### 🗺️ Explore Page
+![Explore Page](screenshots/Explore_Page.jpg)
 
-![[screenshots/photo_5933539565178570653_y.jpg]]
+### 🌍 Explore Map
+![Explore Map](screenshots/Explore_Map.jpg)
