@@ -130,7 +130,7 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
       id: const Uuid().v4(),
       title: widget.titleController.text.trim(),
       description: widget.descriptionController.text.trim(),
-      date: DateTime.now(),
+      date: DateField.parseDate(widget.dateController.text),
       latitude: _latitude,
       longitude: _longitude,
       location: widget.locationController.text,
@@ -230,6 +230,10 @@ class _AddDiaryEntryPageState extends State<AddDiaryEntryPage> {
                               onPressed:
                                   () => widget.switchToCameraScreen?.call(),
                             ),
+                            onRemovePhoto: (photoPath) {
+                              _photoUrls.remove(photoPath);
+                              widget.deletePhoto?.call(photoPath);
+                            },
                           ),
 
                           /// Row containing the date picker and the location button.
