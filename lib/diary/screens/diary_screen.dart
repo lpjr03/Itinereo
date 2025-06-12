@@ -56,7 +56,7 @@ class DiaryScreen extends StatelessWidget {
                 Container(
                   width: width,
                   height: height,
-                  color: const Color(0xFFBBBEBF), // Gray background
+                  color: const Color(0xFFBBBEBF), 
                 ),
                 Positioned(
                   right: 22,
@@ -154,9 +154,11 @@ class DiaryScreen extends StatelessWidget {
                         width: 8,
                       ),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
+                    child: SingleChildScrollView(
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.start,
+    mainAxisSize: MainAxisSize.max,
+
                       children: [
                         // Title Block
                         Container(
@@ -313,7 +315,7 @@ class DiaryScreen extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ),
+                    ),),
                   ),
                 ),
               ],
