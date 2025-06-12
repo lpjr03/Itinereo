@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Create .env file (if needed)
-        run: echo "API_KEY=FAKE_FOR_CI" > .env
+      - name: Create .env file with API_KEY from secrets
+        run: echo "API_KEY=${{ secrets.API_KEY }}" > .env
 
       - name: Build APK
         run: flutter build apk --release
